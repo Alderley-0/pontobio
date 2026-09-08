@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOME DO CRIADOR — links</title>
+<meta name="description" content="Todos os links de NOME: TikTok, Instagram, Discord e código de criador.">
+<meta name="theme-color" content="#0A0E24">
+
+<meta property="og:title" content="NOME DO CRIADOR — links">
+<meta property="og:description" content="TikTok, Discord e código de criador.">
+<meta property="og:type" content="profile">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --noite:#0A0E24;
+  --noite-2:#141B3D;
+  --borda:#26305C;
+  --azul:#2FA8FF;
+  --laranja:#FF7A2F;
+  --gelo:#E9EEFC;
+  --cinza:#8D98C2;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+body{
+  font-family:"Barlow",system-ui,sans-serif;
+  background:var(--noite);
+  background-image:
+    radial-gradient(120% 60% at 50% -10%, rgba(47,168,255,.18), transparent 60%),
+    radial-gradient(80% 50% at 90% 10%, rgba(255,122,47,.12), transparent 60%);
+  background-repeat:no-repeat;
+  color:var(--gelo);
+  min-height:100vh;
+  padding:2rem 1rem 3rem;
+  font-size:1rem;
+  -webkit-font-smoothing:antialiased;
+}
+.pagina{width:100%;max-width:27rem;margin:0 auto}
+h1,h2,.mono{font-family:"Chakra Petch",system-ui,sans-serif;letter-spacing:.01em}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--azul);outline-offset:3px;border-radius:4px}
+
+/* ---------- topo ---------- */
+.topo{text-align:center}
+.avatar{
+  width:6.5rem;height:6.5rem;margin:0 auto;border-radius:50%;
+  border:2px solid var(--azul);padding:3px;background:var(--noite-2);
+  display:grid;place-items:center;overflow:hidden;
+}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.avatar-vazio{font-family:"Chakra Petch",sans-serif;font-size:1.6rem;color:var(--cinza)}
+h1{font-size:2rem;margin-top:.9rem;font-weight:700}
+.arroba{color:var(--azul);font-weight:600;font-size:1rem;margin-top:.15rem}
+.bio{color:var(--cinza);margin-top:.6rem;font-size:1.02rem;line-height:1.45}
+
+/* ---------- placar ---------- */
+.placar{
+  margin-top:1.75rem;background:var(--noite-2);border:1px solid var(--borda);
+  border-radius:12px;padding:1rem 1.1rem;
+}
+.placar-titulo{font-family:"Chakra Petch",sans-serif;font-size:.82rem;color:var(--cinza);font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-top:.75rem;text-align:center}
+.stat-num{font-family:"Chakra Petch",sans-serif;font-size:1.5rem;font-weight:700;line-height:1}
+.stat-rot{font-size:.78rem;color:var(--cinza);margin-top:.25rem}
+.barra-rot{font-size:.78rem;color:var(--cinza);margin-top:.9rem;text-align:center}
+
+/* ---------- código ---------- */
+.codigo{
+  margin-top:1.25rem;position:relative;
+  background:linear-gradient(135deg,#2A1408,#3A1B09);
+  border:1px solid var(--laranja);
+  padding:1.15rem 1.15rem 1.25rem;
+  clip-path:polygon(0 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%);
+}
+.codigo-rot{font-family:"Chakra Petch",sans-serif;font-size:.8rem;color:var(--laranja);font-weight:600}
+.codigo-linha{display:flex;align-items:center;gap:.6rem;margin-top:.5rem}
+.codigo-valor{font-family:"Chakra Petch",sans-serif;font-size:1.75rem;font-weight:700;letter-spacing:.04em}
+.copiar{
+  margin-left:auto;font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.85rem;
+  background:var(--laranja);color:#1A0A02;border:none;border-radius:6px;
+  padding:.5rem .85rem;cursor:pointer;
+}
+.copiar:hover{background:#FF9354}
+.codigo-txt{font-size:.92rem;color:#E4C9B4;margin-top:.7rem;line-height:1.45}
+
+/* ---------- links ---------- */
+.links{margin-top:1.5rem;display:grid;gap:.6rem}
+.link{
+  display:flex;align-items:center;gap:.85rem;
+  background:var(--noite-2);border:1px solid var(--borda);border-left:3px solid var(--azul);
+  border-radius:10px;padding:.85rem 1rem;transition:transform .12s,border-color .12s;
+}
+.link:hover{transform:translateX(3px);border-color:var(--azul)}
+.link svg{width:1.35rem;height:1.35rem;flex:none;fill:var(--gelo)}
+.link-nome{font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:1.02rem}
+.link-sub{font-size:.82rem;color:var(--cinza);margin-top:.1rem}
+.link-tag{margin-left:auto;font-size:.75rem;color:var(--cinza)}
+
+/* ---------- marcas ---------- */
+.marcas{margin-top:1.75rem;border-top:1px solid var(--borda);padding-top:1.5rem}
+.marcas h2{font-size:1.15rem}
+.marcas p{color:var(--cinza);font-size:.95rem;margin-top:.4rem;line-height:1.5}
+.abrir{
+  width:100%;margin-top:.9rem;font-family:"Chakra Petch",sans-serif;font-weight:600;font-size:.95rem;
+  background:transparent;color:var(--gelo);border:1px solid var(--borda);border-radius:10px;
+  padding:.8rem;cursor:pointer;text-align:left;position:relative;
+}
+.abrir::after{content:"+";position:absolute;right:1rem;color:var(--azul);font-size:1.2rem;line-height:1}
+.abrir[aria-expanded="true"]::after{content:"–"}
+.kit{display:none;margin-top:.9rem}
+.kit.aberto{display:block}
+.kit-item{display:flex;justify-content:space-between;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--borda);font-size:.95rem}
+.kit-item span:last-child{color:var(--cinza);text-align:right}
+.contato{
+  display:block;margin-top:1rem;text-align:center;
+  font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:1rem;
+  background:var(--azul);color:#04122A;border-radius:10px;padding:.85rem;
+}
+.contato:hover{background:#5DBDFF}
+
+/* ---------- rodapé ---------- */
+.rodape{margin-top:2.25rem;text-align:center;font-size:.8rem;color:#5C6795}
+.rodape a{color:var(--cinza);border-bottom:1px solid var(--borda)}
+
+/* aviso de cópia */
+.aviso{
+  position:fixed;left:50%;bottom:1.25rem;transform:translateX(-50%) translateY(150%);
+  background:var(--gelo);color:var(--noite);font-family:"Chakra Petch",sans-serif;font-weight:600;
+  padding:.6rem 1.1rem;border-radius:99px;font-size:.9rem;transition:transform .2s;z-index:20;
+}
+.aviso.visivel{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<div class="pagina">
+
+  <header class="topo">
+    <div class="avatar">
+      <!-- TROCAR: <img src="foto.jpg" alt="forsaken"> -->
+      <span class="avatar-vazio">foto</span>
+    </div>
+    <h1>NOME</h1>
+    <p class="arroba">@usuario</p>
+    <p class="bio">Uma linha dizendo o que o canal entrega. Sem enrolação.</p>
+  </header>
+
+  <section class="placar">
+    <p class="placar-titulo">Alcance</p>
+    <div class="stats">
+      <div>
+        <div class="stat-num">00 mil</div>
+        <div class="stat-rot">TikTok</div>
+      </div>
+      <div>
+        <div class="stat-num">00 mil</div>
+        <div class="stat-rot">Instagram</div>
+      </div>
+      <div>
+        <div class="stat-num">00 mil</div>
+        <div class="stat-rot">Melhor vídeo</div>
+      </div>
+    </div>
+    <p class="barra-rot">Nicho do canal · público brasileiro</p>
+  </section>
+
+  <section class="codigo">
+    <p class="codigo-rot">Código de criador</p>
+    <div class="codigo-linha">
+      <span class="codigo-valor" id="codigo">CODIGO</span>
+      <button class="copiar" id="btn-copiar">Copiar</button>
+    </div>
+    <p class="codigo-txt">Explique em uma frase onde usar o código e que não custa nada a mais para quem usa.</p>
+  </section>
+
+  <nav class="links">
+    <a class="link" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.6 5.82A4.28 4.28 0 0 1 15.54 3h-3.09v12.4a2.59 2.59 0 1 1-1.83-2.48V9.77a5.95 5.95 0 1 0 4.92 5.85V9.01a7.35 7.35 0 0 0 4.3 1.38V7.3a4.29 4.29 0 0 1-3.24-1.48z"/></svg>
+      <div>
+        <div class="link-nome">TikTok</div>
+        <div class="link-sub">Onde os vídeos saem primeiro</div>
+      </div>
+      <span class="link-tag">00 mil</span>
+    </a>
+
+    <a class="link" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07s-3.58-.01-4.85-.07c-3.26-.15-4.77-1.7-4.92-4.92-.06-1.27-.07-1.64-.07-4.85s.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16zm0 5.68a4.16 4.16 0 1 0 0 8.32 4.16 4.16 0 0 0 0-8.32zm0 6.86a2.7 2.7 0 1 1 0-5.4 2.7 2.7 0 0 1 0 5.4zm4.33-7.03a.97.97 0 1 0 0-1.94.97.97 0 0 0 0 1.94z"/></svg>
+      <div>
+        <div class="link-nome">Instagram</div>
+        <div class="link-sub">Cortes e bastidores</div>
+      </div>
+      <span class="link-tag">00 mil</span>
+    </a>
+
+    <a class="link" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.3 5.34A16.7 16.7 0 0 0 15.15 4l-.2.4a15.4 15.4 0 0 1 3.68 1.2 13.2 13.2 0 0 0-12.9 0A15.5 15.5 0 0 1 9.4 4.4L9.2 4a16.7 16.7 0 0 0-4.15 1.34C2.4 9.3 1.68 13.15 2.04 16.95a16.8 16.8 0 0 0 5.1 2.6l.9-1.5a10.9 10.9 0 0 1-1.72-.83l.35-.27a11.9 11.9 0 0 0 10.66 0l.35.27c-.54.33-1.12.6-1.73.83l.9 1.5a16.7 16.7 0 0 0 5.1-2.6c.42-4.4-.72-8.22-2.65-11.61zM9.1 14.75c-1 0-1.83-.93-1.83-2.07 0-1.14.8-2.07 1.83-2.07s1.85.93 1.83 2.07c0 1.14-.81 2.07-1.83 2.07zm5.8 0c-1 0-1.83-.93-1.83-2.07 0-1.14.8-2.07 1.83-2.07s1.84.93 1.83 2.07c0 1.14-.8 2.07-1.83 2.07z"/></svg>
+      <div>
+        <div class="link-nome">Discord</div>
+        <div class="link-sub">Squad para jogar 2v2 e treinar</div>
+      </div>
+      <span class="link-tag">Entrar</span>
+    </a>
+
+    <a class="link" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm4.59 14.42a.62.62 0 0 1-.86.21c-2.35-1.44-5.3-1.76-8.79-.96a.62.62 0 1 1-.28-1.21c3.81-.87 7.08-.5 9.72 1.11.29.18.38.57.21.85zm1.22-2.72a.78.78 0 0 1-1.07.26c-2.69-1.65-6.79-2.13-9.97-1.17a.78.78 0 1 1-.45-1.49c3.63-1.1 8.15-.56 11.24 1.34.36.22.48.7.25 1.06zm.11-2.84c-3.23-1.92-8.55-2.1-11.63-1.16a.93.93 0 1 1-.54-1.79c3.54-1.07 9.42-.87 13.13 1.34a.94.94 0 0 1-.96 1.61z"/></svg>
+      <div>
+        <div class="link-nome">Playlist do Spotify</div>
+        <div class="link-sub">songs to play rocket league</div>
+      </div>
+      <span class="link-tag">Ouvir</span>
+    </a>
+
+    <a class="link" href="#" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M23 12s0-3.4-.43-5.03a2.6 2.6 0 0 0-1.84-1.85C19.1 4.7 12 4.7 12 4.7s-7.1 0-8.73.42A2.6 2.6 0 0 0 1.43 6.97C1 8.6 1 12 1 12s0 3.4.43 5.03c.24.9.94 1.6 1.84 1.85 1.63.42 8.73.42 8.73.42s7.1 0 8.73-.42a2.6 2.6 0 0 0 1.84-1.85C23 15.4 23 12 23 12zM9.75 15.27V8.73L15.5 12l-5.75 3.27z"/></svg>
+      <div>
+        <div class="link-nome">YouTube</div>
+        <div class="link-sub">Séries completas e lives salvas</div>
+      </div>
+      <span class="link-tag">Assistir</span>
+    </a>
+  </nav>
+
+  <section class="marcas">
+    <h2>Para marcas</h2>
+    <p>Liste aqui os tipos de marca que fazem sentido para este canal.</p>
+
+    <button class="abrir" id="btn-kit" aria-expanded="false">Ver kit de mídia</button>
+
+    <div class="kit" id="kit">
+      <div class="kit-item"><span>Vídeo dedicado</span><span>formato e duração</span></div>
+      <div class="kit-item"><span>Integração</span><span>formato e duração</span></div>
+      <div class="kit-item"><span>Série patrocinada</span><span>quantidade de episódios</span></div>
+      <div class="kit-item"><span>Média de views</span><span>a confirmar</span></div>
+      <div class="kit-item"><span>Público</span><span>a confirmar</span></div>
+      <div class="kit-item"><span>Prazo de entrega</span><span>a confirmar</span></div>
+      <a class="contato" href="mailto:EMAIL-DO-CRIADOR?subject=Proposta%20de%20parceria&body=Marca%3A%0AProduto%3A%0AFormato%20desejado%3A%0APrazo%3A%0AVerba%3A">Enviar proposta</a>
+    </div>
+  </section>
+
+  <p class="rodape">
+    NOME · nicho<br>
+    Página feita por <a href="#" target="_blank" rel="noopener">seu @ aqui</a>
+  </p>
+
+</div>
+
+<div class="aviso" id="aviso">Código copiado</div>
+
+<script>
+/* copiar código */
+document.getElementById("btn-copiar").addEventListener("click", function(){
+  var codigo = document.getElementById("codigo").textContent.trim();
+  var aviso = document.getElementById("aviso");
+
+  function mostrar(){
+    aviso.classList.add("visivel");
+    setTimeout(function(){ aviso.classList.remove("visivel"); }, 1800);
+  }
+
+  if(navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(codigo).then(mostrar);
+  } else {
+    var campo = document.createElement("textarea");
+    campo.value = codigo;
+    campo.style.position = "fixed";
+    campo.style.opacity = "0";
+    document.body.appendChild(campo);
+    campo.select();
+    document.execCommand("copy");
+    document.body.removeChild(campo);
+    mostrar();
+  }
+});
+
+/* kit de mídia */
+document.getElementById("btn-kit").addEventListener("click", function(){
+  var aberto = this.getAttribute("aria-expanded") === "true";
+  this.setAttribute("aria-expanded", String(!aberto));
+  this.textContent = aberto ? "Ver kit de mídia" : "Fechar kit de mídia";
+  document.getElementById("kit").classList.toggle("aberto", !aberto);
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pontobio — página de links para criador</title>
+<meta name="description" content="Página de links própria para criador de conteúdo, com kit de mídia e código de criador. Sem marca d'água, sem propaganda de terceiro.">
+<meta name="theme-color" content="#0A0E24">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--noite:#0A0E24;--noite-2:#141B3D;--borda:#26305C;--azul:#2FA8FF;--laranja:#FF7A2F;--gelo:#E9EEFC;--cinza:#8D98C2}
+*{box-sizing:border-box;margin:0;padding:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body{
+  font-family:"Barlow",system-ui,sans-serif;background:var(--noite);color:var(--gelo);
+  background-image:radial-gradient(120% 55% at 50% -10%,rgba(47,168,255,.16),transparent 60%);
+  background-repeat:no-repeat;min-height:100vh;padding:3rem 1.25rem 4rem;line-height:1.55;
+}
+.env{max-width:40rem;margin:0 auto}
+h1,h2,h3{font-family:"Chakra Petch",sans-serif;letter-spacing:.01em}
+h1{font-size:clamp(2rem,7vw,2.9rem);line-height:1.1}
+h1 em{font-style:normal;color:var(--azul)}
+.sub{color:var(--cinza);margin-top:1rem;font-size:1.08rem}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--azul);outline-offset:3px}
+
+.blocos{margin-top:2.5rem;display:grid;gap:.9rem}
+.item{background:var(--noite-2);border:1px solid var(--borda);border-left:3px solid var(--laranja);border-radius:10px;padding:1rem 1.15rem}
+.item h3{font-size:1.05rem}
+.item p{color:var(--cinza);font-size:.95rem;margin-top:.3rem}
+
+h2{margin-top:3rem;font-size:1.3rem}
+.exemplos{margin-top:1rem;display:grid;gap:.7rem}
+.exemplo{display:flex;align-items:center;gap:.8rem;border:1px solid var(--borda);border-radius:10px;padding:.9rem 1.1rem;background:var(--noite-2);transition:border-color .12s,transform .12s}
+.exemplo:hover{border-color:var(--azul);transform:translateX(3px)}
+.exemplo-nome{font-family:"Chakra Petch",sans-serif;font-weight:600}
+.exemplo-sub{font-size:.85rem;color:var(--cinza)}
+.seta{margin-left:auto;color:var(--azul);font-family:"Chakra Petch",sans-serif}
+
+.cta{display:block;margin-top:2.5rem;text-align:center;background:var(--azul);color:#04122A;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:1.05rem;border-radius:10px;padding:.95rem}
+.cta:hover{background:#5DBDFF}
+.rodape{margin-top:2.5rem;text-align:center;font-size:.82rem;color:#5C6795}
+</style>
+</head>
+<body>
+<div class="env">
+
+  <h1>Sua página de links, <em>sem propaganda dos outros</em>.</h1>
+  <p class="sub">Linktree e Beacons colocam a marca deles na sua página e escondem seus números. Aqui a página é sua, carrega em menos de um segundo e serve para fechar patrocínio.</p>
+
+  <div class="blocos">
+    <div class="item">
+      <h3>Código de criador em destaque</h3>
+      <p>Com botão de copiar e a explicação de por que usar. Código escondido na bio não converte.</p>
+    </div>
+    <div class="item">
+      <h3>Kit de mídia embutido</h3>
+      <p>Alcance, formatos e prazos numa aba só. A marca manda proposta pelo botão, com os campos já prontos.</p>
+    </div>
+    <div class="item">
+      <h3>Todos os canais no lugar certo</h3>
+      <p>TikTok, Instagram, Discord, playlist e YouTube, cada um com o número de seguidores do lado.</p>
+    </div>
+    <div class="item">
+      <h3>Domínio e dados seus</h3>
+      <p>Endereço próprio e painel de cliques hospedado por mim. Nada preso em plataforma de terceiro.</p>
+    </div>
+  </div>
+
+  <h2>Exemplos</h2>
+  <div class="exemplos">
+    <a class="exemplo" href="./forsaken/">
+      <div>
+        <div class="exemplo-nome">forsaken</div>
+        <div class="exemplo-sub">Rocket League · 21 mil no TikTok</div>
+      </div>
+      <span class="seta">ver</span>
+    </a>
+  </div>
+
+  <!-- TROCAR pelo seu contato -->
+  <a class="cta" href="https://wa.me/5500000000000?text=Quero%20uma%20p%C3%A1gina%20de%20links">Quero a minha</a>
+
+  <p class="rodape">pontobio · páginas de links para criador</p>
+
+</div>
+</body>
+</html>
