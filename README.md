@@ -8,6 +8,7 @@ Páginas de links para criador de conteúdo. Um repositório, um domínio, uma p
 /                 landing do serviço (pontobio.com)
 /forsaken/        página de um criador (pontobio.com/forsaken/)
 /modelo/          template para o próximo perfil
+/hamburgueria/    cardápio digital de exemplo, com pedido pelo WhatsApp
 CNAME             domínio custom do GitHub Pages
 .nojekyll         impede o GitHub de processar as pastas como Jekyll
 ```
@@ -49,3 +50,17 @@ Por último, adicionar o link do novo perfil na seção Exemplos do `index.html`
 
 Só entra número que o criador confirmou ou que dá para ver no perfil dele.
 Página com dado inventado sobre o próprio canal queima a venda na hora.
+
+## Cardápio digital (hamburgueria)
+
+`/hamburgueria/index.html` é um cardápio de exemplo (Chama Burger) em arquivo
+único, sem build: categorias, busca, montagem de item com opções e adicionais,
+sacola e envio do pedido pelo WhatsApp. Antes de publicar, trocar em
+`CARDAPIO` (topo do `<script>`):
+
+- `loja.whatsapp`: número real, só dígitos (55 + DDD + número)
+- itens, preços, fotos e horários — são todos de exemplo
+- `loja.taxaEntrega`, `loja.pedidoMinimo` e `loja.pagamentos`
+
+Para pedido por mesa, gerar um QR code por mesa apontando para
+`.../hamburgueria/?mesa=12` (troque o número por mesa).
