@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Painel — Barba Nobre</title>
+<meta name="description" content="Painel de controle de agendamentos da barbearia Barba Nobre.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#15130F">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#15130f;
+  --bg-2:#1e1b15;
+  --bg-3:#2a251c;
+  --borda:#3d3626;
+  --texto:#f4efe4;
+  --texto-dim:#b7ac97;
+  --ouro:#cda039;
+  --ouro-claro:#e4c169;
+  --ouro-escuro:#a87f21;
+  --erro:#e0645a;
+  --sucesso:#6fae7f;
+  --aviso:#d9a441;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:"Manrope",system-ui,sans-serif;background:var(--bg);color:var(--texto);
+  font-size:16px;line-height:1.55;min-height:100vh;
+}
+a{color:inherit}
+button,select,input,textarea{font-family:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--ouro);outline-offset:2px}
+h1,h2,h3{font-family:"Oswald",system-ui,sans-serif;letter-spacing:.02em}
+.tabular{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+
+/* ---------- Login ---------- */
+.tela-login{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;
+  background:radial-gradient(140% 90% at 50% -10%, rgba(205,160,57,.16), transparent 60%), var(--bg);
+}
+.login-caixa{
+  width:100%;max-width:340px;background:var(--bg-2);border:1px solid var(--borda);
+  border-radius:var(--radius);padding:2rem 1.6rem;text-align:center;
+}
+.login-caixa h1{font-size:1.6rem;text-transform:uppercase}
+.login-caixa p{color:var(--texto-dim);font-size:.88rem;margin-top:.5rem}
+.login-caixa input{
+  width:100%;margin-top:1.4rem;background:var(--bg-3);border:1px solid var(--borda);color:var(--texto);
+  border-radius:10px;padding:.8rem .9rem;font-size:1rem;text-align:center;letter-spacing:.1em;
+}
+.login-caixa .btn-primario{width:100%;margin-top:1rem}
+.login-erro{color:var(--erro);font-size:.85rem;margin-top:.8rem}
+
+/* ---------- App ---------- */
+.topo-painel{
+  background:var(--bg-2);border-bottom:1px solid var(--borda);padding:1rem 1.1rem;
+  display:flex;justify-content:space-between;align-items:center;gap:1rem;position:sticky;top:0;z-index:20;
+}
+.topo-painel h1{font-size:1.15rem;text-transform:uppercase}
+.topo-painel .sub{color:var(--texto-dim);font-size:.75rem;text-transform:none;letter-spacing:0;font-family:inherit}
+.btn-sair{background:var(--bg-3);border:1px solid var(--borda);color:var(--texto-dim);border-radius:999px;padding:.5rem 1rem;font-size:.82rem}
+
+.abas-painel{
+  display:flex;gap:.4rem;overflow-x:auto;padding:.8rem 1.1rem;background:var(--bg);
+  border-bottom:1px solid var(--borda);position:sticky;top:57px;z-index:19;scrollbar-width:none;
+}
+.abas-painel::-webkit-scrollbar{display:none}
+.aba-painel{
+  flex-shrink:0;background:var(--bg-2);border:1px solid var(--borda);color:var(--texto-dim);
+  border-radius:999px;padding:.5rem 1rem;font-size:.85rem;font-weight:600;white-space:nowrap;
+}
+.aba-painel.ativa{background:var(--ouro);border-color:var(--ouro);color:#241c08}
+
+main{max-width:720px;margin:0 auto;padding:1.2rem 1.1rem 4rem}
+.secao-painel{display:none}
+.secao-painel.ativa{display:block}
+.secao-painel h2{font-size:1.15rem;color:var(--ouro-claro);margin-bottom:1rem}
+
+/* ---------- Estatísticas ---------- */
+.stats-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1.4rem}
+.stat-card{background:var(--bg-2);border:1px solid var(--borda);border-radius:12px;padding:.8rem;text-align:center}
+.stat-valor{font-family:"Oswald",sans-serif;font-size:1.5rem;color:var(--ouro)}
+.stat-rotulo{color:var(--texto-dim);font-size:.72rem;margin-top:.2rem}
+
+/* ---------- Navegador de data ---------- */
+.nav-data{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:1.1rem}
+.nav-data-btn{background:var(--bg-2);border:1px solid var(--borda);color:var(--texto);width:38px;height:38px;
+  border-radius:50%;font-size:1.1rem;flex-shrink:0}
+.nav-data-central{flex:1;text-align:center}
+.nav-data-titulo{font-family:"Oswald",sans-serif;font-size:1.05rem;text-transform:capitalize}
+.nav-data-hoje{background:none;border:0;color:var(--ouro-claro);font-size:.78rem;text-decoration:underline;padding:.15rem}
+
+/* ---------- Lista de agendamentos ---------- */
+.lista-agendamentos{display:grid;gap:.75rem}
+.ag-card{background:var(--bg-2);border:1px solid var(--borda);border-left:3px solid var(--ouro);border-radius:12px;padding:1rem}
+.ag-card.status-cancelado{border-left-color:var(--erro);opacity:.75}
+.ag-card.status-concluido{border-left-color:var(--sucesso)}
+.ag-card.status-faltou{border-left-color:var(--texto-dim);opacity:.75}
+.ag-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:.7rem}
+.ag-hora{font-family:"Oswald",sans-serif;font-size:1.3rem;color:var(--ouro-claro)}
+.ag-hora-sub{color:var(--texto-dim);font-size:.75rem}
+.selo-status{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  border-radius:5px;padding:.22rem .5rem;flex-shrink:0;white-space:nowrap;
+  background:rgba(205,160,57,.16);color:var(--ouro-claro);
+}
+.selo-status.st-concluido{background:rgba(111,174,127,.16);color:var(--sucesso)}
+.selo-status.st-cancelado{background:rgba(224,100,90,.16);color:var(--erro)}
+.selo-status.st-faltou{background:var(--bg-3);color:var(--texto-dim)}
+.ag-corpo{margin-top:.6rem;font-size:.92rem}
+.ag-cliente{font-weight:700}
+.ag-detalhe{color:var(--texto-dim);font-size:.85rem;margin-top:.2rem;line-height:1.5}
+.ag-obs{color:var(--texto-dim);font-size:.82rem;margin-top:.4rem;font-style:italic}
+.ag-acoes{display:flex;gap:.5rem;margin-top:.8rem;flex-wrap:wrap}
+.ag-btn{
+  background:var(--bg-3);border:1px solid var(--borda);color:var(--texto);border-radius:999px;
+  padding:.45rem .85rem;font-size:.8rem;font-weight:600;
+}
+.ag-btn.ok{border-color:var(--sucesso);color:var(--sucesso)}
+.ag-btn.aviso{border-color:var(--aviso);color:var(--aviso)}
+.ag-btn.perigo{border-color:var(--erro);color:var(--erro)}
+.lista-vazia{text-align:center;color:var(--texto-dim);padding:2.5rem 1rem;font-size:.92rem}
+
+/* ---------- Formulários ---------- */
+.campo{margin-top:1.1rem}
+.campo:first-child{margin-top:0}
+.campo label{display:block;font-weight:700;margin-bottom:.4rem;font-size:.9rem}
+.campo input,.campo select,.campo textarea{
+  width:100%;background:var(--bg-3);border:1px solid var(--borda);color:var(--texto);
+  border-radius:10px;padding:.7rem .8rem;font-size:1rem;
+}
+.campo textarea{resize:vertical;min-height:3.5rem}
+.linha-2{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+@media (max-width:420px){.linha-2{grid-template-columns:1fr}}
+.campo-erro{color:var(--erro);font-size:.83rem;margin-top:.35rem}
+.campo.tem-erro input,.campo.tem-erro select{border-color:var(--erro)}
+.aviso-conflito{
+  background:rgba(217,164,65,.14);border:1px solid var(--aviso);color:var(--aviso);
+  border-radius:10px;padding:.7rem .9rem;font-size:.85rem;margin-top:1rem;
+}
+.btn-primario{
+  display:block;width:100%;background:var(--ouro);color:#241c08;border:0;border-radius:999px;
+  padding:.95rem;font-size:1rem;font-weight:700;font-family:"Oswald",sans-serif;letter-spacing:.02em;
+  text-transform:uppercase;margin-top:1.4rem;transition:background .15s;
+}
+.btn-primario:hover{background:var(--ouro-claro)}
+
+/* ---------- Bloqueios ---------- */
+.bloqueio-card{
+  background:var(--bg-2);border:1px solid var(--borda);border-radius:12px;padding:.9rem 1rem;
+  display:flex;justify-content:space-between;align-items:center;gap:.8rem;margin-bottom:.65rem;
+}
+.bloqueio-info b{display:block;font-size:.95rem}
+.bloqueio-info span{color:var(--texto-dim);font-size:.82rem}
+.info-banner{
+  background:rgba(205,160,57,.1);border:1px solid var(--ouro-escuro);color:var(--ouro-claro);
+  border-radius:12px;padding:.9rem 1rem;font-size:.85rem;line-height:1.55;margin-bottom:1.2rem;
+}
+.info-banner b{color:var(--texto)}
+</style>
+</head>
+<body>
+
+<div class="tela-login" id="tela-login">
+  <div class="login-caixa">
+    <h1>Barba Nobre</h1>
+    <p>Painel do dono — digite a senha para entrar</p>
+    <input type="password" id="in-senha" placeholder="Senha" inputmode="numeric" autocomplete="off">
+    <button class="btn-primario" id="btn-entrar" type="button">Entrar</button>
+    <p class="login-erro" id="login-erro" hidden>Senha incorreta.</p>
+  </div>
+</div>
+
+<div id="app-painel" hidden>
+  <header class="topo-painel">
+    <div>
+      <h1>Barba Nobre</h1>
+      <div class="sub">Painel do dono</div>
+    </div>
+    <button class="btn-sair" id="btn-sair" type="button">Sair</button>
+  </header>
+
+  <nav class="abas-painel">
+    <button class="aba-painel ativa" data-aba="agenda" type="button">Agenda</button>
+    <button class="aba-painel" data-aba="novo" type="button">Novo agendamento</button>
+    <button class="aba-painel" data-aba="bloqueios" type="button">Bloqueios</button>
+    <button class="aba-painel" data-aba="ajuda" type="button">Ajuda</button>
+  </nav>
+
+  <main>
+    <section class="secao-painel ativa" id="secao-agenda">
+      <div class="stats-grade" id="stats-grade"></div>
+      <div class="nav-data">
+        <button class="nav-data-btn" id="data-anterior" type="button" aria-label="Dia anterior">‹</button>
+        <div class="nav-data-central">
+          <div class="nav-data-titulo tabular" id="nav-data-titulo"></div>
+          <button class="nav-data-hoje" id="nav-data-hoje" type="button">ir para hoje</button>
+        </div>
+        <button class="nav-data-btn" id="data-proxima" type="button" aria-label="Próximo dia">›</button>
+      </div>
+      <div class="lista-agendamentos" id="lista-agendamentos"></div>
+    </section>
+
+    <section class="secao-painel" id="secao-novo">
+      <h2>Novo agendamento</h2>
+      <div class="aviso-conflito" id="novo-conflito" hidden></div>
+      <form id="form-novo">
+        <div class="linha-2">
+          <div class="campo" id="campo-data">
+            <label for="novo-data">Data</label>
+            <input type="date" id="novo-data" required>
+          </div>
+          <div class="campo" id="campo-hora">
+            <label for="novo-hora">Horário</label>
+            <input type="time" id="novo-hora" step="300" required>
+          </div>
+        </div>
+        <div class="campo">
+          <label for="novo-servico">Serviço</label>
+          <select id="novo-servico"></select>
+        </div>
+        <div class="campo">
+          <label for="novo-barbeiro">Barbeiro</label>
+          <select id="novo-barbeiro"></select>
+        </div>
+        <div class="linha-2">
+          <div class="campo" id="campo-nome">
+            <label for="novo-nome">Cliente</label>
+            <input type="text" id="novo-nome" placeholder="Nome do cliente" required>
+          </div>
+          <div class="campo" id="campo-telefone">
+            <label for="novo-telefone">WhatsApp</label>
+            <input type="tel" id="novo-telefone" placeholder="(11) 99999-9999">
+          </div>
+        </div>
+        <div class="campo">
+          <label for="novo-obs">Observação</label>
+          <textarea id="novo-obs" placeholder="Opcional"></textarea>
+        </div>
+        <button class="btn-primario" type="submit">Salvar agendamento</button>
+      </form>
+    </section>
+
+    <section class="secao-painel" id="secao-bloqueios">
+      <h2>Bloqueios</h2>
+      <div class="info-banner">
+        Esses bloqueios organizam <b>a sua agenda aqui no painel</b>. Para um dia fechado (feriado, folga)
+        também deixar de aparecer disponível pros clientes no site, edite a lista <b>bloqueios</b> no topo do
+        arquivo <b>barbearia/index.html</b> e publique de novo — sem isso, o site público continua mostrando
+        o horário normal de funcionamento.
+      </div>
+      <form id="form-bloqueio">
+        <div class="linha-2">
+          <div class="campo" id="campo-bloq-data">
+            <label for="bloq-data">Data</label>
+            <input type="date" id="bloq-data" required>
+          </div>
+          <div class="campo">
+            <label for="bloq-tipo">Tipo</label>
+            <select id="bloq-tipo">
+              <option value="dia">Dia todo</option>
+              <option value="periodo">Só um período</option>
+            </select>
+          </div>
+        </div>
+        <div class="linha-2" id="linha-bloq-horas" hidden>
+          <div class="campo">
+            <label for="bloq-inicio">Das</label>
+            <input type="time" id="bloq-inicio">
+          </div>
+          <div class="campo">
+            <label for="bloq-fim">Até</label>
+            <input type="time" id="bloq-fim">
+          </div>
+        </div>
+        <div class="campo">
+          <label for="bloq-motivo">Motivo</label>
+          <input type="text" id="bloq-motivo" placeholder="Ex.: Folga, feriado, compromisso">
+        </div>
+        <button class="btn-primario" type="submit">Adicionar bloqueio</button>
+      </form>
+      <h2 style="margin-top:1.6rem">Bloqueios cadastrados</h2>
+      <div id="lista-bloqueios"></div>
+    </section>
+
+    <section class="secao-painel" id="secao-ajuda">
+      <h2>Como funciona este painel</h2>
+      <div class="info-banner">
+        <p><b>Onde ficam os dados:</b> tudo o que você registra aqui (agendamentos e bloqueios) fica salvo
+        só neste navegador, neste aparelho. Se você abrir o painel em outro celular ou computador, não vai
+        ver a mesma lista — é como uma agenda de papel guardada no balcão.</p>
+        <p style="margin-top:.8rem"><b>Como um agendamento chega até aqui:</b> quando um cliente agenda pelo
+        site, ele recebe uma mensagem pronta pra enviar pro seu WhatsApp. Ao confirmar com o cliente pelo
+        WhatsApp, registre o horário na aba <b>Novo agendamento</b> para manter sua agenda organizada.</p>
+        <p style="margin-top:.8rem"><b>Serviços, barbeiros e horário de funcionamento:</b> são editados
+        diretamente no código do arquivo <b>barbearia/index.html</b> (objeto <b>BARBEARIA</b> no topo do
+        script), o mesmo lugar onde o cardápio da hamburgueria de exemplo é editado. Depois de mudar, publique
+        o arquivo de novo.</p>
+        <p style="margin-top:.8rem"><b>Senha do painel:</b> é apenas uma trava simples contra curiosos —
+        qualquer pessoa que veja o código-fonte deste arquivo consegue ler a senha. Não guarde aqui nada que
+        exija segurança de verdade.</p>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+'use strict';
+
+/* =========================================================
+   1. CONFIGURAÇÃO — edite a senha e o WhatsApp aqui
+   ========================================================= */
+const CONFIG_PAINEL = {
+  senha: '1234',              // troque por uma senha só sua antes de publicar
+  whatsapp: '5511999999999',  // mesmo número do site público
+  fuso: 'America/Sao_Paulo',
+  // Mesma lista de serviços e barbeiros do site público (barbearia/index.html).
+  // Se você mudar um lado, mude o outro também.
+  servicos: [
+    { id: 'corte', nome: 'Corte', duracaoMin: 30, preco: 40 },
+    { id: 'barba', nome: 'Barba', duracaoMin: 30, preco: 35 },
+    { id: 'combo', nome: 'Corte + Barba', duracaoMin: 60, preco: 65 },
+    { id: 'navalha', nome: 'Acabamento na navalha', duracaoMin: 20, preco: 20 },
+    { id: 'sobrancelha', nome: 'Sobrancelha', duracaoMin: 15, preco: 15 },
+  ],
+  barbeiros: [
+    { id: 'carlos', nome: 'Carlos' },
+    { id: 'diego', nome: 'Diego' },
+  ],
+};
+
+/* =========================================================
+   2. HELPERS
+   ========================================================= */
+const escaparHTML = (t) => String(t).replace(/[&<>"']/g, (ch) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const formatarPreco = (v) => BRL.format(v);
+const paraMinutos = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
+const paraHHMM = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+
+function hojeISOnaLoja(fuso) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: fuso, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+}
+function somarDiasISO(iso, n) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + n);
+  return dt.toISOString().slice(0, 10);
+}
+function formatarDataLonga(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }).format(new Date(Date.UTC(y, m - 1, d, 12)));
+}
+function acharServico(id) { return CONFIG_PAINEL.servicos.find((s) => s.id === id) || null; }
+function acharBarbeiro(id) { return CONFIG_PAINEL.barbeiros.find((b) => b.id === id) || null; }
+const linkWhatsApp = (numero, texto) => `https://wa.me/${String(numero).replace(/\D/g, '')}?text=${encodeURIComponent(texto)}`;
+const gerarId = () => 'ag_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+
+/* =========================================================
+   3. LOGIN
+   ========================================================= */
+function jaEstaLogado() {
+  try { return sessionStorage.getItem('barbanobre-painel-logado') === '1'; } catch (e) { return false; }
+}
+function marcarLogado() {
+  try { sessionStorage.setItem('barbanobre-painel-logado', '1'); } catch (e) { /* ignora */ }
+}
+function limparLogin() {
+  try { sessionStorage.removeItem('barbanobre-painel-logado'); } catch (e) { /* ignora */ }
+}
+
+function tentarEntrar() {
+  const senha = document.getElementById('in-senha').value;
+  if (senha === CONFIG_PAINEL.senha) {
+    marcarLogado();
+    mostrarApp();
+  } else {
+    document.getElementById('login-erro').hidden = false;
+  }
+}
+function mostrarApp() {
+  document.getElementById('tela-login').hidden = true;
+  document.getElementById('app-painel').hidden = false;
+  inicializarApp();
+}
+document.getElementById('btn-entrar').addEventListener('click', tentarEntrar);
+document.getElementById('in-senha').addEventListener('keydown', (e) => { if (e.key === 'Enter') tentarEntrar(); });
+document.getElementById('btn-sair').addEventListener('click', () => { limparLogin(); location.reload(); });
+
+/* =========================================================
+   4. DADOS: AGENDAMENTOS E BLOQUEIOS (localStorage do dono)
+   ========================================================= */
+function carregarAgendamentos() {
+  try { const l = JSON.parse(localStorage.getItem('barbanobre-painel-agendamentos') || '[]'); return Array.isArray(l) ? l : []; }
+  catch (e) { return []; }
+}
+function salvarAgendamentos(lista) {
+  try { localStorage.setItem('barbanobre-painel-agendamentos', JSON.stringify(lista)); } catch (e) { /* ignora */ }
+}
+function carregarBloqueios() {
+  try { const l = JSON.parse(localStorage.getItem('barbanobre-painel-bloqueios') || '[]'); return Array.isArray(l) ? l : []; }
+  catch (e) { return []; }
+}
+function salvarBloqueios(lista) {
+  try { localStorage.setItem('barbanobre-painel-bloqueios', JSON.stringify(lista)); } catch (e) { /* ignora */ }
+}
+
+let agendamentos = [];
+let bloqueios = [];
+let dataSelecionada = null; // ISO
+
+/* =========================================================
+   5. ABAS
+   ========================================================= */
+function trocarAba(nome) {
+  document.querySelectorAll('.aba-painel').forEach((b) => b.classList.toggle('ativa', b.dataset.aba === nome));
+  document.querySelectorAll('.secao-painel').forEach((s) => s.classList.toggle('ativa', s.id === 'secao-' + nome));
+  if (nome === 'bloqueios') renderListaBloqueios();
+}
+document.querySelectorAll('.aba-painel').forEach((btn) => btn.addEventListener('click', () => trocarAba(btn.dataset.aba)));
+
+/* =========================================================
+   6. AGENDA: ESTATÍSTICAS + NAVEGAÇÃO DE DATA + LISTA
+   ========================================================= */
+function renderStats() {
+  const hoje = hojeISOnaLoja(CONFIG_PAINEL.fuso);
+  const doDia = agendamentos.filter((a) => a.data === hoje && a.status !== 'cancelado');
+  const proximos7 = agendamentos.filter((a) => a.data >= hoje && a.data <= somarDiasISO(hoje, 6) && a.status !== 'cancelado');
+  const proximo = doDia.filter((a) => a.status === 'confirmado').sort((a, b) => a.horarioMin - b.horarioMin)[0];
+  document.getElementById('stats-grade').innerHTML = `
+    <div class="stat-card"><div class="stat-valor tabular">${doDia.length}</div><div class="stat-rotulo">hoje</div></div>
+    <div class="stat-card"><div class="stat-valor tabular">${proximos7.length}</div><div class="stat-rotulo">nos próx. 7 dias</div></div>
+    <div class="stat-card"><div class="stat-valor tabular">${proximo ? paraHHMM(proximo.horarioMin) : '—'}</div><div class="stat-rotulo">próximo horário</div></div>`;
+}
+
+function renderNavData() {
+  const hoje = hojeISOnaLoja(CONFIG_PAINEL.fuso);
+  const titulo = document.getElementById('nav-data-titulo');
+  titulo.textContent = dataSelecionada === hoje ? `Hoje, ${formatarDataLonga(dataSelecionada)}` : formatarDataLonga(dataSelecionada);
+}
+
+const ROTULOS_STATUS = { confirmado: 'Confirmado', concluido: 'Concluído', cancelado: 'Cancelado', faltou: 'Faltou' };
+
+function renderListaAgendamentos() {
+  const doDia = agendamentos
+    .filter((a) => a.data === dataSelecionada)
+    .sort((a, b) => a.horarioMin - b.horarioMin);
+  const lista = document.getElementById('lista-agendamentos');
+  if (!doDia.length) {
+    lista.innerHTML = `<p class="lista-vazia">Nenhum agendamento neste dia.</p>`;
+    return;
+  }
+  lista.innerHTML = doDia.map((ag) => {
+    const servico = acharServico(ag.servicoId);
+    const acoes = [];
+    if (ag.status === 'confirmado') {
+      acoes.push(`<button class="ag-btn ok" data-acao="concluido" data-id="${ag.id}">Concluir</button>`);
+      acoes.push(`<button class="ag-btn aviso" data-acao="faltou" data-id="${ag.id}">Faltou</button>`);
+      acoes.push(`<button class="ag-btn perigo" data-acao="cancelado" data-id="${ag.id}">Cancelar</button>`);
+    } else {
+      acoes.push(`<button class="ag-btn" data-acao="confirmado" data-id="${ag.id}">Reabrir</button>`);
+      acoes.push(`<button class="ag-btn perigo" data-acao="excluir" data-id="${ag.id}">Excluir</button>`);
+    }
+    if (ag.telefone) {
+      acoes.push(`<a class="ag-btn" href="${linkWhatsApp(ag.telefone, `Olá, ${ag.clienteNome}! Aqui é da Barba Nobre.`)}" target="_blank" rel="noopener">WhatsApp</a>`);
+    }
+    return `
+      <div class="ag-card status-${ag.status}">
+        <div class="ag-topo">
+          <div>
+            <div class="ag-hora tabular">${paraHHMM(ag.horarioMin)}</div>
+            <div class="ag-hora-sub">${servico ? servico.duracaoMin + ' min' : ''}</div>
+          </div>
+          <span class="selo-status st-${ag.status}">${ROTULOS_STATUS[ag.status] || ag.status}</span>
+        </div>
+        <div class="ag-corpo">
+          <div class="ag-cliente">${escaparHTML(ag.clienteNome)}</div>
+          <div class="ag-detalhe">
+            ${escaparHTML(servico ? servico.nome : ag.servicoNome || '')} · ${escaparHTML(ag.barbeiroNome || '')}
+            ${servico ? ' · ' + formatarPreco(servico.preco) : ''}
+            ${ag.telefone ? ' · ' + escaparHTML(ag.telefone) : ''}
+          </div>
+          ${ag.obs ? `<div class="ag-obs">${escaparHTML(ag.obs)}</div>` : ''}
+        </div>
+        <div class="ag-acoes">${acoes.join('')}</div>
+      </div>`;
+  }).join('');
+
+  lista.querySelectorAll('button[data-acao]').forEach((btn) => {
+    btn.addEventListener('click', () => aplicarAcaoAgendamento(btn.dataset.id, btn.dataset.acao));
+  });
+}
+
+function aplicarAcaoAgendamento(id, acao) {
+  if (acao === 'excluir') {
+    if (!confirm('Excluir este agendamento da agenda?')) return;
+    agendamentos = agendamentos.filter((a) => a.id !== id);
+  } else {
+    const ag = agendamentos.find((a) => a.id === id);
+    if (!ag) return;
+    ag.status = acao;
+  }
+  salvarAgendamentos(agendamentos);
+  renderStats();
+  renderListaAgendamentos();
+}
+
+function renderAgenda() {
+  renderStats();
+  renderNavData();
+  renderListaAgendamentos();
+}
+
+document.getElementById('data-anterior').addEventListener('click', () => {
+  dataSelecionada = somarDiasISO(dataSelecionada, -1); renderAgenda();
+});
+document.getElementById('data-proxima').addEventListener('click', () => {
+  dataSelecionada = somarDiasISO(dataSelecionada, 1); renderAgenda();
+});
+document.getElementById('nav-data-hoje').addEventListener('click', () => {
+  dataSelecionada = hojeISOnaLoja(CONFIG_PAINEL.fuso); renderAgenda();
+});
+
+/* =========================================================
+   7. NOVO AGENDAMENTO
+   ========================================================= */
+function preencherSelects() {
+  document.getElementById('novo-servico').innerHTML = CONFIG_PAINEL.servicos
+    .map((s) => `<option value="${s.id}">${escaparHTML(s.nome)} — ${formatarPreco(s.preco)} (${s.duracaoMin} min)</option>`).join('');
+  document.getElementById('novo-barbeiro').innerHTML = CONFIG_PAINEL.barbeiros
+    .map((b) => `<option value="${b.id}">${escaparHTML(b.nome)}</option>`).join('');
+}
+
+function marcarErroCampo(idCampo, mensagem) {
+  const campo = document.getElementById(idCampo);
+  campo.classList.toggle('tem-erro', !!mensagem);
+  let p = campo.querySelector('.campo-erro');
+  if (!p) { p = document.createElement('p'); p.className = 'campo-erro'; campo.appendChild(p); }
+  p.hidden = !mensagem;
+  p.textContent = mensagem || '';
+}
+
+function verificarConflito(data, horarioMin, duracaoMin, barbeiroId, ignorarId) {
+  return agendamentos.some((a) => {
+    if (a.id === ignorarId || a.status === 'cancelado' || a.data !== data || a.barbeiroId !== barbeiroId) return false;
+    const outroServico = acharServico(a.servicoId);
+    const outraDuracao = outroServico ? outroServico.duracaoMin : 30;
+    return horarioMin < a.horarioMin + outraDuracao && horarioMin + duracaoMin > a.horarioMin;
+  });
+}
+
+function checarConflitoFormulario() {
+  const data = document.getElementById('novo-data').value;
+  const hora = document.getElementById('novo-hora').value;
+  const servico = acharServico(document.getElementById('novo-servico').value);
+  const barbeiroId = document.getElementById('novo-barbeiro').value;
+  const aviso = document.getElementById('novo-conflito');
+  if (!data || !hora || !servico) { aviso.hidden = true; return; }
+  const conflito = verificarConflito(data, paraMinutos(hora), servico.duracaoMin, barbeiroId, null);
+  aviso.hidden = !conflito;
+  aviso.textContent = conflito ? 'Esse barbeiro já tem outro agendamento nesse horário. Você ainda pode salvar assim mesmo.' : '';
+}
+
+['novo-data', 'novo-hora', 'novo-servico', 'novo-barbeiro'].forEach((id) => {
+  document.getElementById(id).addEventListener('input', checarConflitoFormulario);
+  document.getElementById(id).addEventListener('change', checarConflitoFormulario);
+});
+
+document.getElementById('form-novo').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const data = document.getElementById('novo-data').value;
+  const hora = document.getElementById('novo-hora').value;
+  const nome = document.getElementById('novo-nome').value.trim();
+  let ok = true;
+  if (!data) { marcarErroCampo('campo-data', 'Escolha a data'); ok = false; } else marcarErroCampo('campo-data', '');
+  if (!hora) { marcarErroCampo('campo-hora', 'Escolha o horário'); ok = false; } else marcarErroCampo('campo-hora', '');
+  if (!nome) { marcarErroCampo('campo-nome', 'Digite o nome do cliente'); ok = false; } else marcarErroCampo('campo-nome', '');
+  if (!ok) return;
+
+  const servico = acharServico(document.getElementById('novo-servico').value);
+  const barbeiro = acharBarbeiro(document.getElementById('novo-barbeiro').value);
+  const registro = {
+    id: gerarId(),
+    data, horarioMin: paraMinutos(hora),
+    servicoId: servico.id, servicoNome: servico.nome,
+    barbeiroId: barbeiro.id, barbeiroNome: barbeiro.nome,
+    clienteNome: nome,
+    telefone: document.getElementById('novo-telefone').value.replace(/\D/g, ''),
+    obs: document.getElementById('novo-obs').value.trim(),
+    status: 'confirmado', criadoEm: Date.now(),
+  };
+  agendamentos.push(registro);
+  salvarAgendamentos(agendamentos);
+  document.getElementById('form-novo').reset();
+  document.getElementById('novo-conflito').hidden = true;
+  dataSelecionada = data;
+  trocarAba('agenda');
+  renderAgenda();
+});
+
+/* =========================================================
+   8. BLOQUEIOS
+   ========================================================= */
+document.getElementById('bloq-tipo').addEventListener('change', (e) => {
+  document.getElementById('linha-bloq-horas').hidden = e.target.value !== 'periodo';
+});
+
+document.getElementById('form-bloqueio').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const data = document.getElementById('bloq-data').value;
+  if (!data) { marcarErroCampo('campo-bloq-data', 'Escolha a data'); return; }
+  marcarErroCampo('campo-bloq-data', '');
+  const diaTodo = document.getElementById('bloq-tipo').value === 'dia';
+  const registro = {
+    id: gerarId(), data, diaTodo,
+    inicio: diaTodo ? null : document.getElementById('bloq-inicio').value || null,
+    fim: diaTodo ? null : document.getElementById('bloq-fim').value || null,
+    motivo: document.getElementById('bloq-motivo').value.trim(),
+  };
+  bloqueios.push(registro);
+  salvarBloqueios(bloqueios);
+  document.getElementById('form-bloqueio').reset();
+  document.getElementById('linha-bloq-horas').hidden = true;
+  renderListaBloqueios();
+});
+
+function renderListaBloqueios() {
+  const alvo = document.getElementById('lista-bloqueios');
+  const ordenados = [...bloqueios].sort((a, b) => a.data.localeCompare(b.data));
+  if (!ordenados.length) {
+    alvo.innerHTML = `<p class="lista-vazia">Nenhum bloqueio cadastrado.</p>`;
+    return;
+  }
+  alvo.innerHTML = ordenados.map((b) => `
+    <div class="bloqueio-card">
+      <div class="bloqueio-info">
+        <b style="text-transform:capitalize">${formatarDataLonga(b.data)}</b>
+        <span>${b.diaTodo ? 'Dia todo' : `${b.inicio || '?'}–${b.fim || '?'}`}${b.motivo ? ' · ' + escaparHTML(b.motivo) : ''}</span>
+      </div>
+      <button class="ag-btn perigo" data-id="${b.id}" type="button">Remover</button>
+    </div>`).join('');
+  alvo.querySelectorAll('button[data-id]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      bloqueios = bloqueios.filter((b) => b.id !== btn.dataset.id);
+      salvarBloqueios(bloqueios);
+      renderListaBloqueios();
+    });
+  });
+}
+
+/* =========================================================
+   9. INICIALIZAÇÃO
+   ========================================================= */
+function inicializarApp() {
+  agendamentos = carregarAgendamentos();
+  bloqueios = carregarBloqueios();
+  dataSelecionada = hojeISOnaLoja(CONFIG_PAINEL.fuso);
+  preencherSelects();
+  document.getElementById('novo-data').value = dataSelecionada;
+  document.getElementById('bloq-data').value = dataSelecionada;
+  renderAgenda();
+}
+
+if (jaEstaLogado()) mostrarApp();
+</script>
+</body>
+</html>
