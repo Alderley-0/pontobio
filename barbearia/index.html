@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barba Nobre — Agendar horário</title>
+<meta name="description" content="Agende seu horário na barbearia Barba Nobre em poucos toques. Escolha serviço, barbeiro, data e horário, e confirme pelo WhatsApp.">
+<meta name="theme-color" content="#15130F">
+<meta property="og:title" content="Barba Nobre — Agendar horário">
+<meta property="og:description" content="Corte, barba e navalha. Agende pelo site e confirme pelo WhatsApp.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#15130f;
+  --bg-2:#1e1b15;
+  --bg-3:#2a251c;
+  --borda:#3d3626;
+  --texto:#f4efe4;
+  --texto-dim:#b7ac97;
+  --ouro:#cda039;
+  --ouro-claro:#e4c169;
+  --ouro-escuro:#a87f21;
+  --erro:#e0645a;
+  --sucesso:#6fae7f;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:"Manrope",system-ui,sans-serif;
+  background:var(--bg);
+  color:var(--texto);
+  font-size:16px;
+  line-height:1.55;
+  min-height:100vh;
+  padding-bottom:6rem;
+}
+a{color:inherit}
+img{display:block;max-width:100%}
+button{font-family:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--ouro);outline-offset:2px}
+h1,h2,h3,.rotulo-grande{font-family:"Oswald",system-ui,sans-serif;letter-spacing:.02em;text-transform:uppercase}
+.tabular{font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+
+/* ---------- Topo ---------- */
+.topo{
+  background:
+    radial-gradient(140% 90% at 15% -20%, rgba(205,160,57,.22), transparent 60%),
+    var(--bg-2);
+  border-bottom:1px solid var(--borda);
+  padding:1.6rem 1.1rem 1.2rem;
+}
+.topo-conteudo{max-width:640px;margin:0 auto}
+.marca h1{font-size:clamp(2rem,8vw,2.7rem);color:var(--texto);line-height:1}
+.marca .ouro{color:var(--ouro)}
+.marca-sub{color:var(--texto-dim);font-size:.96rem;margin-top:.3rem}
+.status-linha{display:flex;align-items:center;gap:.5rem;margin-top:1rem;font-size:.92rem;flex-wrap:wrap}
+.status-bolha{width:.55rem;height:.55rem;border-radius:50%;background:var(--sucesso);flex-shrink:0}
+.status-bolha.fechado{background:var(--erro)}
+.status-texto{font-weight:700}
+.status-detalhe{color:var(--texto-dim)}
+.info-loja{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+.info-chip{
+  background:var(--bg-3);border:1px solid var(--borda);border-radius:999px;
+  padding:.4rem .85rem;font-size:.82rem;color:var(--texto-dim);white-space:nowrap;
+  display:inline-flex;align-items:center;gap:.35rem;text-decoration:none;
+}
+.info-chip:hover{border-color:var(--ouro)}
+
+/* ---------- CTA topo ---------- */
+main{max-width:640px;margin:0 auto;padding:0 1.1rem}
+.hero-cta{padding-top:1.4rem}
+.btn-agendar-grande{
+  display:block;width:100%;background:var(--ouro);color:#241c08;border:0;border-radius:999px;
+  padding:1.05rem;font-family:"Oswald",sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:.03em;
+  text-transform:uppercase;transition:background .15s;
+}
+.btn-agendar-grande:hover{background:var(--ouro-claro)}
+
+/* ---------- Seções ---------- */
+.secao{padding-top:2.4rem}
+.secao h2{font-size:1.5rem;color:var(--ouro-claro);margin-bottom:.9rem}
+
+.grade-servicos{display:grid;gap:.7rem}
+.servico-card{
+  display:flex;justify-content:space-between;align-items:center;gap:.9rem;
+  background:var(--bg-2);border:1px solid var(--borda);border-left:3px solid var(--ouro);
+  border-radius:var(--radius);padding:.9rem 1.05rem;width:100%;text-align:left;color:inherit;
+}
+.servico-nome{font-weight:700;font-size:1rem}
+.servico-duracao{color:var(--texto-dim);font-size:.85rem;margin-top:.2rem}
+.servico-preco{color:var(--ouro);font-weight:700;font-size:1rem;flex-shrink:0}
+.servico-preco-sub{display:block;color:var(--texto-dim);font-weight:500;font-size:.72rem;text-transform:none;letter-spacing:0}
+
+.grade-barbeiros{display:grid;gap:.7rem;grid-template-columns:1fr 1fr}
+@media (max-width:460px){.grade-barbeiros{grid-template-columns:1fr}}
+.barbeiro-card{
+  background:var(--bg-2);border:1px solid var(--borda);border-radius:var(--radius);
+  padding:1rem;text-align:center;
+}
+.barbeiro-avatar{
+  width:56px;height:56px;border-radius:50%;background:var(--bg-3);border:1px solid var(--borda);
+  margin:0 auto .6rem;display:flex;align-items:center;justify-content:center;
+  font-family:"Oswald",sans-serif;font-size:1.3rem;color:var(--ouro);
+}
+.barbeiro-nome{font-weight:700}
+.barbeiro-especialidade{color:var(--texto-dim);font-size:.82rem;margin-top:.25rem}
+
+.tabela-horarios{width:100%;border-collapse:collapse;background:var(--bg-2);border:1px solid var(--borda);border-radius:var(--radius);overflow:hidden}
+.tabela-horarios td{padding:.65rem .9rem;font-size:.9rem;border-bottom:1px solid var(--borda)}
+.tabela-horarios tr:last-child td{border-bottom:0}
+.tabela-horarios td:first-child{color:var(--texto-dim);text-transform:capitalize}
+.tabela-horarios td:last-child{text-align:right;font-weight:600}
+.tabela-horarios tr.linha-hoje td{color:var(--ouro-claro)}
+.tabela-horarios tr.linha-fechado td:last-child{color:var(--texto-dim);font-weight:500}
+
+.endereco-texto{color:var(--texto-dim);font-size:.95rem;margin-bottom:.9rem}
+.btn-mapa{
+  display:inline-flex;align-items:center;gap:.5rem;background:var(--bg-3);border:1px solid var(--borda);
+  color:var(--texto);border-radius:999px;padding:.65rem 1.1rem;font-size:.9rem;font-weight:600;text-decoration:none;
+}
+.btn-mapa:hover{border-color:var(--ouro)}
+
+.rodape{max-width:640px;margin:2.6rem auto 1rem;padding:0 1.1rem;text-align:center}
+.link-rodape{background:none;border:0;color:var(--ouro-claro);font-size:.9rem;font-weight:600;text-decoration:underline;padding:.4rem}
+.rodape-texto{color:var(--texto-dim);font-size:.8rem;margin-top:.8rem}
+
+/* ---------- Barra inferior ---------- */
+.barra-inferior{
+  position:fixed;left:0;right:0;bottom:0;z-index:30;
+  background:var(--ouro);color:#241c08;padding:.95rem 1.1rem;
+  padding-bottom:calc(.95rem + env(safe-area-inset-bottom));
+  text-align:center;border:0;width:100%;font-family:"Oswald",sans-serif;
+  font-weight:700;font-size:1.02rem;letter-spacing:.03em;text-transform:uppercase;
+}
+
+/* ---------- Overlay / painéis ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(8,6,3,.65);z-index:40;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+@media (min-width:720px){.overlay{align-items:center}}
+.painel{
+  background:var(--bg-2);width:100%;max-width:640px;max-height:92vh;
+  border-radius:18px 18px 0 0;overflow-y:auto;overscroll-behavior:contain;
+  border:1px solid var(--borda);border-bottom:0;
+  padding-bottom:env(safe-area-inset-bottom);
+}
+@media (min-width:720px){.painel{border-radius:18px;border-bottom:1px solid var(--borda);max-height:88vh}}
+.painel-cabecalho{
+  position:sticky;top:0;background:var(--bg-2);border-bottom:1px solid var(--borda);
+  display:flex;justify-content:space-between;align-items:center;padding:1rem 1.1rem;z-index:2;gap:.8rem;
+}
+.painel-cabecalho h2{font-size:1.25rem}
+.fechar-btn{
+  background:var(--bg-3);border:1px solid var(--borda);color:var(--texto);width:36px;height:36px;
+  border-radius:50%;font-size:1.1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.painel-corpo{padding:1.1rem}
+
+/* Progresso do assistente */
+.etapa-progresso{display:flex;gap:.35rem;margin-bottom:1.1rem}
+.etapa-ponto{flex:1;height:4px;border-radius:2px;background:var(--bg-3)}
+.etapa-ponto.feita{background:var(--ouro)}
+.etapa-ponto.atual{background:var(--ouro-claro)}
+.resumo-mini{
+  display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem;
+}
+.resumo-mini span{
+  background:var(--bg-3);border:1px solid var(--borda);border-radius:999px;
+  padding:.3rem .7rem;font-size:.78rem;color:var(--texto-dim);
+}
+.resumo-mini span b{color:var(--texto);font-weight:600}
+
+.opcoes-lista{display:grid;gap:.65rem}
+.opcao-selecionavel{
+  display:flex;justify-content:space-between;align-items:center;gap:.9rem;width:100%;text-align:left;
+  background:var(--bg-3);border:1px solid var(--borda);border-radius:12px;padding:.85rem 1rem;color:inherit;
+}
+.opcao-selecionavel.marcada{border-color:var(--ouro);background:rgba(205,160,57,.12)}
+.opcao-selecionavel-nome{font-weight:700;font-size:.97rem}
+.opcao-selecionavel-sub{color:var(--texto-dim);font-size:.82rem;margin-top:.2rem}
+.opcao-selecionavel-preco{color:var(--ouro);font-weight:700;font-size:.95rem;flex-shrink:0;white-space:nowrap}
+
+.datas-scroll{display:flex;gap:.55rem;overflow-x:auto;padding-bottom:.3rem;scrollbar-width:none}
+.datas-scroll::-webkit-scrollbar{display:none}
+.data-chip{
+  flex-shrink:0;min-width:64px;background:var(--bg-3);border:1px solid var(--borda);border-radius:12px;
+  padding:.7rem .5rem;text-align:center;color:var(--texto);
+}
+.data-chip.marcada{border-color:var(--ouro);background:rgba(205,160,57,.14)}
+.data-chip:disabled{opacity:.4}
+.data-chip .dc-dia{display:block;font-size:.72rem;color:var(--texto-dim);text-transform:uppercase}
+.data-chip .dc-numero{display:block;font-family:"Oswald",sans-serif;font-size:1.25rem;margin-top:.15rem}
+.data-chip .dc-mes{display:block;font-size:.68rem;color:var(--texto-dim)}
+
+.grade-horarios{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-top:.9rem}
+@media (min-width:420px){.grade-horarios{grid-template-columns:repeat(4,1fr)}}
+.horario-btn{
+  background:var(--bg-3);border:1px solid var(--borda);border-radius:10px;padding:.65rem .3rem;
+  font-size:.9rem;font-weight:600;color:var(--texto);text-align:center;
+}
+.horario-btn.marcada{background:var(--ouro);border-color:var(--ouro);color:#241c08}
+.sem-horarios{
+  text-align:center;color:var(--texto-dim);padding:2rem 1rem;font-size:.92rem;
+}
+
+.campo{margin-top:1.1rem}
+.campo:first-child{margin-top:0}
+.campo label{display:block;font-weight:700;margin-bottom:.4rem;font-size:.92rem}
+.campo input[type=text],.campo input[type=tel],.campo textarea{
+  width:100%;background:var(--bg-3);border:1px solid var(--borda);color:var(--texto);
+  border-radius:10px;padding:.7rem .8rem;font-size:1rem;font-family:inherit;
+}
+.campo textarea{resize:vertical;min-height:4rem}
+.campo-erro{color:var(--erro);font-size:.83rem;margin-top:.35rem}
+.campo.tem-erro input,.campo.tem-erro textarea{border-color:var(--erro)}
+
+.etapa-botoes{display:flex;gap:.7rem;margin-top:1.5rem}
+.btn-primario{
+  flex:1;background:var(--ouro);color:#241c08;border:0;border-radius:999px;
+  padding:.95rem;font-size:1rem;font-weight:700;font-family:"Oswald",sans-serif;letter-spacing:.02em;
+  text-transform:uppercase;transition:background .15s;
+}
+.btn-primario:hover{background:var(--ouro-claro)}
+.btn-primario:disabled{background:var(--bg-3);color:var(--texto-dim);cursor:not-allowed}
+.btn-secundario{
+  flex:0 0 auto;background:transparent;color:var(--texto);border:1px solid var(--borda);
+  border-radius:999px;padding:.95rem 1.2rem;font-size:.92rem;font-weight:600;font-family:inherit;
+}
+
+/* Confirmação */
+.confirma-icone{
+  width:64px;height:64px;border-radius:50%;background:rgba(111,174,127,.18);color:var(--sucesso);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;font-size:2rem;
+}
+.confirma-titulo{text-align:center;font-size:1.3rem}
+.confirma-texto{text-align:center;color:var(--texto-dim);font-size:.92rem;line-height:1.6;margin-top:.6rem}
+.confirma-resumo{
+  background:var(--bg-3);border:1px solid var(--borda);border-radius:12px;padding:1rem;margin-top:1.2rem;
+}
+.confirma-resumo p{font-size:.92rem;padding:.25rem 0;display:flex;justify-content:space-between;gap:.8rem}
+.confirma-resumo p b{font-weight:700;text-align:right}
+.confirma-aviso{
+  background:rgba(205,160,57,.12);border:1px solid var(--ouro-escuro);color:var(--ouro-claro);
+  border-radius:10px;padding:.75rem .9rem;font-size:.84rem;margin-top:1rem;line-height:1.5;
+}
+
+/* Meus agendamentos */
+.lista-agendamentos{display:grid;gap:.8rem}
+.agendamento-card{
+  background:var(--bg-3);border:1px solid var(--borda);border-radius:12px;padding:1rem;
+}
+.agendamento-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:.7rem}
+.agendamento-data{font-family:"Oswald",sans-serif;font-size:1.05rem;text-transform:capitalize}
+.agendamento-hora{color:var(--ouro-claro);font-weight:700;font-size:1.1rem}
+.agendamento-detalhe{color:var(--texto-dim);font-size:.85rem;margin-top:.35rem;line-height:1.5}
+.selo-status{
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  background:var(--bg);border:1px solid var(--borda);color:var(--texto-dim);border-radius:5px;padding:.2rem .45rem;
+  flex-shrink:0;white-space:nowrap;
+}
+.selo-status.passado{opacity:.7}
+.agendamento-acoes{margin-top:.8rem}
+.btn-cancelar{
+  background:transparent;border:1px solid var(--erro);color:var(--erro);border-radius:999px;
+  padding:.55rem 1rem;font-size:.85rem;font-weight:600;width:100%;
+}
+.agendamentos-vazio{text-align:center;color:var(--texto-dim);padding:2.5rem 1rem;font-size:.92rem}
+</style>
+</head>
+<body>
+
+<header class="topo">
+  <div class="topo-conteudo">
+    <div class="marca">
+      <h1>Barba <span class="ouro">Nobre</span></h1>
+    </div>
+    <p class="marca-sub">Corte, barba e navalha — no seu horário</p>
+    <div class="status-linha">
+      <span class="status-bolha" id="status-bolha"></span>
+      <span class="status-texto" id="status-texto">Verificando horário…</span>
+      <span class="status-detalhe" id="status-detalhe"></span>
+    </div>
+    <div class="info-loja" id="info-loja"></div>
+  </div>
+</header>
+
+<main>
+  <div class="hero-cta">
+    <button class="btn-agendar-grande" id="btn-agendar-topo" type="button">Agendar horário</button>
+  </div>
+
+  <section class="secao" id="secao-servicos">
+    <h2>Serviços</h2>
+    <div class="grade-servicos" id="grade-servicos"></div>
+  </section>
+
+  <section class="secao" id="secao-barbeiros">
+    <h2>Equipe</h2>
+    <div class="grade-barbeiros" id="grade-barbeiros"></div>
+  </section>
+
+  <section class="secao" id="secao-horarios">
+    <h2>Horário de funcionamento</h2>
+    <table class="tabela-horarios" id="tabela-horarios"></table>
+  </section>
+
+  <section class="secao" id="secao-local">
+    <h2>Onde estamos</h2>
+    <p class="endereco-texto" id="endereco-texto"></p>
+    <a class="btn-mapa" id="link-mapa" target="_blank" rel="noopener">Ver rota no mapa</a>
+  </section>
+</main>
+
+<footer class="rodape">
+  <button class="link-rodape" id="btn-meus-agendamentos" type="button">Ver meus agendamentos</button>
+  <p class="rodape-texto">Barba Nobre · o horário só fica garantido depois da confirmação pelo WhatsApp</p>
+</footer>
+
+<button class="barra-inferior" id="barra-agendar" type="button">Agendar horário</button>
+
+<div id="camada-paineis"></div>
+
+<script>
+'use strict';
+
+/* =========================================================
+   1. DADOS DA BARBEARIA — edite nomes, preços e horários aqui
+   ========================================================= */
+const BARBEARIA = {
+  nome: 'Barba Nobre',
+  whatsapp: '5511999999999',
+  instagram: 'https://instagram.com/barbanobre',
+  endereco: 'Rua Exemplo, 123 - Centro, Sua Cidade - SP',
+  mapsLink: 'https://maps.google.com/?q=' + encodeURIComponent('Rua Exemplo, 123 - Centro, Sua Cidade - SP'),
+  fuso: 'America/Sao_Paulo',
+  diasAntecedencia: 14,      // quantos dias pra frente o cliente pode agendar
+  antecedenciaMinMin: 60,    // antecedência mínima pra marcar em cima da hora (minutos)
+  intervaloMin: 30,          // de quanto em quanto tempo os horários aparecem
+  // 0 = domingo ... 6 = sábado. Pode ter mais de um bloco no dia (ex.: manhã e tarde)
+  horarios: {
+    0: [],
+    1: [['09:00', '19:00']],
+    2: [['09:00', '19:00']],
+    3: [['09:00', '19:00']],
+    4: [['09:00', '19:00']],
+    5: [['09:00', '20:00']],
+    6: [['09:00', '17:00']],
+  },
+  barbeiros: [
+    { id: 'qualquer', nome: 'Sem preferência', especialidade: 'Primeiro barbeiro livre' },
+    { id: 'carlos', nome: 'Carlos', especialidade: 'Cortes clássicos e navalha' },
+    { id: 'diego', nome: 'Diego', especialidade: 'Fade, risco e desenhos' },
+  ],
+  servicos: [
+    { id: 'corte', nome: 'Corte', duracaoMin: 30, preco: 40 },
+    { id: 'barba', nome: 'Barba', duracaoMin: 30, preco: 35 },
+    { id: 'combo', nome: 'Corte + Barba', duracaoMin: 60, preco: 65 },
+    { id: 'navalha', nome: 'Acabamento na navalha', duracaoMin: 20, preco: 20 },
+    { id: 'sobrancelha', nome: 'Sobrancelha', duracaoMin: 15, preco: 15 },
+  ],
+  // Bloqueios fixos que você já sabe de antemão (feriado, folga, compromisso).
+  // Edite aqui e publique de novo pra valer pra todo mundo que abrir o site.
+  // Ex.: { data: '2026-12-25', diaTodo: true, motivo: 'Feriado' }
+  // Ex.: { data: '2026-09-20', inicio: '12:00', fim: '13:00', motivo: 'Compromisso' }
+  bloqueios: [
+  ],
+};
+
+/* =========================================================
+   2. HELPERS GERAIS
+   ========================================================= */
+const escaparHTML = (t) => String(t).replace(/[&<>"']/g, (ch) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const formatarPreco = (v) => BRL.format(v);
+
+const paraMinutos = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
+const paraHHMM = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+
+function hojeISOnaLoja(fuso) {
+  return new Intl.DateTimeFormat('en-CA', { timeZone: fuso, year: 'numeric', month: '2-digit', day: '2-digit' })
+    .format(new Date());
+}
+
+function agoraNaLoja(fuso) {
+  const partes = new Intl.DateTimeFormat('en-US', {
+    timeZone: fuso, hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).formatToParts(new Date());
+  const valor = (tipo) => partes.find((p) => p.type === tipo).value;
+  return Number(valor('hour')) * 60 + Number(valor('minute'));
+}
+
+function somarDiasISO(iso, n) {
+  const [y, m, d] = iso.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + n);
+  return dt.toISOString().slice(0, 10);
+}
+
+function diaSemanaISO(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+
+function formatarDataLonga(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' })
+    .format(new Date(Date.UTC(y, m - 1, d, 12)));
+}
+
+function formatarDataCurta(iso) {
+  const [, m, d] = iso.split('-');
+  return `${d}/${m}`;
+}
+
+const DIAS_SEMANA = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+const DIAS_ABREV = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
+const MESES_ABREV = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+
+function estaAberto(horarios, dia, minutos) {
+  const hoje = (horarios[dia] || []).some(([ini, fim]) => minutos >= paraMinutos(ini) && minutos < paraMinutos(fim));
+  const restoDeOntem = (horarios[(dia + 6) % 7] || []).some(([ini, fim]) => {
+    const a = paraMinutos(ini), b = paraMinutos(fim);
+    return b <= a && minutos < b;
+  });
+  return hoje || restoDeOntem;
+}
+
+function textoProximaAbertura(horarios, dia, minutos) {
+  for (let offset = 0; offset < 8; offset++) {
+    const d = (dia + offset) % 7;
+    const inicios = (horarios[d] || [])
+      .map(([ini]) => ini)
+      .filter((ini) => offset > 0 || paraMinutos(ini) > minutos)
+      .sort((x, y) => paraMinutos(x) - paraMinutos(y));
+    if (inicios.length) {
+      const quando = offset === 0 ? 'hoje' : offset === 1 ? 'amanhã' : DIAS_SEMANA[d];
+      return `Abre ${quando} às ${inicios[0]}`;
+    }
+  }
+  return 'Sem horário definido';
+}
+
+function acharServico(id) { return BARBEARIA.servicos.find((s) => s.id === id) || null; }
+function acharBarbeiro(id) { return BARBEARIA.barbeiros.find((b) => b.id === id) || null; }
+
+const linkWhatsApp = (numero, texto) =>
+  `https://wa.me/${String(numero).replace(/\D/g, '')}?text=${encodeURIComponent(texto)}`;
+
+/* =========================================================
+   3. AGENDA LOCAL DO CLIENTE (localStorage — só neste aparelho)
+   ========================================================= */
+function carregarMeusAgendamentos() {
+  try {
+    const salvo = JSON.parse(localStorage.getItem('barbanobre-agendamentos') || '[]');
+    return Array.isArray(salvo) ? salvo : [];
+  } catch (e) { return []; }
+}
+function salvarMeusAgendamentos(lista) {
+  try { localStorage.setItem('barbanobre-agendamentos', JSON.stringify(lista)); } catch (e) { /* ignora */ }
+}
+function carregarDadosCliente() {
+  try { return JSON.parse(localStorage.getItem('barbanobre-cliente') || '{}'); } catch (e) { return {}; }
+}
+function salvarDadosCliente(d) {
+  try { localStorage.setItem('barbanobre-cliente', JSON.stringify({ nome: d.nome, telefone: d.telefone })); }
+  catch (e) { /* ignora */ }
+}
+
+let meusAgendamentos = carregarMeusAgendamentos();
+
+/* =========================================================
+   4. BLOQUEIOS E GERAÇÃO DE HORÁRIOS
+   ========================================================= */
+function slotBloqueado(iso, inicioMin, duracaoMin) {
+  const fimSlot = inicioMin + duracaoMin;
+  const bloqueado = BARBEARIA.bloqueios.some((b) => {
+    if (b.data !== iso) return false;
+    if (b.diaTodo) return true;
+    const a = paraMinutos(b.inicio), z = paraMinutos(b.fim);
+    return inicioMin < z && fimSlot > a;
+  });
+  if (bloqueado) return true;
+  // já escolhido por este cliente neste aparelho, pra evitar clique duplicado
+  return meusAgendamentos.some((ag) => ag.data === iso && ag.horarioMin === inicioMin && ag.status !== 'cancelado');
+}
+
+function diaTotalmenteBloqueado(iso) {
+  return BARBEARIA.bloqueios.some((b) => b.data === iso && b.diaTodo);
+}
+
+function gerarHorarios(iso, servico) {
+  const diaSemana = diaSemanaISO(iso);
+  const blocos = BARBEARIA.horarios[diaSemana] || [];
+  const hoje = hojeISOnaLoja(BARBEARIA.fuso);
+  const limiteMin = iso === hoje ? agoraNaLoja(BARBEARIA.fuso) + BARBEARIA.antecedenciaMinMin : -Infinity;
+  const slots = [];
+  for (const [ini, fim] of blocos) {
+    let cursor = paraMinutos(ini);
+    const fimMin = paraMinutos(fim);
+    while (cursor + servico.duracaoMin <= fimMin) {
+      if (cursor >= limiteMin && !slotBloqueado(iso, cursor, servico.duracaoMin)) slots.push(cursor);
+      cursor += BARBEARIA.intervaloMin;
+    }
+  }
+  return slots;
+}
+
+function proximasDatas() {
+  const hoje = hojeISOnaLoja(BARBEARIA.fuso);
+  const datas = [];
+  for (let i = 0; i < BARBEARIA.diasAntecedencia; i++) {
+    const iso = somarDiasISO(hoje, i);
+    const dia = diaSemanaISO(iso);
+    const temExpediente = (BARBEARIA.horarios[dia] || []).length > 0;
+    datas.push({ iso, dia, disponivel: temExpediente && !diaTotalmenteBloqueado(iso) });
+  }
+  return datas;
+}
+
+/* =========================================================
+   5. STATUS ABERTO / FECHADO + RENDER DO TOPO
+   ========================================================= */
+function atualizarStatus() {
+  const hoje = hojeISOnaLoja(BARBEARIA.fuso);
+  const dia = diaSemanaISO(hoje);
+  const minutos = agoraNaLoja(BARBEARIA.fuso);
+  const aberto = estaAberto(BARBEARIA.horarios, dia, minutos);
+  document.getElementById('status-bolha').classList.toggle('fechado', !aberto);
+  document.getElementById('status-texto').textContent = aberto ? 'Aberto agora' : 'Fechado';
+  document.getElementById('status-detalhe').textContent =
+    aberto ? '' : `· ${textoProximaAbertura(BARBEARIA.horarios, dia, minutos)}`;
+}
+
+function renderInfoLoja() {
+  const chips = [
+    `<a class="info-chip" href="${escaparHTML(BARBEARIA.mapsLink)}" target="_blank" rel="noopener">📍 ${escaparHTML(BARBEARIA.endereco)}</a>`,
+    `<a class="info-chip" href="${linkWhatsApp(BARBEARIA.whatsapp, 'Olá! Vim pelo site da Barba Nobre.')}" target="_blank" rel="noopener">💬 WhatsApp</a>`,
+  ];
+  if (BARBEARIA.instagram) {
+    chips.push(`<a class="info-chip" href="${escaparHTML(BARBEARIA.instagram)}" target="_blank" rel="noopener">📷 Instagram</a>`);
+  }
+  document.getElementById('info-loja').innerHTML = chips.join('');
+}
+
+/* =========================================================
+   6. RENDER: SERVIÇOS / BARBEIROS / HORÁRIOS / LOCAL
+   ========================================================= */
+function renderServicos() {
+  const grade = document.getElementById('grade-servicos');
+  grade.innerHTML = '';
+  for (const s of BARBEARIA.servicos) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'servico-card';
+    btn.innerHTML = `
+      <span>
+        <span class="servico-nome">${escaparHTML(s.nome)}</span>
+        <span class="servico-duracao">${s.duracaoMin} min</span>
+      </span>
+      <span class="servico-preco">${formatarPreco(s.preco)}<span class="servico-preco-sub">agendar</span></span>`;
+    btn.addEventListener('click', () => abrirAgendamento(s.id));
+    grade.appendChild(btn);
+  }
+}
+
+function renderBarbeiros() {
+  const grade = document.getElementById('grade-barbeiros');
+  grade.innerHTML = BARBEARIA.barbeiros.filter((b) => b.id !== 'qualquer').map((b) => `
+    <div class="barbeiro-card">
+      <div class="barbeiro-avatar">${escaparHTML(b.nome.charAt(0))}</div>
+      <div class="barbeiro-nome">${escaparHTML(b.nome)}</div>
+      <div class="barbeiro-especialidade">${escaparHTML(b.especialidade || '')}</div>
+    </div>`).join('');
+}
+
+function renderTabelaHorarios() {
+  const hoje = diaSemanaISO(hojeISOnaLoja(BARBEARIA.fuso));
+  const tabela = document.getElementById('tabela-horarios');
+  tabela.innerHTML = DIAS_SEMANA.map((nome, i) => {
+    const blocos = BARBEARIA.horarios[i] || [];
+    const texto = blocos.length ? blocos.map(([a, z]) => `${a}–${z}`).join(' e ') : 'Fechado';
+    return `<tr class="${i === hoje ? 'linha-hoje' : ''}${blocos.length ? '' : ' linha-fechado'}">
+      <td>${nome}</td><td class="tabular">${texto}</td></tr>`;
+  }).join('');
+}
+
+function renderLocal() {
+  document.getElementById('endereco-texto').textContent = BARBEARIA.endereco;
+  document.getElementById('link-mapa').href = BARBEARIA.mapsLink;
+}
+
+/* =========================================================
+   7. NAVEGAÇÃO DE PAINÉIS (com suporte ao botão voltar)
+   ========================================================= */
+let painelAberto = null;
+function abrirPainel(tipo) {
+  painelAberto = tipo;
+  history.pushState({ painel: tipo }, '');
+  document.body.style.overflow = 'hidden';
+}
+function fecharPainelAtual(semVoltarHistorico) {
+  document.getElementById('camada-paineis').innerHTML = '';
+  painelAberto = null;
+  document.body.style.overflow = '';
+  if (!semVoltarHistorico) history.back();
+}
+window.addEventListener('popstate', () => { if (painelAberto) fecharPainelAtual(true); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && painelAberto) fecharPainelAtual(); });
+
+function prenderFoco(painelEl) {
+  const focaveis = painelEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (!focaveis.length) return;
+  focaveis[0].focus();
+  painelEl.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const lista = [...focaveis];
+    const idx = lista.indexOf(document.activeElement);
+    if (e.shiftKey && (idx === 0 || idx === -1)) { e.preventDefault(); lista[lista.length - 1].focus(); }
+    else if (!e.shiftKey && idx === lista.length - 1) { e.preventDefault(); lista[0].focus(); }
+  });
+}
+
+function montarOverlay(tituloHTML, corpoHTML, idOverlay) {
+  const camada = document.getElementById('camada-paineis');
+  camada.innerHTML = `
+    <div class="overlay" id="${idOverlay}">
+      <div class="painel" role="dialog" aria-modal="true" aria-labelledby="${idOverlay}-titulo">
+        <div class="painel-cabecalho">
+          <h2 id="${idOverlay}-titulo">${tituloHTML}</h2>
+          <button class="fechar-btn" id="${idOverlay}-fechar" aria-label="Fechar">&times;</button>
+        </div>
+        <div class="painel-corpo" id="${idOverlay}-corpo">${corpoHTML}</div>
+      </div>
+    </div>`;
+  const overlay = document.getElementById(idOverlay);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) fecharPainelAtual(); });
+  document.getElementById(`${idOverlay}-fechar`).addEventListener('click', () => fecharPainelAtual());
+  prenderFoco(overlay.querySelector('.painel'));
+  return document.getElementById(`${idOverlay}-corpo`);
+}
+
+/* =========================================================
+   8. ASSISTENTE DE AGENDAMENTO
+   ========================================================= */
+const ETAPAS = ['servico', 'barbeiro', 'data', 'horario', 'dados'];
+let novoAgendamento = null;
+let etapaAtual = null;
+
+function abrirAgendamento(servicoIdInicial) {
+  novoAgendamento = { servicoId: servicoIdInicial || null, barbeiroId: null, data: null, horarioMin: null, nome: '', telefone: '', obs: '' };
+  const dadosSalvos = carregarDadosCliente();
+  if (dadosSalvos.nome) novoAgendamento.nome = dadosSalvos.nome;
+  if (dadosSalvos.telefone) novoAgendamento.telefone = dadosSalvos.telefone;
+  etapaAtual = servicoIdInicial ? 'barbeiro' : 'servico';
+  abrirPainel('agendar');
+  renderEtapa();
+}
+
+function indiceEtapa(nome) { return ETAPAS.indexOf(nome); }
+
+function resumoMiniHTML() {
+  const partes = [];
+  const servico = acharServico(novoAgendamento.servicoId);
+  const barbeiro = acharBarbeiro(novoAgendamento.barbeiroId);
+  if (servico) partes.push(`<span>Serviço: <b>${escaparHTML(servico.nome)}</b></span>`);
+  if (barbeiro) partes.push(`<span>Barbeiro: <b>${escaparHTML(barbeiro.nome)}</b></span>`);
+  if (novoAgendamento.data) partes.push(`<span>Data: <b>${formatarDataCurta(novoAgendamento.data)}</b></span>`);
+  if (novoAgendamento.horarioMin != null) partes.push(`<span>Hora: <b>${paraHHMM(novoAgendamento.horarioMin)}</b></span>`);
+  return partes.length ? `<div class="resumo-mini">${partes.join('')}</div>` : '';
+}
+
+function progressoHTML() {
+  const idx = indiceEtapa(etapaAtual);
+  return `<div class="etapa-progresso">${ETAPAS.map((_, i) =>
+    `<span class="etapa-ponto ${i < idx ? 'feita' : i === idx ? 'atual' : ''}"></span>`).join('')}</div>`;
+}
+
+function irParaEtapa(nome) { etapaAtual = nome; renderEtapa(); }
+function voltarEtapa() {
+  const idx = indiceEtapa(etapaAtual);
+  if (idx <= 0) { fecharPainelAtual(); return; }
+  irParaEtapa(ETAPAS[idx - 1]);
+}
+
+const RENDERIZADORES_ETAPA = {
+  servico: htmlEtapaServico, barbeiro: htmlEtapaBarbeiro, data: htmlEtapaData,
+  horario: htmlEtapaHorario, dados: htmlEtapaDados,
+};
+const LIGADORES_ETAPA = {
+  servico: ligarEtapaServico, barbeiro: ligarEtapaBarbeiro, data: ligarEtapaData,
+  horario: ligarEtapaHorario, dados: ligarEtapaDados,
+};
+
+function renderEtapa() {
+  const titulos = { servico: 'Escolha o serviço', barbeiro: 'Escolha o barbeiro', data: 'Escolha a data', horario: 'Escolha o horário', dados: 'Seus dados' };
+  const corpo = montarOverlay(titulos[etapaAtual], '', 'overlay-agendar');
+  corpo.innerHTML = progressoHTML() + resumoMiniHTML() + RENDERIZADORES_ETAPA[etapaAtual]();
+  LIGADORES_ETAPA[etapaAtual](corpo);
+}
+
+/* --- Etapa: serviço --- */
+function htmlEtapaServico() {
+  const lista = BARBEARIA.servicos.map((s) => `
+    <button type="button" class="opcao-selecionavel${novoAgendamento.servicoId === s.id ? ' marcada' : ''}" data-id="${s.id}">
+      <span><span class="opcao-selecionavel-nome">${escaparHTML(s.nome)}</span>
+        <span class="opcao-selecionavel-sub">${s.duracaoMin} min</span></span>
+      <span class="opcao-selecionavel-preco">${formatarPreco(s.preco)}</span>
+    </button>`).join('');
+  return `<div class="opcoes-lista">${lista}</div>`;
+}
+function ligarEtapaServico(corpo) {
+  corpo.querySelectorAll('.opcao-selecionavel').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      novoAgendamento.servicoId = btn.dataset.id;
+      novoAgendamento.data = null; novoAgendamento.horarioMin = null;
+      irParaEtapa('barbeiro');
+    });
+  });
+}
+
+/* --- Etapa: barbeiro --- */
+function htmlEtapaBarbeiro() {
+  const lista = BARBEARIA.barbeiros.map((b) => `
+    <button type="button" class="opcao-selecionavel${novoAgendamento.barbeiroId === b.id ? ' marcada' : ''}" data-id="${b.id}">
+      <span><span class="opcao-selecionavel-nome">${escaparHTML(b.nome)}</span>
+        <span class="opcao-selecionavel-sub">${escaparHTML(b.especialidade || '')}</span></span>
+    </button>`).join('');
+  return `<div class="opcoes-lista">${lista}</div>
+    <div class="etapa-botoes"><button class="btn-secundario" id="btn-voltar-etapa" type="button">Voltar</button></div>`;
+}
+function ligarEtapaBarbeiro(corpo) {
+  corpo.querySelectorAll('.opcao-selecionavel').forEach((btn) => {
+    btn.addEventListener('click', () => { novoAgendamento.barbeiroId = btn.dataset.id; irParaEtapa('data'); });
+  });
+  corpo.querySelector('#btn-voltar-etapa').addEventListener('click', voltarEtapa);
+}
+
+/* --- Etapa: data --- */
+function htmlEtapaData() {
+  const datas = proximasDatas();
+  const hojeISO = hojeISOnaLoja(BARBEARIA.fuso);
+  const chips = datas.map((d) => {
+    const [, m, dd] = d.iso.split('-');
+    const rotuloDia = d.iso === hojeISO ? 'hoje' : DIAS_ABREV[d.dia];
+    return `<button type="button" class="data-chip${novoAgendamento.data === d.iso ? ' marcada' : ''}"
+      data-iso="${d.iso}" ${d.disponivel ? '' : 'disabled'}>
+      <span class="dc-dia">${rotuloDia}</span>
+      <span class="dc-numero tabular">${dd}</span>
+      <span class="dc-mes">${MESES_ABREV[Number(m) - 1]}</span>
+    </button>`;
+  }).join('');
+  return `<div class="datas-scroll">${chips}</div>
+    <div class="etapa-botoes"><button class="btn-secundario" id="btn-voltar-etapa" type="button">Voltar</button></div>`;
+}
+function ligarEtapaData(corpo) {
+  corpo.querySelectorAll('.data-chip:not(:disabled)').forEach((btn) => {
+    btn.addEventListener('click', () => { novoAgendamento.data = btn.dataset.iso; irParaEtapa('horario'); });
+  });
+  corpo.querySelector('#btn-voltar-etapa').addEventListener('click', voltarEtapa);
+}
+
+/* --- Etapa: horário --- */
+function htmlEtapaHorario() {
+  const servico = acharServico(novoAgendamento.servicoId);
+  const slots = gerarHorarios(novoAgendamento.data, servico);
+  const corpoLista = slots.length
+    ? `<div class="grade-horarios">${slots.map((min) =>
+        `<button type="button" class="horario-btn${novoAgendamento.horarioMin === min ? ' marcada' : ''}" data-min="${min}">${paraHHMM(min)}</button>`
+      ).join('')}</div>`
+    : `<p class="sem-horarios">Sem horários livres nesse dia. Volte e escolha outra data.</p>`;
+  return `<p style="color:var(--texto-dim);font-size:.9rem;text-transform:capitalize">${formatarDataLonga(novoAgendamento.data)}</p>
+    <div style="margin-top:.8rem">${corpoLista}</div>
+    <div class="etapa-botoes"><button class="btn-secundario" id="btn-voltar-etapa" type="button">Voltar</button></div>`;
+}
+function ligarEtapaHorario(corpo) {
+  corpo.querySelectorAll('.horario-btn').forEach((btn) => {
+    btn.addEventListener('click', () => { novoAgendamento.horarioMin = Number(btn.dataset.min); irParaEtapa('dados'); });
+  });
+  corpo.querySelector('#btn-voltar-etapa').addEventListener('click', voltarEtapa);
+}
+
+/* --- Etapa: dados do cliente --- */
+function htmlEtapaDados() {
+  return `
+    <div class="campo" id="campo-nome">
+      <label for="in-nome">Seu nome</label>
+      <input type="text" id="in-nome" value="${escaparHTML(novoAgendamento.nome)}" placeholder="Nome completo">
+      <p class="campo-erro" hidden></p>
+    </div>
+    <div class="campo" id="campo-telefone">
+      <label for="in-telefone">WhatsApp</label>
+      <input type="tel" id="in-telefone" value="${escaparHTML(novoAgendamento.telefone)}" placeholder="(11) 99999-9999">
+      <p class="campo-erro" hidden></p>
+    </div>
+    <div class="campo">
+      <label for="in-obs">Observação (opcional)</label>
+      <textarea id="in-obs" placeholder="Ex.: prefiro corte mais baixo nas laterais">${escaparHTML(novoAgendamento.obs)}</textarea>
+    </div>
+    <div class="etapa-botoes">
+      <button class="btn-secundario" id="btn-voltar-etapa" type="button">Voltar</button>
+      <button class="btn-primario" id="btn-confirmar-agendamento" type="button">Confirmar e enviar</button>
+    </div>`;
+}
+function ligarEtapaDados(corpo) {
+  corpo.querySelector('#btn-voltar-etapa').addEventListener('click', voltarEtapa);
+  corpo.querySelector('#in-nome').addEventListener('input', (e) => { novoAgendamento.nome = e.target.value; });
+  corpo.querySelector('#in-telefone').addEventListener('input', (e) => { novoAgendamento.telefone = e.target.value; });
+  corpo.querySelector('#in-obs').addEventListener('input', (e) => { novoAgendamento.obs = e.target.value; });
+  corpo.querySelector('#btn-confirmar-agendamento').addEventListener('click', confirmarAgendamento);
+}
+
+function marcarErroCampo(idCampo, mensagem) {
+  const campo = document.getElementById(idCampo);
+  campo.classList.toggle('tem-erro', !!mensagem);
+  const p = campo.querySelector('.campo-erro');
+  p.hidden = !mensagem;
+  p.textContent = mensagem || '';
+}
+
+function confirmarAgendamento() {
+  let ok = true;
+  if (novoAgendamento.nome.trim().length < 2) { marcarErroCampo('campo-nome', 'Digite seu nome'); ok = false; }
+  else marcarErroCampo('campo-nome', '');
+  const digitos = novoAgendamento.telefone.replace(/\D/g, '');
+  if (digitos.length < 10) { marcarErroCampo('campo-telefone', 'Digite um WhatsApp válido, com DDD'); ok = false; }
+  else marcarErroCampo('campo-telefone', '');
+  if (!ok) return;
+
+  const servico = acharServico(novoAgendamento.servicoId);
+  const barbeiro = acharBarbeiro(novoAgendamento.barbeiroId);
+  const id = 'ag_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const registro = {
+    id, servicoId: servico.id, servicoNome: servico.nome, servicoPreco: servico.preco,
+    barbeiroId: barbeiro.id, barbeiroNome: barbeiro.nome,
+    data: novoAgendamento.data, horarioMin: novoAgendamento.horarioMin,
+    nome: novoAgendamento.nome.trim(), telefone: digitos, obs: novoAgendamento.obs.trim(),
+    status: 'aguardando', criadoEm: Date.now(),
+  };
+  meusAgendamentos.push(registro);
+  salvarMeusAgendamentos(meusAgendamentos);
+  salvarDadosCliente({ nome: registro.nome, telefone: novoAgendamento.telefone });
+
+  const mensagem = montarMensagemAgendamento(registro);
+  window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
+  renderConfirmacao(registro);
+}
+
+function montarMensagemAgendamento(ag) {
+  const L = [`*Agendamento - ${BARBEARIA.nome}*`, ''];
+  L.push(`Serviço: ${ag.servicoNome} (${formatarPreco(ag.servicoPreco)})`);
+  L.push(`Barbeiro: ${ag.barbeiroNome}`);
+  L.push(`Data: ${formatarDataLonga(ag.data)}`);
+  L.push(`Horário: ${paraHHMM(ag.horarioMin)}`);
+  L.push('', `Nome: ${ag.nome}`);
+  L.push(`Telefone: ${ag.telefone}`);
+  if (ag.obs) L.push(`Observação: ${ag.obs}`);
+  L.push('', 'Aguardo a confirmação, obrigado!');
+  return L.join('\n');
+}
+
+function renderConfirmacao(ag) {
+  const corpo = montarOverlay('Agendamento enviado', '', 'overlay-agendar');
+  corpo.innerHTML = `
+    <div class="confirma-icone">✓</div>
+    <h3 class="confirma-titulo" style="text-align:center">Quase lá!</h3>
+    <p class="confirma-texto">Abrimos o WhatsApp com sua mensagem pronta. Envie ela pra confirmar com a barbearia.</p>
+    <div class="confirma-resumo">
+      <p><span>Serviço</span> <b>${escaparHTML(ag.servicoNome)}</b></p>
+      <p><span>Barbeiro</span> <b>${escaparHTML(ag.barbeiroNome)}</b></p>
+      <p><span>Data</span> <b style="text-transform:capitalize">${formatarDataLonga(ag.data)}</b></p>
+      <p><span>Horário</span> <b>${paraHHMM(ag.horarioMin)}</b></p>
+    </div>
+    <p class="confirma-aviso">O horário só fica garantido depois que a barbearia confirmar pelo WhatsApp.</p>
+    <div class="etapa-botoes">
+      <button class="btn-primario" id="btn-fechar-confirmacao" type="button">Fechar</button>
+    </div>`;
+  corpo.querySelector('#btn-fechar-confirmacao').addEventListener('click', () => fecharPainelAtual());
+}
+
+/* =========================================================
+   9. MEUS AGENDAMENTOS
+   ========================================================= */
+function abrirMeusAgendamentos() {
+  abrirPainel('meus-agendamentos');
+  renderMeusAgendamentos();
+}
+
+function renderMeusAgendamentos() {
+  meusAgendamentos = carregarMeusAgendamentos();
+  const hojeISO = hojeISOnaLoja(BARBEARIA.fuso);
+  const agoraMin = agoraNaLoja(BARBEARIA.fuso);
+  const ordenados = [...meusAgendamentos].sort((a, b) => (a.data + a.horarioMin).localeCompare(b.data + b.horarioMin));
+  const corpo = montarOverlay('Meus agendamentos', '', 'overlay-meus');
+
+  if (!ordenados.length) {
+    corpo.innerHTML = `<p class="agendamentos-vazio">Você ainda não agendou nenhum horário por aqui.</p>`;
+    return;
+  }
+
+  corpo.innerHTML = `<div class="lista-agendamentos">${ordenados.map((ag) => {
+    const passado = ag.status === 'cancelado' ||
+      ag.data < hojeISO || (ag.data === hojeISO && ag.horarioMin < agoraMin);
+    const rotuloStatus = ag.status === 'cancelado' ? 'Cancelado' : passado ? 'Já passou' : 'Aguardando confirmação';
+    return `
+      <div class="agendamento-card">
+        <div class="agendamento-topo">
+          <div>
+            <div class="agendamento-data">${formatarDataLonga(ag.data)}</div>
+            <div class="agendamento-hora tabular">${paraHHMM(ag.horarioMin)}</div>
+          </div>
+          <span class="selo-status${passado ? ' passado' : ''}">${rotuloStatus}</span>
+        </div>
+        <div class="agendamento-detalhe">
+          ${escaparHTML(ag.servicoNome)} · ${escaparHTML(ag.barbeiroNome)}<br>${formatarPreco(ag.servicoPreco)}
+        </div>
+        ${!passado ? `<div class="agendamento-acoes">
+          <button class="btn-cancelar" data-id="${ag.id}" type="button">Cancelar horário</button>
+        </div>` : ''}
+      </div>`;
+  }).join('')}</div>`;
+
+  corpo.querySelectorAll('.btn-cancelar').forEach((btn) => {
+    btn.addEventListener('click', () => cancelarAgendamento(btn.dataset.id));
+  });
+}
+
+function cancelarAgendamento(id) {
+  const ag = meusAgendamentos.find((a) => a.id === id);
+  if (!ag) return;
+  if (!confirm(`Cancelar o horário de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}?`)) return;
+  ag.status = 'cancelado';
+  salvarMeusAgendamentos(meusAgendamentos);
+  const mensagem = `Olá! Preciso cancelar meu agendamento (${ag.servicoNome}) de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}. Obrigado!`;
+  window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
+  renderMeusAgendamentos();
+}
+
+/* =========================================================
+   10. INICIALIZAÇÃO
+   ========================================================= */
+renderInfoLoja();
+renderServicos();
+renderBarbeiros();
+renderTabelaHorarios();
+renderLocal();
+atualizarStatus();
+setInterval(atualizarStatus, 60000);
+
+document.getElementById('btn-agendar-topo').addEventListener('click', () => abrirAgendamento(null));
+document.getElementById('barra-agendar').addEventListener('click', () => abrirAgendamento(null));
+document.getElementById('btn-meus-agendamentos').addEventListener('click', abrirMeusAgendamentos);
+</script>
+</body>
+</html>
