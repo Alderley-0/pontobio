@@ -9,6 +9,8 @@ Páginas de links para criador de conteúdo. Um repositório, um domínio, uma p
 /forsaken/        página de um criador (pontobio.com/forsaken/)
 /modelo/          template para o próximo perfil
 /hamburgueria/    cardápio digital de exemplo, com pedido pelo WhatsApp
+/hamburgueria/painel/        painel do dono (pedidos + edição do cardápio)
+/hamburgueria/firebase-config.js  configuração do Firebase usada pelos dois acima
 CNAME             domínio custom do GitHub Pages
 .nojekyll         impede o GitHub de processar as pastas como Jekyll
 ```
@@ -64,3 +66,60 @@ sacola e envio do pedido pelo WhatsApp. Antes de publicar, trocar em
 
 Para pedido por mesa, gerar um QR code por mesa apontando para
 `.../hamburgueria/?mesa=12` (troque o número por mesa).
+
+## Painel do dono (pedidos + edição do cardápio)
+
+`/hamburgueria/painel/index.html` é o painel interno onde o dono acompanha os
+pedidos em tempo real (com status: novo → preparando → saiu p/ entrega/pronto
+→ concluído) e edita preços, disponibilidade e dados da loja sem mexer em
+código. Ele só funciona com um projeto Firebase configurado — sem isso, o
+próprio painel avisa "não configurado" e o cardápio continua funcionando
+normalmente (só sem histórico de pedidos nem painel).
+
+### Configurar o Firebase (grátis)
+
+1. Crie um projeto em https://console.firebase.google.com (grátis, sem cartão)
+2. **Firestore Database** → criar banco → modo produção → escolher uma região
+3. **Authentication** → Sign-in method → ativar **E-mail/senha**
+4. Authentication → Users → **Add user** → crie o login do dono (e-mail + senha)
+5. ⚙ Configurações do projeto → Seus apps → `</>` (Web) → registre um app e
+   copie os valores gerados
+6. Cole esses valores em `hamburgueria/firebase-config.js`, no lugar de cada
+   `'COLE_AQUI'`
+7. Firestore Database → **Regras**, cole e publique:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /pedidos/{pedidoId} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+    match /cardapio/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}
+```
+
+Essas regras deixam qualquer cliente criar um pedido (ele não faz login), mas
+só quem estiver logado (o dono) consegue ler os pedidos, mudar status ou
+editar o cardápio.
+
+### Como usar
+
+- Abra `/hamburgueria/painel/` e entre com o e-mail/senha criados no passo 4
+- Aba **Pedidos**: lista em tempo real, com filtro "Hoje"/"Todos" e botão pra
+  avançar o status de cada pedido
+- Aba **Cardápio**: preço e disponibilidade de cada item direto na tela; para
+  adicionar/remover itens, categorias, opções, horários etc., use a "Edição
+  avançada (JSON)" — edite o JSON e clique em "Aplicar", depois em
+  "Salvar cardápio"
+- O cardápio que os clientes veem no site busca essa mesma informação do
+  Firestore a cada carregamento (e a cada 5 minutos), com o cardápio local do
+  arquivo como reserva se o Firebase estiver fora do ar
+
+O WhatsApp continua sendo o canal principal de aviso do pedido — o Firestore
+é só o histórico/painel, não substitui o envio da mensagem.

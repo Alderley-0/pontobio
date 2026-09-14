@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Chama Burger — Painel</title>
+<meta name="robots" content="noindex, nofollow">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
+<style>
+:root{
+  --bg:#201a16; --bg-2:#2a231d; --bg-3:#332b23; --borda:#443a2f;
+  --texto:#f5ece1; --texto-dim:#b8ab9c;
+  --brasa:#e85d2c; --brasa-escura:#c94a20; --mostarda:#f2a93b;
+  --erro:#e0574a; --sucesso:#7fb069; --azul:#5b9bd5;
+  --radius:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Work Sans",system-ui,sans-serif;background:var(--bg);color:var(--texto);font-size:15px;line-height:1.5;min-height:100vh}
+button{font-family:inherit;cursor:pointer}
+input,select,textarea{font-family:inherit;font-size:1rem}
+:focus-visible{outline:2px solid var(--mostarda);outline-offset:2px}
+[hidden]{display:none!important}
+.tabular{font-variant-numeric:tabular-nums}
+
+/* ---------- Login ---------- */
+.login-tela{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.25rem}
+.login-caixa{
+  width:100%;max-width:22rem;background:var(--bg-2);border:1px solid var(--borda);
+  border-radius:16px;padding:2rem 1.5rem;
+}
+.login-caixa h1{font-size:1.5rem;margin-bottom:.3rem}
+.login-caixa p{color:var(--texto-dim);font-size:.9rem;margin-bottom:1.5rem}
+.campo{margin-bottom:1rem}
+.campo label{display:block;font-size:.85rem;font-weight:600;margin-bottom:.35rem;color:var(--texto-dim)}
+.campo input,.campo select,.campo textarea{
+  width:100%;background:var(--bg-3);border:1px solid var(--borda);color:var(--texto);
+  border-radius:8px;padding:.6rem .75rem;
+}
+.btn{
+  background:var(--brasa);color:#fff;border:0;border-radius:8px;padding:.7rem 1rem;
+  font-weight:700;font-size:.95rem;
+}
+.btn:hover{background:var(--brasa-escura)}
+.btn:disabled{background:var(--bg-3);color:var(--texto-dim);cursor:not-allowed}
+.btn-secundario{background:var(--bg-3);color:var(--texto);border:1px solid var(--borda)}
+.btn-bloco{width:100%}
+.erro-msg{color:var(--erro);font-size:.85rem;margin-top:.75rem;min-height:1.2em}
+
+/* ---------- App ---------- */
+.app{display:none;min-height:100vh;flex-direction:column}
+.app.ativo{display:flex}
+header.topo-painel{
+  background:var(--bg-2);border-bottom:1px solid var(--borda);
+  padding:.9rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+}
+header.topo-painel h1{font-size:1.15rem}
+header.topo-painel .usuario{color:var(--texto-dim);font-size:.85rem}
+.abas-painel{
+  display:flex;gap:.4rem;padding:0 1.25rem;background:var(--bg);border-bottom:1px solid var(--borda);overflow-x:auto;
+}
+.aba-painel{
+  background:none;border:0;color:var(--texto-dim);padding:.85rem .3rem;font-weight:600;font-size:.92rem;
+  border-bottom:3px solid transparent;white-space:nowrap;margin-right:1rem;
+}
+.aba-painel.ativa{color:var(--texto);border-color:var(--brasa)}
+main.conteudo-painel{flex:1;padding:1.25rem;max-width:64rem;margin:0 auto;width:100%}
+.secao-painel{display:none}
+.secao-painel.ativa{display:block}
+
+/* Pedidos */
+.filtros-pedidos{display:flex;gap:.6rem;margin-bottom:1rem;flex-wrap:wrap;align-items:center}
+.filtro-btn{
+  background:var(--bg-2);border:1px solid var(--borda);color:var(--texto-dim);border-radius:999px;
+  padding:.4rem .9rem;font-size:.85rem;font-weight:600;
+}
+.filtro-btn.ativo{background:var(--brasa);border-color:var(--brasa);color:#fff}
+.resumo-dia{color:var(--texto-dim);font-size:.85rem;margin-left:auto}
+.lista-pedidos{display:grid;gap:.8rem}
+.pedido-card{background:var(--bg-2);border:1px solid var(--borda);border-radius:var(--radius);padding:1rem;border-left:4px solid var(--brasa)}
+.pedido-card.status-concluido{border-left-color:var(--sucesso);opacity:.7}
+.pedido-card.status-cancelado{border-left-color:var(--erro);opacity:.6}
+.pedido-topo{display:flex;justify-content:space-between;gap:.8rem;flex-wrap:wrap;align-items:baseline}
+.pedido-nome{font-weight:700;font-size:1.05rem}
+.pedido-hora{color:var(--texto-dim);font-size:.82rem}
+.pedido-tipo-tag{
+  display:inline-block;background:var(--bg-3);border:1px solid var(--borda);border-radius:6px;
+  padding:.15rem .5rem;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;margin-top:.3rem;
+}
+.pedido-itens{margin-top:.6rem;font-size:.88rem;color:var(--texto-dim)}
+.pedido-itens div{padding:.15rem 0}
+.pedido-extra{margin-top:.5rem;font-size:.85rem;color:var(--texto-dim)}
+.pedido-total{font-weight:700;color:var(--brasa);margin-top:.5rem;font-size:1.05rem}
+.pedido-rodape{display:flex;justify-content:space-between;align-items:center;margin-top:.8rem;gap:.6rem;flex-wrap:wrap}
+.status-badge{
+  font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.03em;border-radius:6px;padding:.25rem .55rem;
+}
+.status-novo{background:var(--mostarda);color:#241a08}
+.status-preparando{background:var(--azul);color:#fff}
+.status-saiu_entrega,.status-pronto{background:#8b5cf6;color:#fff}
+.status-concluido{background:var(--sucesso);color:#0d1f0a}
+.status-cancelado{background:var(--erro);color:#fff}
+.pedido-acoes{display:flex;gap:.5rem;flex-wrap:wrap}
+.acao-btn{border-radius:8px;padding:.45rem .8rem;font-size:.82rem;font-weight:700;border:1px solid var(--borda);background:var(--bg-3);color:var(--texto)}
+.acao-btn.avancar{background:var(--brasa);border-color:var(--brasa);color:#fff}
+.acao-btn.cancelar{color:var(--erro);border-color:var(--erro);background:transparent}
+.vazio{color:var(--texto-dim);text-align:center;padding:3rem 1rem}
+
+/* Cardápio */
+.aviso{background:rgba(232,93,44,.15);border:1px solid var(--brasa);color:var(--mostarda);border-radius:10px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.88rem}
+.loja-form{display:grid;grid-template-columns:repeat(auto-fill,minmax(13rem,1fr));gap:.9rem;margin-bottom:1.5rem}
+.categoria-editor{margin-bottom:1.3rem}
+.categoria-editor h3{color:var(--mostarda);font-size:1.05rem;margin-bottom:.5rem}
+.item-editor-linha{
+  display:flex;align-items:center;gap:.8rem;background:var(--bg-2);border:1px solid var(--borda);
+  border-radius:10px;padding:.6rem .9rem;margin-bottom:.5rem;flex-wrap:wrap;
+}
+.item-editor-nome{flex:1;min-width:9rem;font-weight:600}
+.item-editor-nome small{display:block;color:var(--texto-dim);font-weight:400;font-size:.78rem}
+.item-editor-preco{width:6.5rem}
+.item-editor-preco input{width:100%}
+.item-editor-disp{display:flex;align-items:center;gap:.4rem;font-size:.85rem;color:var(--texto-dim)}
+.barra-salvar{
+  position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--borda);padding:1rem 0;
+  display:flex;gap:.7rem;align-items:center;margin-top:1rem;
+}
+.salvar-status{font-size:.85rem;color:var(--texto-dim)}
+details.avancado{margin-top:1.5rem;border:1px solid var(--borda);border-radius:10px;padding:.9rem 1rem;background:var(--bg-2)}
+details.avancado summary{cursor:pointer;font-weight:700;color:var(--texto-dim)}
+details.avancado textarea{
+  width:100%;min-height:16rem;margin-top:.8rem;background:var(--bg-3);border:1px solid var(--borda);
+  color:var(--texto);border-radius:8px;padding:.7rem;font-family:ui-monospace,Consolas,monospace;font-size:.82rem;
+}
+.avancado-acoes{display:flex;gap:.6rem;margin-top:.7rem;flex-wrap:wrap}
+
+@media (max-width:640px){
+  .pedido-rodape{flex-direction:column;align-items:stretch}
+  .pedido-acoes{justify-content:stretch}
+  .acao-btn{flex:1}
+}
+</style>
+</head>
+<body>
+
+<div class="login-tela" id="tela-login">
+  <div class="login-caixa">
+    <h1>Chama Burger</h1>
+    <p>Painel do dono — pedidos e cardápio</p>
+    <div class="campo">
+      <label for="login-email">E-mail</label>
+      <input type="email" id="login-email" autocomplete="username">
+    </div>
+    <div class="campo">
+      <label for="login-senha">Senha</label>
+      <input type="password" id="login-senha" autocomplete="current-password">
+    </div>
+    <button class="btn btn-bloco" id="login-btn" type="button">Entrar</button>
+    <p class="erro-msg" id="login-erro"></p>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <header class="topo-painel">
+    <h1>Chama Burger — Painel</h1>
+    <div style="display:flex;align-items:center;gap:1rem">
+      <span class="usuario" id="usuario-logado"></span>
+      <button class="btn btn-secundario" id="sair-btn" type="button">Sair</button>
+    </div>
+  </header>
+
+  <nav class="abas-painel">
+    <button class="aba-painel ativa" data-secao="pedidos">Pedidos</button>
+    <button class="aba-painel" data-secao="cardapio">Cardápio</button>
+  </nav>
+
+  <main class="conteudo-painel">
+    <section class="secao-painel ativa" id="secao-pedidos">
+      <div class="filtros-pedidos">
+        <button class="filtro-btn ativo" data-filtro="hoje">Hoje</button>
+        <button class="filtro-btn" data-filtro="todos">Todos</button>
+        <span class="resumo-dia" id="resumo-dia"></span>
+      </div>
+      <div class="lista-pedidos" id="lista-pedidos"></div>
+    </section>
+
+    <section class="secao-painel" id="secao-cardapio">
+      <div id="cardapio-aviso"></div>
+
+      <h2 style="font-size:1.1rem;margin-bottom:.8rem">Dados da loja</h2>
+      <div class="loja-form" id="loja-form"></div>
+
+      <h2 style="font-size:1.1rem;margin:1.3rem 0 .8rem">Itens do cardápio</h2>
+      <div id="categorias-editor"></div>
+
+      <details class="avancado">
+        <summary>Edição avançada (JSON completo — categorias, opções, horários, pagamentos...)</summary>
+        <textarea id="json-avancado" spellcheck="false"></textarea>
+        <div class="avancado-acoes">
+          <button class="btn btn-secundario" id="json-aplicar" type="button">Aplicar JSON acima</button>
+          <button class="btn btn-secundario" id="json-recarregar" type="button">Recarregar do que está salvo</button>
+        </div>
+      </details>
+
+      <div class="barra-salvar">
+        <button class="btn" id="salvar-cardapio-btn" type="button">Salvar cardápio</button>
+        <span class="salvar-status" id="salvar-status"></span>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+'use strict';
+
+/* ---------- Firebase ---------- */
+const cfg = window.FIREBASE_CONFIG;
+if (!cfg || !cfg.apiKey || cfg.apiKey === 'COLE_AQUI') {
+  document.body.innerHTML = `
+    <div class="login-tela"><div class="login-caixa">
+      <h1>Painel não configurado</h1>
+      <p>O arquivo <code>hamburgueria/firebase-config.js</code> ainda está com os valores
+      de exemplo (<code>COLE_AQUI</code>). Preencha com os dados do seu projeto Firebase
+      para usar o painel. Veja o README na pasta <code>hamburgueria/</code>.</p>
+    </div></div>`;
+  throw new Error('Firebase não configurado');
+}
+firebase.initializeApp(cfg);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+/* ---------- Login / logout ---------- */
+document.getElementById('login-btn').addEventListener('click', fazerLogin);
+document.getElementById('login-senha').addEventListener('keydown', (e) => { if (e.key === 'Enter') fazerLogin(); });
+
+async function fazerLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const senha = document.getElementById('login-senha').value;
+  const erroEl = document.getElementById('login-erro');
+  erroEl.textContent = '';
+  if (!email || !senha) { erroEl.textContent = 'Preencha e-mail e senha.'; return; }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Entrando…';
+  try {
+    await auth.signInWithEmailAndPassword(email, senha);
+  } catch (e) {
+    erroEl.textContent = 'E-mail ou senha inválidos.';
+  } finally {
+    btn.disabled = false; btn.textContent = 'Entrar';
+  }
+}
+
+document.getElementById('sair-btn').addEventListener('click', () => auth.signOut());
+
+let pararListenerPedidos = null;
+
+auth.onAuthStateChanged((user) => {
+  const app = document.getElementById('app');
+  const login = document.getElementById('tela-login');
+  if (user) {
+    login.hidden = true;
+    app.classList.add('ativo');
+    document.getElementById('usuario-logado').textContent = user.email;
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-senha').value = '';
+    iniciarListenerPedidos();
+    carregarCardapioParaEdicao();
+  } else {
+    app.classList.remove('ativo');
+    login.hidden = false;
+    if (pararListenerPedidos) { pararListenerPedidos(); pararListenerPedidos = null; }
+  }
+});
+
+/* ---------- Abas ---------- */
+document.querySelectorAll('.aba-painel').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.aba-painel').forEach((b) => b.classList.remove('ativa'));
+    document.querySelectorAll('.secao-painel').forEach((s) => s.classList.remove('ativa'));
+    btn.classList.add('ativa');
+    document.getElementById('secao-' + btn.dataset.secao).classList.add('ativa');
+  });
+});
+
+/* =========================================================
+   PEDIDOS
+   ========================================================= */
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const formatarPreco = (centavos) => BRL.format((centavos || 0) / 100);
+const formatarHora = (timestamp) => timestamp
+  ? new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(timestamp.toDate())
+  : '—';
+
+const FLUXO_STATUS = {
+  entrega: ['novo', 'preparando', 'saiu_entrega', 'concluido'],
+  retirada: ['novo', 'preparando', 'pronto', 'concluido'],
+  mesa: ['novo', 'preparando', 'pronto', 'concluido'],
+};
+const ROTULO_STATUS = {
+  novo: 'Novo', preparando: 'Preparando', saiu_entrega: 'Saiu p/ entrega',
+  pronto: 'Pronto', concluido: 'Concluído', cancelado: 'Cancelado',
+};
+const ROTULO_TIPO = { entrega: 'Entrega', retirada: 'Retirada', mesa: 'Mesa' };
+
+let todosPedidos = [];
+let filtroPedidos = 'hoje';
+
+function iniciarListenerPedidos() {
+  pararListenerPedidos = db.collection('pedidos')
+    .orderBy('criadoEm', 'desc')
+    .limit(300)
+    .onSnapshot((snap) => {
+      todosPedidos = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      renderPedidos();
+    }, (erro) => {
+      document.getElementById('lista-pedidos').innerHTML =
+        `<p class="vazio">Não foi possível carregar os pedidos (${erro.code || erro.message}).</p>`;
+    });
+}
+
+document.querySelectorAll('.filtro-btn').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filtro-btn').forEach((b) => b.classList.remove('ativo'));
+    btn.classList.add('ativo');
+    filtroPedidos = btn.dataset.filtro;
+    renderPedidos();
+  });
+});
+
+function pedidosFiltrados() {
+  if (filtroPedidos === 'todos') return todosPedidos;
+  const hoje = new Date(); hoje.setHours(0, 0, 0, 0);
+  return todosPedidos.filter((p) => p.criadoEm && p.criadoEm.toDate() >= hoje);
+}
+
+function renderPedidos() {
+  const lista = pedidosFiltrados();
+  const container = document.getElementById('lista-pedidos');
+  const subtotalDia = lista
+    .filter((p) => p.status !== 'cancelado')
+    .reduce((soma, p) => soma + (p.subtotal || 0) + (p.taxaEntrega || 0), 0);
+  document.getElementById('resumo-dia').textContent =
+    `${lista.length} pedido${lista.length === 1 ? '' : 's'} · ${formatarPreco(subtotalDia)}`;
+
+  if (!lista.length) {
+    container.innerHTML = '<p class="vazio">Nenhum pedido por aqui ainda.</p>';
+    return;
+  }
+
+  container.innerHTML = lista.map((p) => {
+    const status = p.status || 'novo';
+    const fluxo = FLUXO_STATUS[p.tipo] || FLUXO_STATUS.retirada;
+    const idxAtual = fluxo.indexOf(status);
+    const proximo = idxAtual >= 0 && idxAtual < fluxo.length - 1 ? fluxo[idxAtual + 1] : null;
+    const itensHTML = (p.itens || []).map((linha) => {
+      const nome = linha.nome || linha.itemId || 'item';
+      return `<div>${linha.qtd}x ${escaparHTML(nome)}${linha.detalhe ? ' — ' + escaparHTML(linha.detalhe) : ''}</div>`;
+    }).join('');
+    const total = (p.subtotal || 0) + (p.taxaEntrega || 0);
+    const acoes = [];
+    if (proximo && status !== 'cancelado') {
+      acoes.push(`<button class="acao-btn avancar" data-id="${p.id}" data-status="${proximo}">Marcar: ${ROTULO_STATUS[proximo]}</button>`);
+    }
+    if (status !== 'concluido' && status !== 'cancelado') {
+      acoes.push(`<button class="acao-btn cancelar" data-id="${p.id}" data-status="cancelado">Cancelar</button>`);
+    }
+    return `
+      <article class="pedido-card status-${status}">
+        <div class="pedido-topo">
+          <div>
+            <span class="pedido-nome">${escaparHTML(p.nome || 'Cliente')}</span>
+            <span class="pedido-tipo-tag">${ROTULO_TIPO[p.tipo] || p.tipo || ''}${p.mesa ? ' ' + escaparHTML(p.mesa) : ''}</span>
+          </div>
+          <span class="pedido-hora">${formatarHora(p.criadoEm)}</span>
+        </div>
+        <div class="pedido-itens">${itensHTML}</div>
+        ${p.endereco ? `<div class="pedido-extra">📍 ${escaparHTML(p.endereco)}${p.referencia ? ' — ' + escaparHTML(p.referencia) : ''}</div>` : ''}
+        ${p.pagamento ? `<div class="pedido-extra">💳 ${escaparHTML(p.pagamento)}${p.trocoPara ? ' (troco para ' + formatarPreco(p.trocoPara) + ')' : ''}</div>` : ''}
+        ${p.obs ? `<div class="pedido-extra">Obs.: ${escaparHTML(p.obs)}</div>` : ''}
+        <div class="pedido-total">${formatarPreco(total)}</div>
+        <div class="pedido-rodape">
+          <span class="status-badge status-${status}">${ROTULO_STATUS[status] || status}</span>
+          <div class="pedido-acoes">${acoes.join('')}</div>
+        </div>
+      </article>`;
+  }).join('');
+
+  container.querySelectorAll('[data-status]').forEach((btn) => {
+    btn.addEventListener('click', () => atualizarStatusPedido(btn.dataset.id, btn.dataset.status));
+  });
+}
+
+async function atualizarStatusPedido(id, novoStatus) {
+  try {
+    await db.collection('pedidos').doc(id).update({ status: novoStatus });
+  } catch (e) {
+    alert('Não foi possível atualizar o pedido: ' + e.message);
+  }
+}
+
+const escaparHTML = (t) => String(t).replace(/[&<>"']/g, (ch) =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+
+/* =========================================================
+   CARDÁPIO
+   ========================================================= */
+const CARDAPIO_PADRAO = {
+  loja: {
+    nome: 'Chama Burger', whatsapp: '5500000000000', fuso: 'America/Sao_Paulo',
+    modo: 'whatsapp', tiposPedido: ['entrega', 'retirada'],
+    taxaEntrega: 7.00, pedidoMinimo: 25.00,
+    pagamentos: ['Pix', 'Cartão na entrega', 'Dinheiro'],
+    horarios: { 0: [['18:00', '23:00']], 1: [], 2: [['18:00', '23:00']], 3: [['18:00', '23:00']], 4: [['18:00', '23:00']], 5: [['18:00', '00:30']], 6: [['18:00', '00:30']] },
+  },
+  categorias: [
+    { id: 'burgers', nome: 'Hambúrgueres', itens: [
+      { id: 'classico', nome: 'Chama Clássico', descricao: 'Pão brioche, blend bovino 160g, queijo prato, alface, tomate e maionese da casa.', preco: 26.90, foto: '', selos: [], disponivel: true, opcoes: [] },
+    ]},
+  ],
+};
+
+let dadosCardapio = null;
+let cardapioExisteNoFirestore = false;
+
+async function carregarCardapioParaEdicao() {
+  try {
+    const doc = await db.collection('cardapio').doc('dados').get();
+    if (doc.exists) {
+      dadosCardapio = doc.data();
+      cardapioExisteNoFirestore = true;
+      document.getElementById('cardapio-aviso').innerHTML = '';
+    } else {
+      dadosCardapio = JSON.parse(JSON.stringify(CARDAPIO_PADRAO));
+      cardapioExisteNoFirestore = false;
+      document.getElementById('cardapio-aviso').innerHTML =
+        '<div class="aviso">Nenhum cardápio salvo ainda neste projeto. O formulário abaixo mostra um cardápio de exemplo — edite e clique em "Salvar cardápio" para publicar (isso substitui o que os clientes veem no site).</div>';
+    }
+    renderEditorCardapio();
+  } catch (e) {
+    document.getElementById('cardapio-aviso').innerHTML =
+      `<div class="aviso">Não foi possível carregar o cardápio (${e.code || e.message}).</div>`;
+  }
+}
+
+function renderEditorCardapio() {
+  renderLojaForm();
+  renderCategoriasEditor();
+  document.getElementById('json-avancado').value = JSON.stringify(dadosCardapio, null, 2);
+}
+
+function renderLojaForm() {
+  const { loja } = dadosCardapio;
+  const campos = [
+    ['nome', 'Nome da loja', 'text', loja.nome],
+    ['whatsapp', 'WhatsApp (só dígitos, com 55)', 'text', loja.whatsapp],
+    ['taxaEntrega', 'Taxa de entrega (R$)', 'number', loja.taxaEntrega],
+    ['pedidoMinimo', 'Pedido mínimo (R$)', 'number', loja.pedidoMinimo],
+  ];
+  document.getElementById('loja-form').innerHTML = campos.map(([chave, rotulo, tipo, valor]) => `
+    <div class="campo">
+      <label for="loja-${chave}">${rotulo}</label>
+      <input type="${tipo}" id="loja-${chave}" data-loja-campo="${chave}" value="${escaparHTML(valor ?? '')}" ${tipo === 'number' ? 'step="0.01" min="0"' : ''}>
+    </div>`).join('');
+  document.querySelectorAll('[data-loja-campo]').forEach((input) => {
+    input.addEventListener('input', () => {
+      const chave = input.dataset.lojaCampo;
+      dadosCardapio.loja[chave] = input.type === 'number' ? Number(input.value || 0) : input.value;
+      document.getElementById('json-avancado').value = JSON.stringify(dadosCardapio, null, 2);
+    });
+  });
+}
+
+function renderCategoriasEditor() {
+  document.getElementById('categorias-editor').innerHTML = dadosCardapio.categorias.map((cat) => `
+    <div class="categoria-editor">
+      <h3>${escaparHTML(cat.nome)}</h3>
+      ${cat.itens.map((item) => `
+        <div class="item-editor-linha">
+          <div class="item-editor-nome">${escaparHTML(item.nome)}<small>${escaparHTML((item.descricao || '').slice(0, 70))}</small></div>
+          <div class="item-editor-preco">
+            <input type="number" step="0.01" min="0" value="${item.preco}" data-cat="${cat.id}" data-item="${item.id}" data-campo="preco">
+          </div>
+          <label class="item-editor-disp">
+            <input type="checkbox" ${item.disponivel ? 'checked' : ''} data-cat="${cat.id}" data-item="${item.id}" data-campo="disponivel">
+            Disponível
+          </label>
+        </div>`).join('')}
+    </div>`).join('');
+
+  document.querySelectorAll('[data-campo]').forEach((input) => {
+    input.addEventListener('input', () => {
+      const cat = dadosCardapio.categorias.find((c) => c.id === input.dataset.cat);
+      const item = cat && cat.itens.find((i) => i.id === input.dataset.item);
+      if (!item) return;
+      if (input.dataset.campo === 'preco') item.preco = Number(input.value || 0);
+      if (input.dataset.campo === 'disponivel') item.disponivel = input.checked;
+      document.getElementById('json-avancado').value = JSON.stringify(dadosCardapio, null, 2);
+    });
+  });
+}
+
+document.getElementById('json-aplicar').addEventListener('click', () => {
+  try {
+    const novo = JSON.parse(document.getElementById('json-avancado').value);
+    if (!novo.loja || !Array.isArray(novo.categorias)) throw new Error('faltam "loja" ou "categorias"');
+    dadosCardapio = novo;
+    renderEditorCardapio();
+    document.getElementById('salvar-status').textContent = 'JSON aplicado. Clique em "Salvar cardápio" para publicar.';
+  } catch (e) {
+    alert('JSON inválido: ' + e.message);
+  }
+});
+
+document.getElementById('json-recarregar').addEventListener('click', carregarCardapioParaEdicao);
+
+document.getElementById('salvar-cardapio-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('salvar-cardapio-btn');
+  const statusEl = document.getElementById('salvar-status');
+  btn.disabled = true; statusEl.textContent = 'Salvando…';
+  try {
+    await db.collection('cardapio').doc('dados').set(dadosCardapio);
+    cardapioExisteNoFirestore = true;
+    document.getElementById('cardapio-aviso').innerHTML = '';
+    statusEl.textContent = 'Salvo! O site atualiza sozinho em até 5 minutos (ou na próxima visita).';
+  } catch (e) {
+    statusEl.textContent = 'Erro ao salvar: ' + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>

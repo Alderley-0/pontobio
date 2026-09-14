@@ -11,6 +11,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <style>
 :root{
   --bg:#201a16;
@@ -822,9 +825,77 @@ const linkWhatsApp = (numero, texto) =>
 /* =========================================================
    3. ESTADO
    ========================================================= */
-const cardapio = prepararCardapio(CARDAPIO);
+let cardapio = prepararCardapio(CARDAPIO);
 const params = new URLSearchParams(location.search);
 const mesaParam = params.get('mesa');
+
+// ---------- Firebase (opcional) ----------
+// Se hamburgueria/firebase-config.js estiver com os valores reais do
+// projeto, o cardápio e os pedidos passam a sincronizar com o painel do
+// dono. Sem isso (ou se o Firebase estiver fora do ar), o site continua
+// funcionando 100% só com os dados locais acima — nunca trava o cliente.
+let firebaseDb = null;
+try {
+  const cfg = window.FIREBASE_CONFIG;
+  if (typeof firebase !== 'undefined' && cfg && cfg.apiKey && cfg.apiKey !== 'COLE_AQUI') {
+    firebase.initializeApp(cfg);
+    firebaseDb = firebase.firestore();
+  }
+} catch (e) { /* Firebase indisponível: segue só com os dados locais */ }
+
+// Tenta trazer o cardápio editado no painel. Roda em segundo plano: a
+// página já abre com os dados locais, e troca sozinha se/quando chegar
+// algo mais novo do Firestore.
+async function tentarCarregarCardapioRemoto() {
+  if (!firebaseDb) return;
+  try {
+    const doc = await firebaseDb.collection('cardapio').doc('dados').get();
+    if (!doc.exists) return;
+    const remoto = doc.data();
+    if (!remoto || !Array.isArray(remoto.categorias) || !remoto.loja) return;
+    cardapio = prepararCardapio(remoto);
+    sacola = sacola.filter((linha) => {
+      const item = acharItem(cardapio, linha.itemId);
+      return item && item.disponivel;
+    });
+    salvarSacola();
+    renderInfoLoja();
+    renderAbas();
+    renderCategorias();
+    iniciarObservadorAbas();
+    atualizarStatus();
+    const buscaInput = document.getElementById('busca-input');
+    if (buscaInput && buscaInput.value) aplicarBusca(buscaInput.value);
+  } catch (e) { /* mantém o cardápio local se der erro */ }
+}
+
+// Salva uma cópia do pedido no Firestore pro dono ver no painel. O
+// WhatsApp continua sendo o canal principal — isso é só histórico.
+async function salvarPedidoRemoto(dados, sacolaEnviada, mensagem) {
+  if (!firebaseDb) return;
+  try {
+    const itensComNome = sacolaEnviada.map((linha) => {
+      const item = acharItem(cardapio, linha.itemId);
+      return { ...linha, nome: item ? item.nome : linha.itemId, detalhe: item ? descreverLinha(item, linha) : '' };
+    });
+    await firebaseDb.collection('pedidos').add({
+      itens: itensComNome,
+      nome: dados.nome,
+      tipo: dados.tipo,
+      mesa: dados.mesa || null,
+      endereco: dados.endereco || '',
+      referencia: dados.referencia || '',
+      pagamento: dados.pagamento || '',
+      trocoPara: dados.trocoPara || null,
+      obs: dados.obs || '',
+      subtotal: subtotalSacola(cardapio, sacolaEnviada),
+      taxaEntrega: dados.tipo === 'entrega' ? cardapio.loja.taxaEntrega : 0,
+      mensagem,
+      status: 'novo',
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+  } catch (e) { /* pedido já foi pro WhatsApp; não trava o cliente por isso */ }
+}
 
 let sacola = [];
 try {
@@ -1216,6 +1287,17 @@ function tipoPedidoPadrao() {
 }
 
 let dadosCheckout = { tipo: tipoPedidoPadrao(), pagamento: '' };
+// Rascunho do formulário: sobrevive a re-renders da sacola (troca de tipo de
+// pedido, mudar quantidade, remover item) pra o cliente nunca perder o que
+// já digitou.
+const dadosSalvosIniciais = carregarDadosSalvos();
+let rascunhoCheckout = {
+  nome: dadosSalvosIniciais.nome || '',
+  endereco: dadosSalvosIniciais.endereco || '',
+  referencia: dadosSalvosIniciais.referencia || '',
+  obs: '',
+  troco: '',
+};
 
 function abrirSacola() {
   renderSacola();
@@ -1238,7 +1320,6 @@ function renderSacola() {
   const vazia = sacola.length === 0;
   const subtotal = subtotalSacola(cardapio, sacola);
   const faltaMinimo = loja.pedidoMinimo - subtotal;
-  const dadosSalvos = carregarDadosSalvos();
   const tiposDisponiveis = mesaParam ? ['mesa'] : loja.tiposPedido;
   const { aberto } = statusAtual();
 
@@ -1297,17 +1378,17 @@ function renderSacola() {
           </div>
           <div class="campo">
             <label for="chk-nome">Nome</label>
-            <input type="text" id="chk-nome" value="${escaparHTML(dadosSalvos.nome || '')}" placeholder="Seu nome">
+            <input type="text" id="chk-nome" value="${escaparHTML(rascunhoCheckout.nome)}" placeholder="Seu nome">
             <p class="campo-erro" id="erro-nome" hidden></p>
           </div>
           <div class="campo" id="campo-endereco" ${mostraEndereco ? '' : 'hidden'}>
             <label for="chk-endereco">Endereço</label>
-            <input type="text" id="chk-endereco" value="${escaparHTML(dadosSalvos.endereco || '')}" placeholder="Rua, número, bairro">
+            <input type="text" id="chk-endereco" value="${escaparHTML(rascunhoCheckout.endereco)}" placeholder="Rua, número, bairro">
             <p class="campo-erro" id="erro-endereco" hidden></p>
           </div>
           <div class="campo" id="campo-referencia" ${mostraEndereco ? '' : 'hidden'}>
             <label for="chk-referencia">Ponto de referência (opcional)</label>
-            <input type="text" id="chk-referencia" value="${escaparHTML(dadosSalvos.referencia || '')}" placeholder="Ex.: portão azul">
+            <input type="text" id="chk-referencia" value="${escaparHTML(rascunhoCheckout.referencia)}" placeholder="Ex.: portão azul">
           </div>
           <div class="campo" id="campo-pagamento" ${mostraPagamento ? '' : 'hidden'}>
             <label for="chk-pagamento">Pagamento</label>
@@ -1319,11 +1400,11 @@ function renderSacola() {
           </div>
           <div class="campo" id="campo-troco" hidden>
             <label for="chk-troco">Troco para quanto?</label>
-            <input type="number" id="chk-troco" step="0.01" min="0" inputmode="decimal" placeholder="Ex.: 50">
+            <input type="number" id="chk-troco" step="0.01" min="0" inputmode="decimal" placeholder="Ex.: 50" value="${escaparHTML(rascunhoCheckout.troco)}">
           </div>
           <div class="campo">
             <label for="chk-obs">Observação do pedido (opcional)</label>
-            <textarea id="chk-obs" placeholder="Ex.: campainha não funciona"></textarea>
+            <textarea id="chk-obs" placeholder="Ex.: campainha não funciona">${escaparHTML(rascunhoCheckout.obs)}</textarea>
           </div>
 
           <button class="btn-primario" id="btn-enviar" type="button" ${aberto && faltaMinimo <= 0 ? '' : 'disabled'}>${!aberto ? 'Loja fechada no momento' : faltaMinimo > 0 ? `Faltam ${formatarPreco(faltaMinimo)} para pedir` : 'Enviar pedido pelo WhatsApp'}</button>
@@ -1354,10 +1435,17 @@ function renderSacola() {
   const pagamentoSelect = document.getElementById('chk-pagamento');
   if (pagamentoSelect) {
     pagamentoSelect.addEventListener('change', () => {
+      dadosCheckout.pagamento = pagamentoSelect.value;
       document.getElementById('campo-troco').hidden = pagamentoSelect.value !== 'Dinheiro';
     });
     document.getElementById('campo-troco').hidden = pagamentoSelect.value !== 'Dinheiro';
   }
+  // Mantém o rascunho vivo pra sobreviver a um re-render (troca de tipo,
+  // qtd, remoção) sem perder o que o cliente já digitou.
+  ['nome', 'endereco', 'referencia', 'obs', 'troco'].forEach((campo) => {
+    const el = document.getElementById('chk-' + campo);
+    if (el) el.addEventListener('input', () => { rascunhoCheckout[campo] = el.value; });
+  });
   document.getElementById('btn-enviar').addEventListener('click', () => enviarPedido(aberto));
   prenderFoco(overlay.querySelector('.painel'));
 }
@@ -1375,7 +1463,7 @@ function marcarErro(campoId, erroId, texto) {
   erro.textContent = texto;
 }
 
-function enviarPedido(aberto) {
+async function enviarPedido(aberto) {
   if (!aberto) return;
   limparErrosCheckout();
   const nome = document.getElementById('chk-nome').value.trim();
@@ -1408,6 +1496,12 @@ function enviarPedido(aberto) {
   salvarSacola();
   atualizarBarraInferior();
   renderConfirmacao(mensagem);
+  // Espera até 1s pra salvar no painel do dono, sem travar o WhatsApp
+  // caso o Firebase esteja lento ou fora do ar.
+  await Promise.race([
+    salvarPedidoRemoto(dados, sacolaEnviada, mensagem),
+    new Promise((resolve) => setTimeout(resolve, 1000)),
+  ]);
   window.location.href = linkWhatsApp(cardapio.loja.whatsapp, mensagem);
 
   window._ultimaMensagem = mensagem;
@@ -1463,6 +1557,9 @@ function iniciar() {
     buscaInput.value = '';
     aplicarBusca('');
   });
+
+  tentarCarregarCardapioRemoto();
+  if (firebaseDb) setInterval(tentarCarregarCardapioRemoto, 5 * 60000);
 }
 
 iniciar();
