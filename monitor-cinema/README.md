@@ -10,6 +10,8 @@ no Telegram assim que detecta. Também responde a comandos:
   pré-venda
 - `/parar <filme>` — cancela um aviso pendente
 - `/minhasassinaturas` — lista os avisos pendentes de quem pediu
+- `/ajuda` (ou `/help`) — mostra a lista de comandos com explicação de cada
+  um (mesma mensagem que aparece no `/start`)
 
 **Importante sobre `/avisar`:** o Telegram só deixa um bot mandar mensagem
 privada pra quem já iniciou uma conversa com ele antes (dando `/start` no

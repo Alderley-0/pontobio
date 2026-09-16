@@ -1,6 +1,33 @@
 import { getTelegramUpdates, sendTelegramMessage } from "./telegram.js";
 import { loadSubscriptions, saveSubscriptions, matchesQuery } from "./subscriptions.js";
 
+const HELP_TEXT =
+  "🎬 <b>Monitor de pré-venda de cinema</b>\n" +
+  "Fico checando o Ingresso.com o tempo todo e aviso automaticamente aqui " +
+  "assim que um filme novo entra em pré-venda. Além disso, respondo estes " +
+  "comandos:\n\n" +
+  "<b>/filmes</b>\n" +
+  "Lista todos os filmes que estão em pré-venda agora, com link de cada um.\n\n" +
+  "<b>/status</b>\n" +
+  "Mostra quando foi a última vez que eu checei o site e se deu algum erro " +
+  "na checagem.\n\n" +
+  "<b>/avisar &lt;nome do filme&gt;</b>\n" +
+  "Pede pra eu te avisar, no seu privado, quando aquele filme específico " +
+  "entrar em pré-venda (ex: /avisar Vingadores). Se ele já estiver em " +
+  "pré-venda, eu já te aviso na hora. Pra eu conseguir te mandar mensagem " +
+  "privada, você precisa ter dado /start em mim no privado antes (regra do " +
+  "Telegram, não depende de mim) — se não tiver feito isso ainda, eu aviso " +
+  "e fico tentando de novo a cada checagem até você dar /start.\n\n" +
+  "<b>/parar &lt;nome do filme&gt;</b>\n" +
+  "Cancela um aviso que você pediu com /avisar.\n\n" +
+  "<b>/minhasassinaturas</b>\n" +
+  "Lista os avisos que você pediu com /avisar e que ainda estão pendentes " +
+  "(o filme ainda não entrou em pré-venda).\n\n" +
+  "<b>/ajuda</b>\n" +
+  "Mostra esta mensagem de novo.\n\n" +
+  "Todos esses comandos funcionam tanto no privado quanto em qualquer grupo " +
+  "em que eu estiver.";
+
 function formatMovieList(movies) {
   if (movies.length === 0) {
     return "Nenhum filme em pré-venda no momento.";
@@ -140,17 +167,10 @@ export async function pollTelegramCommands(token, getState) {
         subs = result.subs;
       } else if (text.startsWith("/minhasassinaturas")) {
         await handleMinhasAssinaturas(token, chatId, userId, subs);
+      } else if (text.startsWith("/ajuda") || text.startsWith("/help")) {
+        await sendTelegramMessage(token, chatId, HELP_TEXT);
       } else if (text.startsWith("/start")) {
-        await sendTelegramMessage(
-          token,
-          chatId,
-          "Oi! Comandos disponíveis:\n" +
-            "/filmes — pré-venda atual\n" +
-            "/status — última checagem\n" +
-            "/avisar <filme> — te aviso no privado quando esse filme entrar em pré-venda\n" +
-            "/parar <filme> — cancela um aviso pendente\n" +
-            "/minhasassinaturas — lista seus avisos pendentes"
-        );
+        await sendTelegramMessage(token, chatId, HELP_TEXT);
       }
     }
   }
