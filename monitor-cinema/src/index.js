@@ -3,6 +3,7 @@ import { fetchPreSaleMovies } from "./source.js";
 import { sendTelegramMessage, sendTelegramPhoto } from "./telegram.js";
 import { loadSeenIds, saveSeenIds } from "./state.js";
 import { pollTelegramCommands } from "./commands.js";
+import { loadSubscriptions, processSubscriptions } from "./subscriptions.js";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 // Aceita um ou mais destinos (chat pessoal, grupo, etc), separados por vírgula.
@@ -42,6 +43,11 @@ async function checkOnce(seenIds) {
 
   if (newMovies.length > 0) {
     await saveSeenIds(seenIds);
+  }
+
+  const subs = await loadSubscriptions();
+  if (subs.length > 0) {
+    await processSubscriptions(TOKEN, movies, subs);
   }
 
   return newMovies.length;
