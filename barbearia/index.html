@@ -11,6 +11,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="firebase-config.js"></script>
 <style>
 :root{
   --bg:#15130f;
@@ -278,7 +281,7 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 <header class="topo">
   <div class="topo-conteudo">
     <div class="marca">
-      <h1>Barba <span class="ouro">Nobre</span></h1>
+      <h1 id="marca-nome">Barba <span class="ouro">Nobre</span></h1>
     </div>
     <p class="marca-sub">Corte, barba e navalha — no seu horário</p>
     <div class="status-linha">
@@ -337,7 +340,6 @@ const BARBEARIA = {
   whatsapp: '5511999999999',
   instagram: 'https://instagram.com/barbanobre',
   endereco: 'Rua Exemplo, 123 - Centro, Sua Cidade - SP',
-  mapsLink: 'https://maps.google.com/?q=' + encodeURIComponent('Rua Exemplo, 123 - Centro, Sua Cidade - SP'),
   fuso: 'America/Sao_Paulo',
   diasAntecedencia: 14,      // quantos dias pra frente o cliente pode agendar
   antecedenciaMinMin: 60,    // antecedência mínima pra marcar em cima da hora (minutos)
@@ -453,6 +455,78 @@ function acharBarbeiro(id) { return BARBEARIA.barbeiros.find((b) => b.id === id)
 
 const linkWhatsApp = (numero, texto) =>
   `https://wa.me/${String(numero).replace(/\D/g, '')}?text=${encodeURIComponent(texto)}`;
+const linkMapaDe = (endereco) => 'https://maps.google.com/?q=' + encodeURIComponent(endereco);
+
+/* =========================================================
+   2b. FIREBASE (opcional)
+   Se barbearia/firebase-config.js estiver com os valores reais do
+   projeto, o catálogo (nome, serviços, barbeiros, horários) passa a
+   sincronizar com o que o dono edita no painel, e cada agendamento
+   ganha uma cópia no Firestore pro dono ver na Agenda automaticamente.
+   Sem isso (ou se o Firebase estiver fora do ar), o site continua
+   funcionando 100% só com os dados locais do objeto BARBEARIA acima —
+   nunca trava o cliente, e o WhatsApp continua sendo o canal principal.
+   ========================================================= */
+let firebaseDb = null;
+try {
+  const cfg = window.FIREBASE_CONFIG;
+  if (typeof firebase !== 'undefined' && cfg && cfg.apiKey && cfg.apiKey !== 'COLE_AQUI') {
+    firebase.initializeApp(cfg);
+    firebaseDb = firebase.firestore();
+  }
+} catch (e) { /* Firebase indisponível: segue só com os dados locais */ }
+
+async function tentarCarregarConfigRemota() {
+  if (!firebaseDb) return;
+  try {
+    const doc = await firebaseDb.collection('configuracao').doc('dados').get();
+    if (!doc.exists) return;
+    const remoto = doc.data();
+    if (!remoto || !Array.isArray(remoto.servicos) || !Array.isArray(remoto.barbeiros) || !remoto.horarios) return;
+    if (remoto.nome) BARBEARIA.nome = remoto.nome;
+    if (remoto.whatsapp) BARBEARIA.whatsapp = remoto.whatsapp;
+    BARBEARIA.instagram = remoto.instagram || '';
+    if (remoto.endereco) BARBEARIA.endereco = remoto.endereco;
+    BARBEARIA.horarios = remoto.horarios;
+    BARBEARIA.barbeiros = [
+      { id: 'qualquer', nome: 'Sem preferência', especialidade: 'Primeiro barbeiro livre' },
+      ...remoto.barbeiros,
+    ];
+    BARBEARIA.servicos = remoto.servicos;
+    renderMarca();
+    renderInfoLoja();
+    renderServicos();
+    renderBarbeiros();
+    renderTabelaHorarios();
+    renderLocal();
+    atualizarStatus();
+  } catch (e) { /* mantém o catálogo local se der erro */ }
+}
+
+// Salva uma cópia do agendamento no Firestore pro dono ver na Agenda do
+// painel automaticamente. O WhatsApp continua sendo o canal principal —
+// isso é só pra não precisar digitar cada agendamento na mão.
+async function salvarAgendamentoRemoto(registro) {
+  if (!firebaseDb) return;
+  try {
+    const ref = await firebaseDb.collection('agendamentos').add({
+      servicoId: registro.servicoId, servicoNome: registro.servicoNome, servicoPreco: registro.servicoPreco,
+      barbeiroId: registro.barbeiroId, barbeiroNome: registro.barbeiroNome,
+      data: registro.data, horarioMin: registro.horarioMin,
+      clienteNome: registro.nome, telefone: registro.telefone, obs: registro.obs,
+      status: 'confirmado', origem: 'site',
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+    registro.remotoId = ref.id;
+    salvarMeusAgendamentos(meusAgendamentos);
+  } catch (e) { /* agendamento já foi pro WhatsApp; não trava o cliente por isso */ }
+}
+
+async function cancelarAgendamentoRemoto(registro) {
+  if (!firebaseDb || !registro.remotoId) return;
+  try { await firebaseDb.collection('agendamentos').doc(registro.remotoId).update({ status: 'cancelado' }); }
+  catch (e) { /* ignora — o cancelamento já foi avisado pelo WhatsApp */ }
+}
 
 /* =========================================================
    3. AGENDA LOCAL DO CLIENTE (localStorage — só neste aparelho)
@@ -541,8 +615,8 @@ function atualizarStatus() {
 
 function renderInfoLoja() {
   const chips = [
-    `<a class="info-chip" href="${escaparHTML(BARBEARIA.mapsLink)}" target="_blank" rel="noopener">📍 ${escaparHTML(BARBEARIA.endereco)}</a>`,
-    `<a class="info-chip" href="${linkWhatsApp(BARBEARIA.whatsapp, 'Olá! Vim pelo site da Barba Nobre.')}" target="_blank" rel="noopener">💬 WhatsApp</a>`,
+    `<a class="info-chip" href="${escaparHTML(linkMapaDe(BARBEARIA.endereco))}" target="_blank" rel="noopener">📍 ${escaparHTML(BARBEARIA.endereco)}</a>`,
+    `<a class="info-chip" href="${linkWhatsApp(BARBEARIA.whatsapp, `Olá! Vim pelo site da ${BARBEARIA.nome}.`)}" target="_blank" rel="noopener">💬 WhatsApp</a>`,
   ];
   if (BARBEARIA.instagram) {
     chips.push(`<a class="info-chip" href="${escaparHTML(BARBEARIA.instagram)}" target="_blank" rel="noopener">📷 Instagram</a>`);
@@ -594,7 +668,12 @@ function renderTabelaHorarios() {
 
 function renderLocal() {
   document.getElementById('endereco-texto').textContent = BARBEARIA.endereco;
-  document.getElementById('link-mapa').href = BARBEARIA.mapsLink;
+  document.getElementById('link-mapa').href = linkMapaDe(BARBEARIA.endereco);
+}
+
+function renderMarca() {
+  document.title = `${BARBEARIA.nome} — Agendar horário`;
+  document.getElementById('marca-nome').textContent = BARBEARIA.nome;
 }
 
 /* =========================================================
@@ -847,6 +926,7 @@ function confirmarAgendamento() {
   meusAgendamentos.push(registro);
   salvarMeusAgendamentos(meusAgendamentos);
   salvarDadosCliente({ nome: registro.nome, telefone: novoAgendamento.telefone });
+  salvarAgendamentoRemoto(registro);
 
   const mensagem = montarMensagemAgendamento(registro);
   window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
@@ -938,6 +1018,7 @@ function cancelarAgendamento(id) {
   if (!confirm(`Cancelar o horário de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}?`)) return;
   ag.status = 'cancelado';
   salvarMeusAgendamentos(meusAgendamentos);
+  cancelarAgendamentoRemoto(ag);
   const mensagem = `Olá! Preciso cancelar meu agendamento (${ag.servicoNome}) de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}. Obrigado!`;
   window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
   renderMeusAgendamentos();
@@ -953,6 +1034,8 @@ renderTabelaHorarios();
 renderLocal();
 atualizarStatus();
 setInterval(atualizarStatus, 60000);
+tentarCarregarConfigRemota();
+if (firebaseDb) setInterval(tentarCarregarConfigRemota, 5 * 60000);
 
 document.getElementById('btn-agendar-topo').addEventListener('click', () => abrirAgendamento(null));
 document.getElementById('barra-agendar').addEventListener('click', () => abrirAgendamento(null));

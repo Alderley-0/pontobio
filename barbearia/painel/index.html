@@ -10,6 +10,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="../firebase-config.js"></script>
 <style>
 :root{
   --bg:#15130f;
@@ -165,6 +169,35 @@ main{max-width:720px;margin:0 auto;padding:1.2rem 1.1rem 4rem}
   border-radius:12px;padding:.9rem 1rem;font-size:.85rem;line-height:1.55;margin-bottom:1.2rem;
 }
 .info-banner b{color:var(--texto)}
+
+/* ---------- Catálogo ---------- */
+.editor-bloco{margin-bottom:1.6rem}
+.editor-bloco h3{font-size:1rem;color:var(--ouro-claro);margin-bottom:.6rem}
+.editor-linha{
+  display:flex;align-items:center;gap:.6rem;background:var(--bg-2);border:1px solid var(--borda);
+  border-radius:10px;padding:.6rem .8rem;margin-bottom:.5rem;flex-wrap:wrap;
+}
+.editor-linha input[type=text]{flex:1;min-width:8rem}
+.editor-linha input[type=number]{width:6rem}
+.editor-dia{
+  display:flex;align-items:center;gap:.6rem;background:var(--bg-2);border:1px solid var(--borda);
+  border-radius:10px;padding:.6rem .8rem;margin-bottom:.5rem;flex-wrap:wrap;
+}
+.editor-dia .editor-dia-nome{width:5.5rem;font-weight:600;text-transform:capitalize;flex-shrink:0}
+.editor-dia input[type=time]{width:7.5rem}
+details.avancado{margin-top:1rem;border:1px solid var(--borda);border-radius:10px;padding:.9rem 1rem;background:var(--bg-2)}
+details.avancado summary{cursor:pointer;font-weight:700;color:var(--texto-dim)}
+details.avancado textarea{
+  width:100%;min-height:14rem;margin-top:.8rem;background:var(--bg-3);border:1px solid var(--borda);
+  color:var(--texto);border-radius:8px;padding:.7rem;font-family:ui-monospace,Consolas,monospace;font-size:.82rem;
+}
+.avancado-acoes{display:flex;gap:.6rem;margin-top:.7rem;flex-wrap:wrap}
+.barra-salvar-catalogo{
+  position:sticky;bottom:0;background:var(--bg);border-top:1px solid var(--borda);padding:1rem 0;
+  display:flex;gap:.7rem;align-items:center;margin-top:1rem;flex-wrap:wrap;
+}
+.salvar-status{font-size:.85rem;color:var(--texto-dim)}
+.btn-texto{background:none;border:0;color:var(--texto-dim);font-size:.82rem;text-decoration:underline;padding:.3rem}
 </style>
 </head>
 <body>
@@ -192,6 +225,7 @@ main{max-width:720px;margin:0 auto;padding:1.2rem 1.1rem 4rem}
     <button class="aba-painel ativa" data-aba="agenda" type="button">Agenda</button>
     <button class="aba-painel" data-aba="novo" type="button">Novo agendamento</button>
     <button class="aba-painel" data-aba="bloqueios" type="button">Bloqueios</button>
+    <button class="aba-painel" data-aba="catalogo" type="button">Catálogo</button>
     <button class="aba-painel" data-aba="ajuda" type="button">Ajuda</button>
   </nav>
 
@@ -291,22 +325,33 @@ main{max-width:720px;margin:0 auto;padding:1.2rem 1.1rem 4rem}
       <div id="lista-bloqueios"></div>
     </section>
 
+    <section class="secao-painel" id="secao-catalogo">
+      <h2>Catálogo</h2>
+      <div id="catalogo-conteudo"></div>
+    </section>
+
     <section class="secao-painel" id="secao-ajuda">
       <h2>Como funciona este painel</h2>
       <div class="info-banner">
-        <p><b>Onde ficam os dados:</b> tudo o que você registra aqui (agendamentos e bloqueios) fica salvo
-        só neste navegador, neste aparelho. Se você abrir o painel em outro celular ou computador, não vai
-        ver a mesma lista — é como uma agenda de papel guardada no balcão.</p>
+        <p><b>Onde ficam os dados sem Firebase:</b> por padrão, tudo o que você registra aqui (agendamentos e
+        bloqueios) fica salvo só neste navegador, neste aparelho. Se você abrir o painel em outro celular ou
+        computador, não vai ver a mesma lista — é como uma agenda de papel guardada no balcão.</p>
         <p style="margin-top:.8rem"><b>Como um agendamento chega até aqui:</b> quando um cliente agenda pelo
-        site, ele recebe uma mensagem pronta pra enviar pro seu WhatsApp. Ao confirmar com o cliente pelo
-        WhatsApp, registre o horário na aba <b>Novo agendamento</b> para manter sua agenda organizada.</p>
-        <p style="margin-top:.8rem"><b>Serviços, barbeiros e horário de funcionamento:</b> são editados
-        diretamente no código do arquivo <b>barbearia/index.html</b> (objeto <b>BARBEARIA</b> no topo do
-        script), o mesmo lugar onde o cardápio da hamburgueria de exemplo é editado. Depois de mudar, publique
-        o arquivo de novo.</p>
-        <p style="margin-top:.8rem"><b>Senha do painel:</b> é apenas uma trava simples contra curiosos —
+        site, ele recebe uma mensagem pronta pra enviar pro seu WhatsApp. Sem Firebase, confirme com o cliente
+        pelo WhatsApp e registre o horário na aba <b>Novo agendamento</b> pra manter sua agenda organizada.</p>
+        <p style="margin-top:.8rem"><b>Serviços, preços, barbeiros e horário de funcionamento:</b> dá pra
+        editar de duas formas. Sem Firebase, direto no código do arquivo <b>barbearia/index.html</b> (objeto
+        <b>BARBEARIA</b> no topo do script) — depois de mudar, publique o arquivo de novo. Com o Firebase
+        configurado (aba <b>Catálogo</b>), edita tudo aqui na tela e o site público atualiza sozinho em poucos
+        minutos, sem precisar mexer em código nem publicar nada.</p>
+        <p style="margin-top:.8rem"><b>Firebase (opcional):</b> ao entrar com sua conta na aba
+        <b>Catálogo</b>, além de liberar a edição de serviços/preços/horários, sua <b>Agenda</b> inteira passa a
+        sincronizar automaticamente entre aparelhos, e os agendamentos feitos pelo site aparecem sozinhos, sem
+        precisar digitar cada um manualmente. Veja como configurar no README, na pasta <b>barbearia/</b>.</p>
+        <p style="margin-top:.8rem"><b>Senha simples do painel:</b> é apenas uma trava contra curiosos —
         qualquer pessoa que veja o código-fonte deste arquivo consegue ler a senha. Não guarde aqui nada que
-        exija segurança de verdade.</p>
+        exija segurança de verdade; quem precisa de segurança real é justamente o login do Firebase da aba
+        Catálogo.</p>
       </div>
     </section>
   </main>
@@ -360,10 +405,49 @@ function formatarDataLonga(iso) {
   const [y, m, d] = iso.split('-').map(Number);
   return new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' }).format(new Date(Date.UTC(y, m - 1, d, 12)));
 }
-function acharServico(id) { return CONFIG_PAINEL.servicos.find((s) => s.id === id) || null; }
-function acharBarbeiro(id) { return CONFIG_PAINEL.barbeiros.find((b) => b.id === id) || null; }
 const linkWhatsApp = (numero, texto) => `https://wa.me/${String(numero).replace(/\D/g, '')}?text=${encodeURIComponent(texto)}`;
 const gerarId = () => 'ag_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const slugify = (t) => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
+  .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'item';
+
+/* =========================================================
+   2b. FIREBASE (opcional) — liga a edição de catálogo e a
+   sincronização da agenda entre aparelhos. Sem isso, o painel
+   segue 100% funcional só com a senha simples e o localStorage.
+   ========================================================= */
+let db = null;
+let auth = null;
+let firebaseConfigurado = false;
+try {
+  const cfg = window.FIREBASE_CONFIG;
+  if (typeof firebase !== 'undefined' && cfg && cfg.apiKey && cfg.apiKey !== 'COLE_AQUI') {
+    firebase.initializeApp(cfg);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    firebaseConfigurado = true;
+  }
+} catch (e) { /* segue só com os dados/senha locais */ }
+
+let catalogoRemoto = null;        // dados vindos do Firestore (configuracao/dados), ou null
+let catalogoAutenticado = false;  // logado com a conta do Firebase (aba Catálogo)
+let dadosCatalogoEdicao = null;   // cópia editável enquanto a aba Catálogo está aberta
+let modoRemoto = false;           // agenda sincronizada via Firestore (true quando autenticado)
+let pararListenerAgendamentosRemoto = null;
+
+function servicosAtivos() { return (catalogoRemoto && catalogoRemoto.servicos) || CONFIG_PAINEL.servicos; }
+function barbeirosAtivos() { return (catalogoRemoto && catalogoRemoto.barbeiros) || CONFIG_PAINEL.barbeiros; }
+function acharServico(id) { return servicosAtivos().find((s) => s.id === id) || null; }
+function acharBarbeiro(id) { return barbeirosAtivos().find((b) => b.id === id) || null; }
+
+async function carregarCatalogoRemoto() {
+  if (!db) return;
+  try {
+    const doc = await db.collection('configuracao').doc('dados').get();
+    if (doc.exists) catalogoRemoto = doc.data();
+  } catch (e) { /* mantém o catálogo local (CONFIG_PAINEL) */ }
+  preencherSelects();
+  if (document.getElementById('secao-catalogo').classList.contains('ativa')) renderCatalogoTab();
+}
 
 /* =========================================================
    3. LOGIN
@@ -394,7 +478,11 @@ function mostrarApp() {
 }
 document.getElementById('btn-entrar').addEventListener('click', tentarEntrar);
 document.getElementById('in-senha').addEventListener('keydown', (e) => { if (e.key === 'Enter') tentarEntrar(); });
-document.getElementById('btn-sair').addEventListener('click', () => { limparLogin(); location.reload(); });
+document.getElementById('btn-sair').addEventListener('click', () => {
+  limparLogin();
+  if (auth && auth.currentUser) auth.signOut().finally(() => location.reload());
+  else location.reload();
+});
 
 /* =========================================================
    4. DADOS: AGENDAMENTOS E BLOQUEIOS (localStorage do dono)
@@ -425,6 +513,7 @@ function trocarAba(nome) {
   document.querySelectorAll('.aba-painel').forEach((b) => b.classList.toggle('ativa', b.dataset.aba === nome));
   document.querySelectorAll('.secao-painel').forEach((s) => s.classList.toggle('ativa', s.id === 'secao-' + nome));
   if (nome === 'bloqueios') renderListaBloqueios();
+  if (nome === 'catalogo') renderCatalogoTab();
 }
 document.querySelectorAll('.aba-painel').forEach((btn) => btn.addEventListener('click', () => trocarAba(btn.dataset.aba)));
 
@@ -500,7 +589,19 @@ function renderListaAgendamentos() {
   });
 }
 
-function aplicarAcaoAgendamento(id, acao) {
+async function aplicarAcaoAgendamento(id, acao) {
+  if (modoRemoto) {
+    try {
+      if (acao === 'excluir') {
+        if (!confirm('Excluir este agendamento da agenda?')) return;
+        await db.collection('agendamentos').doc(id).delete();
+      } else {
+        await db.collection('agendamentos').doc(id).update({ status: acao });
+      }
+      // a lista atualiza sozinha pelo listener em tempo real
+    } catch (e) { alert('Não foi possível atualizar: ' + e.message); }
+    return;
+  }
   if (acao === 'excluir') {
     if (!confirm('Excluir este agendamento da agenda?')) return;
     agendamentos = agendamentos.filter((a) => a.id !== id);
@@ -534,9 +635,9 @@ document.getElementById('nav-data-hoje').addEventListener('click', () => {
    7. NOVO AGENDAMENTO
    ========================================================= */
 function preencherSelects() {
-  document.getElementById('novo-servico').innerHTML = CONFIG_PAINEL.servicos
+  document.getElementById('novo-servico').innerHTML = servicosAtivos()
     .map((s) => `<option value="${s.id}">${escaparHTML(s.nome)} — ${formatarPreco(s.preco)} (${s.duracaoMin} min)</option>`).join('');
-  document.getElementById('novo-barbeiro').innerHTML = CONFIG_PAINEL.barbeiros
+  document.getElementById('novo-barbeiro').innerHTML = barbeirosAtivos()
     .map((b) => `<option value="${b.id}">${escaparHTML(b.nome)}</option>`).join('');
 }
 
@@ -575,7 +676,7 @@ function checarConflitoFormulario() {
   document.getElementById(id).addEventListener('change', checarConflitoFormulario);
 });
 
-document.getElementById('form-novo').addEventListener('submit', (e) => {
+document.getElementById('form-novo').addEventListener('submit', async (e) => {
   e.preventDefault();
   const data = document.getElementById('novo-data').value;
   const hora = document.getElementById('novo-hora').value;
@@ -588,23 +689,35 @@ document.getElementById('form-novo').addEventListener('submit', (e) => {
 
   const servico = acharServico(document.getElementById('novo-servico').value);
   const barbeiro = acharBarbeiro(document.getElementById('novo-barbeiro').value);
-  const registro = {
-    id: gerarId(),
+  const campos = {
     data, horarioMin: paraMinutos(hora),
     servicoId: servico.id, servicoNome: servico.nome,
     barbeiroId: barbeiro.id, barbeiroNome: barbeiro.nome,
     clienteNome: nome,
     telefone: document.getElementById('novo-telefone').value.replace(/\D/g, ''),
     obs: document.getElementById('novo-obs').value.trim(),
-    status: 'confirmado', criadoEm: Date.now(),
+    status: 'confirmado',
   };
-  agendamentos.push(registro);
-  salvarAgendamentos(agendamentos);
-  document.getElementById('form-novo').reset();
-  document.getElementById('novo-conflito').hidden = true;
-  dataSelecionada = data;
-  trocarAba('agenda');
-  renderAgenda();
+
+  const btnSalvar = e.target.querySelector('button[type=submit]');
+  btnSalvar.disabled = true;
+  try {
+    if (modoRemoto) {
+      await db.collection('agendamentos').add({ ...campos, origem: 'painel', criadoEm: firebase.firestore.FieldValue.serverTimestamp() });
+    } else {
+      agendamentos.push({ id: gerarId(), ...campos, criadoEm: Date.now() });
+      salvarAgendamentos(agendamentos);
+    }
+    document.getElementById('form-novo').reset();
+    document.getElementById('novo-conflito').hidden = true;
+    dataSelecionada = data;
+    trocarAba('agenda');
+    renderAgenda();
+  } catch (e) {
+    alert('Não foi possível salvar: ' + e.message);
+  } finally {
+    btnSalvar.disabled = false;
+  }
 });
 
 /* =========================================================
@@ -658,16 +771,307 @@ function renderListaBloqueios() {
 }
 
 /* =========================================================
-   9. INICIALIZAÇÃO
+   9. CATÁLOGO (Firebase) — serviços, barbeiros, horários e
+   dados da loja editáveis direto na tela, sem mexer em código.
+   ========================================================= */
+function estadoCatalogoParaEdicao() {
+  if (catalogoRemoto) return JSON.parse(JSON.stringify(catalogoRemoto));
+  return {
+    nome: 'Barba Nobre',
+    whatsapp: CONFIG_PAINEL.whatsapp,
+    instagram: '',
+    endereco: '',
+    horarios: { 0: [], 1: [['09:00', '19:00']], 2: [['09:00', '19:00']], 3: [['09:00', '19:00']], 4: [['09:00', '19:00']], 5: [['09:00', '20:00']], 6: [['09:00', '17:00']] },
+    barbeiros: CONFIG_PAINEL.barbeiros.map((b) => ({ ...b, especialidade: '' })),
+    servicos: JSON.parse(JSON.stringify(CONFIG_PAINEL.servicos)),
+  };
+}
+
+const DIAS_SEMANA_CATALOGO = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+
+function renderCatalogoTab() {
+  const alvo = document.getElementById('catalogo-conteudo');
+  if (!firebaseConfigurado) {
+    alvo.innerHTML = `<div class="info-banner">
+      Pra editar serviços, preços, barbeiros e horário de funcionamento direto por aqui (sem mexer em código),
+      configure o Firebase deste site — é grátis. Veja o passo a passo no README, na pasta
+      <b>barbearia/</b>, seção "Catálogo em tempo real". Enquanto isso, continue editando o objeto
+      <b>BARBEARIA</b> no topo do <b>barbearia/index.html</b> e publicando de novo.
+    </div>`;
+    return;
+  }
+  if (!catalogoAutenticado) {
+    alvo.innerHTML = `
+      <div class="info-banner">
+        Entre com a conta do Firebase pra editar o catálogo por aqui. Isso também liga a sincronização
+        automática da sua <b>Agenda</b> entre aparelhos.
+      </div>
+      <div class="campo"><label for="cat-email">E-mail</label><input type="email" id="cat-email" autocomplete="username"></div>
+      <div class="campo"><label for="cat-senha">Senha</label><input type="password" id="cat-senha" autocomplete="current-password"></div>
+      <button class="btn-primario" id="cat-entrar" type="button">Entrar</button>
+      <p class="campo-erro" id="cat-erro" hidden></p>`;
+    document.getElementById('cat-entrar').addEventListener('click', fazerLoginCatalogo);
+    document.getElementById('cat-senha').addEventListener('keydown', (e) => { if (e.key === 'Enter') fazerLoginCatalogo(); });
+    return;
+  }
+  if (!dadosCatalogoEdicao) dadosCatalogoEdicao = estadoCatalogoParaEdicao();
+  renderEditorCatalogo();
+}
+
+async function fazerLoginCatalogo() {
+  const email = document.getElementById('cat-email').value.trim();
+  const senha = document.getElementById('cat-senha').value;
+  const erroEl = document.getElementById('cat-erro');
+  erroEl.hidden = true;
+  if (!email || !senha) { erroEl.textContent = 'Preencha e-mail e senha.'; erroEl.hidden = false; return; }
+  const btn = document.getElementById('cat-entrar');
+  btn.disabled = true;
+  try {
+    await auth.signInWithEmailAndPassword(email, senha);
+  } catch (e) {
+    erroEl.textContent = 'E-mail ou senha inválidos.';
+    erroEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+function renderEditorCatalogo() {
+  const d = dadosCatalogoEdicao;
+  const alvo = document.getElementById('catalogo-conteudo');
+  alvo.innerHTML = `
+    <div class="editor-bloco">
+      <h3>Dados da barbearia</h3>
+      <div class="campo"><label for="ed-nome">Nome</label><input type="text" id="ed-nome" value="${escaparHTML(d.nome)}"></div>
+      <div class="campo"><label for="ed-whatsapp">WhatsApp (só dígitos, com 55)</label><input type="text" id="ed-whatsapp" value="${escaparHTML(d.whatsapp)}"></div>
+      <div class="campo"><label for="ed-instagram">Instagram (link completo, opcional)</label><input type="text" id="ed-instagram" value="${escaparHTML(d.instagram || '')}"></div>
+      <div class="campo"><label for="ed-endereco">Endereço</label><input type="text" id="ed-endereco" value="${escaparHTML(d.endereco || '')}"></div>
+    </div>
+
+    <div class="editor-bloco">
+      <h3>Serviços</h3>
+      <div id="ed-servicos"></div>
+      <button class="ag-btn" id="ed-add-servico" type="button">+ Adicionar serviço</button>
+    </div>
+
+    <div class="editor-bloco">
+      <h3>Barbeiros</h3>
+      <div id="ed-barbeiros"></div>
+      <button class="ag-btn" id="ed-add-barbeiro" type="button">+ Adicionar barbeiro</button>
+    </div>
+
+    <div class="editor-bloco">
+      <h3>Horário de funcionamento</h3>
+      <p style="color:var(--texto-dim);font-size:.85rem;margin-bottom:.6rem">Um período por dia. Pra dois
+      turnos (ex.: com pausa de almoço), use a edição avançada (JSON) abaixo.</p>
+      <div id="ed-horarios"></div>
+    </div>
+
+    <details class="avancado">
+      <summary>Edição avançada (JSON — pra mais de um período por dia)</summary>
+      <textarea id="json-avancado" spellcheck="false"></textarea>
+      <div class="avancado-acoes">
+        <button class="ag-btn" id="json-aplicar" type="button">Aplicar JSON acima</button>
+        <button class="ag-btn" id="json-recarregar" type="button">Recarregar do que está salvo</button>
+      </div>
+    </details>
+
+    <div class="barra-salvar-catalogo">
+      <button class="btn-primario" id="salvar-catalogo-btn" type="button" style="margin-top:0">Salvar catálogo</button>
+      <span class="salvar-status" id="salvar-status"></span>
+    </div>
+    ${carregarAgendamentos().length ? `<button class="btn-texto" id="importar-agendamentos-btn" type="button">Importar ${carregarAgendamentos().length} agendamento(s) salvos neste aparelho pro Firebase</button>` : ''}
+    <button class="btn-texto" id="sair-catalogo-btn" type="button">Sair da conta do Firebase</button>`;
+
+  renderListaServicosEditor();
+  renderListaBarbeirosEditor();
+  renderHorariosEditor();
+  document.getElementById('json-avancado').value = JSON.stringify(d, null, 2);
+
+  document.getElementById('ed-nome').addEventListener('input', (e) => { d.nome = e.target.value; });
+  document.getElementById('ed-whatsapp').addEventListener('input', (e) => { d.whatsapp = e.target.value; });
+  document.getElementById('ed-instagram').addEventListener('input', (e) => { d.instagram = e.target.value; });
+  document.getElementById('ed-endereco').addEventListener('input', (e) => { d.endereco = e.target.value; });
+  document.getElementById('ed-add-servico').addEventListener('click', () => {
+    d.servicos.push({ id: 'novo-' + Date.now().toString(36), nome: 'Novo serviço', duracaoMin: 30, preco: 0 });
+    renderListaServicosEditor();
+  });
+  document.getElementById('ed-add-barbeiro').addEventListener('click', () => {
+    d.barbeiros.push({ id: 'novo-' + Date.now().toString(36), nome: 'Novo barbeiro', especialidade: '' });
+    renderListaBarbeirosEditor();
+  });
+  document.getElementById('json-aplicar').addEventListener('click', () => {
+    try {
+      const novo = JSON.parse(document.getElementById('json-avancado').value);
+      if (!Array.isArray(novo.servicos) || !Array.isArray(novo.barbeiros) || !novo.horarios) throw new Error('faltam "servicos", "barbeiros" ou "horarios"');
+      dadosCatalogoEdicao = novo;
+      renderEditorCatalogo();
+      document.getElementById('salvar-status').textContent = 'JSON aplicado. Clique em "Salvar catálogo" pra publicar.';
+    } catch (e) { alert('JSON inválido: ' + e.message); }
+  });
+  document.getElementById('json-recarregar').addEventListener('click', () => {
+    dadosCatalogoEdicao = estadoCatalogoParaEdicao();
+    renderEditorCatalogo();
+  });
+  document.getElementById('salvar-catalogo-btn').addEventListener('click', salvarCatalogo);
+  document.getElementById('sair-catalogo-btn').addEventListener('click', () => auth.signOut());
+  const btnImportar = document.getElementById('importar-agendamentos-btn');
+  if (btnImportar) btnImportar.addEventListener('click', async () => { await importarAgendamentosLocaisPraFirebase(); renderEditorCatalogo(); });
+}
+
+function renderListaServicosEditor() {
+  const d = dadosCatalogoEdicao;
+  document.getElementById('ed-servicos').innerHTML = d.servicos.map((s, i) => `
+    <div class="editor-linha" data-i="${i}">
+      <input type="text" data-campo="nome" value="${escaparHTML(s.nome)}" placeholder="Nome do serviço">
+      <input type="number" data-campo="preco" value="${s.preco}" step="0.01" min="0" placeholder="Preço">
+      <input type="number" data-campo="duracaoMin" value="${s.duracaoMin}" step="5" min="5" placeholder="Minutos">
+      <button class="ag-btn perigo" data-remover type="button">Remover</button>
+    </div>`).join('') || '<p class="lista-vazia">Nenhum serviço cadastrado.</p>';
+  ligarLinhasEditor('#ed-servicos', d.servicos, renderListaServicosEditor);
+}
+
+function renderListaBarbeirosEditor() {
+  const d = dadosCatalogoEdicao;
+  document.getElementById('ed-barbeiros').innerHTML = d.barbeiros.map((b, i) => `
+    <div class="editor-linha" data-i="${i}">
+      <input type="text" data-campo="nome" value="${escaparHTML(b.nome)}" placeholder="Nome">
+      <input type="text" data-campo="especialidade" value="${escaparHTML(b.especialidade || '')}" placeholder="Especialidade">
+      <button class="ag-btn perigo" data-remover type="button">Remover</button>
+    </div>`).join('') || '<p class="lista-vazia">Nenhum barbeiro cadastrado.</p>';
+  ligarLinhasEditor('#ed-barbeiros', d.barbeiros, renderListaBarbeirosEditor);
+}
+
+function ligarLinhasEditor(seletorPai, lista, rerender) {
+  document.querySelectorAll(`${seletorPai} .editor-linha`).forEach((linha) => {
+    const i = Number(linha.dataset.i);
+    linha.querySelectorAll('[data-campo]').forEach((input) => {
+      input.addEventListener('input', () => {
+        const campo = input.dataset.campo;
+        lista[i][campo] = input.type === 'number' ? Number(input.value || 0) : input.value;
+        if (campo === 'nome') lista[i].id = slugify(input.value);
+      });
+    });
+    linha.querySelector('[data-remover]').addEventListener('click', () => { lista.splice(i, 1); rerender(); });
+  });
+}
+
+function renderHorariosEditor() {
+  const d = dadosCatalogoEdicao;
+  document.getElementById('ed-horarios').innerHTML = DIAS_SEMANA_CATALOGO.map((nome, i) => {
+    const bloco = (d.horarios[i] && d.horarios[i][0]) || null;
+    return `
+      <div class="editor-dia" data-dia="${i}">
+        <span class="editor-dia-nome">${nome}</span>
+        <label style="display:flex;align-items:center;gap:.35rem;font-size:.85rem">
+          <input type="checkbox" data-campo="aberto" ${bloco ? 'checked' : ''}> aberto
+        </label>
+        <input type="time" data-campo="inicio" value="${bloco ? bloco[0] : '09:00'}" ${bloco ? '' : 'disabled'}>
+        <span style="color:var(--texto-dim)">às</span>
+        <input type="time" data-campo="fim" value="${bloco ? bloco[1] : '19:00'}" ${bloco ? '' : 'disabled'}>
+      </div>`;
+  }).join('');
+  document.querySelectorAll('#ed-horarios .editor-dia').forEach((linha) => {
+    const dia = Number(linha.dataset.dia);
+    const inputAberto = linha.querySelector('[data-campo=aberto]');
+    const inputInicio = linha.querySelector('[data-campo=inicio]');
+    const inputFim = linha.querySelector('[data-campo=fim]');
+    const sincronizar = () => {
+      inputInicio.disabled = !inputAberto.checked;
+      inputFim.disabled = !inputAberto.checked;
+      d.horarios[dia] = inputAberto.checked ? [[inputInicio.value, inputFim.value]] : [];
+    };
+    inputAberto.addEventListener('change', sincronizar);
+    inputInicio.addEventListener('input', sincronizar);
+    inputFim.addEventListener('input', sincronizar);
+  });
+}
+
+async function salvarCatalogo() {
+  const btn = document.getElementById('salvar-catalogo-btn');
+  const statusEl = document.getElementById('salvar-status');
+  btn.disabled = true; statusEl.textContent = 'Salvando…';
+  try {
+    await db.collection('configuracao').doc('dados').set(dadosCatalogoEdicao);
+    catalogoRemoto = JSON.parse(JSON.stringify(dadosCatalogoEdicao));
+    preencherSelects();
+    statusEl.textContent = 'Salvo! O site atualiza sozinho em até 5 minutos (ou na próxima visita).';
+  } catch (e) {
+    statusEl.textContent = 'Erro ao salvar: ' + e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* =========================================================
+   10. AGENDA REMOTA (Firestore) — liga assim que o dono entra
+   com a conta do Firebase na aba Catálogo.
+   ========================================================= */
+function iniciarListenerAgendamentosRemoto() {
+  if (!db || pararListenerAgendamentosRemoto) return;
+  pararListenerAgendamentosRemoto = db.collection('agendamentos')
+    .orderBy('criadoEm', 'desc')
+    .limit(500)
+    .onSnapshot((snap) => {
+      agendamentos = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+      renderAgenda();
+    }, (erro) => {
+      document.getElementById('lista-agendamentos').innerHTML =
+        `<p class="lista-vazia">Não foi possível carregar a agenda (${erro.code || erro.message}).</p>`;
+    });
+}
+function pararListenerAgendamentosRemotoFn() {
+  if (pararListenerAgendamentosRemoto) { pararListenerAgendamentosRemoto(); pararListenerAgendamentosRemoto = null; }
+}
+
+async function importarAgendamentosLocaisPraFirebase() {
+  const locais = carregarAgendamentos();
+  if (!locais.length) { alert('Não há agendamentos salvos neste aparelho pra importar.'); return; }
+  if (!confirm(`Importar ${locais.length} agendamento(s) salvos neste aparelho pro Firebase?`)) return;
+  try {
+    const lote = db.batch();
+    for (const ag of locais) {
+      const { id, ...campos } = ag;
+      const ref = db.collection('agendamentos').doc();
+      lote.set(ref, { ...campos, origem: 'painel-importado', criadoEm: firebase.firestore.FieldValue.serverTimestamp() });
+    }
+    await lote.commit();
+    salvarAgendamentos([]);
+    alert('Importado! Os agendamentos agora vivem no Firebase.');
+  } catch (e) { alert('Não foi possível importar: ' + e.message); }
+}
+
+if (auth) {
+  auth.onAuthStateChanged((user) => {
+    catalogoAutenticado = !!user;
+    const appVisivel = !document.getElementById('app-painel').hidden;
+    if (user) {
+      modoRemoto = true;
+      iniciarListenerAgendamentosRemoto();
+    } else {
+      modoRemoto = false;
+      pararListenerAgendamentosRemotoFn();
+      if (appVisivel) { agendamentos = carregarAgendamentos(); renderAgenda(); }
+    }
+    if (appVisivel) {
+      dadosCatalogoEdicao = null;
+      renderCatalogoTab();
+    }
+  });
+}
+
+/* =========================================================
+   11. INICIALIZAÇÃO
    ========================================================= */
 function inicializarApp() {
-  agendamentos = carregarAgendamentos();
+  agendamentos = modoRemoto ? agendamentos : carregarAgendamentos();
   bloqueios = carregarBloqueios();
   dataSelecionada = hojeISOnaLoja(CONFIG_PAINEL.fuso);
   preencherSelects();
   document.getElementById('novo-data').value = dataSelecionada;
   document.getElementById('bloq-data').value = dataSelecionada;
   renderAgenda();
+  carregarCatalogoRemoto();
 }
 
 if (jaEstaLogado()) mostrarApp();
