@@ -5,7 +5,7 @@ function formatMovieList(movies) {
     return "Nenhum filme em pré-venda no momento.";
   }
 
-  const lines = movies.map((movie) => `• ${movie.title}`);
+  const lines = movies.map((movie) => `• ${movie.title}\n  ${movie.url}`);
   return `🎬 <b>Em pré-venda agora</b>\n${lines.join("\n")}`;
 }
 
