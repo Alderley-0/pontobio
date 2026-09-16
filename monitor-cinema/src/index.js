@@ -2,6 +2,7 @@ import http from "node:http";
 import { fetchPreSaleMovies } from "./source.js";
 import { sendTelegramMessage, sendTelegramPhoto } from "./telegram.js";
 import { loadSeenIds, saveSeenIds } from "./state.js";
+import { pollTelegramCommands } from "./commands.js";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
@@ -16,9 +17,11 @@ if (!TOKEN || !CHAT_ID) {
 
 let lastCheckAt = null;
 let lastError = null;
+let lastMovies = [];
 
 async function checkOnce(seenIds) {
   const movies = await fetchPreSaleMovies();
+  lastMovies = movies;
   const newMovies = movies.filter((movie) => !seenIds.has(movie.id));
 
   for (const movie of newMovies) {
@@ -70,3 +73,4 @@ http
   });
 
 loop();
+pollTelegramCommands(TOKEN, CHAT_ID, () => ({ lastMovies, lastCheckAt, lastError }));

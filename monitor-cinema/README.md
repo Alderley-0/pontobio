@@ -1,7 +1,10 @@
 # Monitor de pré-venda de cinema
 
 Verifica periodicamente se algum filme entrou em pré-venda e manda um alerta
-no Telegram assim que detecta.
+no Telegram assim que detecta. Também responde a comandos:
+
+- `/filmes` — lista os filmes em pré-venda no momento
+- `/status` — mostra quando foi a última checagem (e se deu erro)
 
 ## 1. Criar o bot do Telegram
 
