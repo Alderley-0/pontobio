@@ -1,30 +1,50 @@
-// Busca a lista de filmes em pré-venda.
+// Busca a lista de filmes em pré-venda usando a API interna do Ingresso.com
+// (a mesma que o app oficial e o site usam por trás dos panos).
 //
-// TODO: este é o único arquivo que precisa da URL real. Pra descobrir:
-// 1. Abra https://www.ingresso.com/em-breve no navegador
-// 2. Abra o DevTools (F12) > aba "Network" > filtro "Fetch/XHR"
-// 3. Recarregue a página e procure a chamada que traz a lista de filmes
-//    (normalmente algo em api-content.ingresso.com ou similar)
-// 4. Copie a URL e o formato da resposta (JSON) e ajuste a função abaixo.
+// Endpoint: https://api-content.ingresso.com/v0/templates/nowplaying/{city_id}?partnership={partnership}
+// Devolve um array com TODO filme comprável naquela cidade/rede, cada um com
+// "premiereDate.localDate". Quando essa data está no futuro, o filme ainda
+// não estreou mas já tem sessão à venda — ou seja, pré-venda aberta.
 //
-// Cada filme retornado deve virar um objeto:
-//   { id: string, title: string, url: string }
-// "id" precisa ser estável entre chamadas (não pode mudar a cada request),
-// pra o sistema saber que já avisou sobre aquele filme.
+// CITY_ID: número da cidade (não é o "city=sao-paulo" da URL do site).
+// Pra descobrir o seu: abra no navegador
+//   https://api-content.ingresso.com/v0/states/SP
+// (troque SP pela sigla do seu estado) e procure sua cidade no array
+// "cities" — o campo "id" é o que entra aqui.
+//
+// PARTNERSHIP: nome da rede de cinema (ex: "cinemark", "kinoplex",
+// "moviecom", "cinepolis", "uci"). Cobre só a rede escolhida, não todas as
+// redes do país — pré-venda de filme grande costuma abrir no mesmo dia em
+// todas, então uma rede grande já serve de sinal.
+
+const CITY_ID = process.env.INGRESSO_CITY_ID;
+const PARTNERSHIP = process.env.INGRESSO_PARTNERSHIP ?? "cinemark";
 
 export async function fetchPreSaleMovies() {
-  const res = await fetch("https://SUBSTITUIR-PELA-URL-REAL");
+  if (!CITY_ID) {
+    throw new Error("Defina INGRESSO_CITY_ID nas variáveis de ambiente.");
+  }
+
+  const url = `https://api-content.ingresso.com/v0/templates/nowplaying/${CITY_ID}?partnership=${PARTNERSHIP}`;
+  const res = await fetch(url, {
+    headers: { "User-Agent": "Mozilla/5.0" },
+  });
 
   if (!res.ok) {
     throw new Error(`Fonte respondeu ${res.status}`);
   }
 
-  const data = await res.json();
+  const movies = await res.json();
+  const today = new Date().toISOString().slice(0, 10);
 
-  // Ajustar o mapeamento abaixo conforme o formato real da resposta.
-  return data.movies.map((movie) => ({
-    id: String(movie.id),
-    title: movie.title,
-    url: movie.url,
-  }));
+  return movies
+    .filter((movie) => {
+      const premiere = movie?.premiereDate?.localDate;
+      return premiere && premiere > today;
+    })
+    .map((movie) => ({
+      id: `${movie.title}::${movie.premiereDate.localDate}`,
+      title: movie.title,
+      url: `https://www.ingresso.com/filmes/em-breve`,
+    }));
 }
