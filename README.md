@@ -12,6 +12,7 @@ Páginas de links para criador de conteúdo. Um repositório, um domínio, uma p
 /hamburgueria/painel/        painel do dono (pedidos + edição do cardápio)
 /hamburgueria/firebase-config.js  configuração do Firebase usada pelos dois acima
 /barbearia/       agendamento de exemplo pra barbearia, com painel do dono
+/monitor-cinema/  serviço à parte (Node) que avisa pré-venda de filme no Telegram
 CNAME             domínio custom do GitHub Pages
 .nojekyll         impede o GitHub de processar as pastas como Jekyll
 ```
