@@ -5,6 +5,17 @@ no Telegram assim que detecta. Também responde a comandos:
 
 - `/filmes` — lista os filmes em pré-venda no momento
 - `/status` — mostra quando foi a última checagem (e se deu erro)
+- `/avisar <filme>` — qualquer pessoa (no privado ou num grupo) pode pedir
+  aviso individual, no privado, quando aquele filme específico entrar em
+  pré-venda
+- `/parar <filme>` — cancela um aviso pendente
+- `/minhasassinaturas` — lista os avisos pendentes de quem pediu
+
+**Importante sobre `/avisar`:** o Telegram só deixa um bot mandar mensagem
+privada pra quem já iniciou uma conversa com ele antes (dando `/start` no
+chat privado do bot, fora de qualquer grupo). Quem pedir `/avisar` sem ter
+feito isso ainda não vai receber o aviso — o bot fica tentando entregar a
+cada checagem, silenciosamente, até a pessoa dar `/start` no privado.
 
 ## 1. Criar o bot do Telegram
 
