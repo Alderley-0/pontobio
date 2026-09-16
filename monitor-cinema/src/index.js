@@ -5,11 +5,15 @@ import { loadSeenIds, saveSeenIds } from "./state.js";
 import { pollTelegramCommands } from "./commands.js";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+// Aceita um ou mais destinos (chat pessoal, grupo, etc), separados por vírgula.
+const CHAT_IDS = (process.env.TELEGRAM_CHAT_ID ?? "")
+  .split(",")
+  .map((id) => id.trim())
+  .filter(Boolean);
 const INTERVAL_MS = Number(process.env.POLL_INTERVAL_SECONDS ?? 20) * 1000;
 const PORT = process.env.PORT ?? 3000;
 
-if (!TOKEN || !CHAT_ID) {
+if (!TOKEN || CHAT_IDS.length === 0) {
   throw new Error(
     "Defina TELEGRAM_BOT_TOKEN e TELEGRAM_CHAT_ID nas variáveis de ambiente."
   );
@@ -26,10 +30,12 @@ async function checkOnce(seenIds) {
 
   for (const movie of newMovies) {
     const caption = `🎬 <b>Pré-venda aberta!</b>\n${movie.title}\n${movie.url}`;
-    if (movie.poster) {
-      await sendTelegramPhoto(TOKEN, CHAT_ID, movie.poster, caption);
-    } else {
-      await sendTelegramMessage(TOKEN, CHAT_ID, caption);
+    for (const chatId of CHAT_IDS) {
+      if (movie.poster) {
+        await sendTelegramPhoto(TOKEN, chatId, movie.poster, caption);
+      } else {
+        await sendTelegramMessage(TOKEN, chatId, caption);
+      }
     }
     seenIds.add(movie.id);
   }
@@ -73,4 +79,4 @@ http
   });
 
 loop();
-pollTelegramCommands(TOKEN, CHAT_ID, () => ({ lastMovies, lastCheckAt, lastError }));
+pollTelegramCommands(TOKEN, () => ({ lastMovies, lastCheckAt, lastError }));
