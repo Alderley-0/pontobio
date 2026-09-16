@@ -28,12 +28,12 @@ site.
    valor de `id`
 3. Esse número é o `INGRESSO_CITY_ID`
 
-Também dá pra trocar `INGRESSO_PARTNERSHIP` pra rede de cinema que você
-acompanha (`cinemark`, `kinoplex`, `moviecom`, `cinepolis`, `uci`, etc; o
-padrão é `cinemark`).
-
-Se preferir, me manda o número que você encontrou que eu confirmo se está
-certo antes do deploy.
+Por padrão o script já checa uma lista de redes conhecidas (`cinemark`,
+`kinoplex`, `moviecom`, `cinesystem`, `playarte`, `uci`, `cinepolis`,
+`arcoplex`, `cineflix`, `cineart`, `cinemais`) e junta o resultado de todas
+que existirem na sua cidade — as que não existem simplesmente não retornam
+nada. Se quiser restringir a rede(s) específica(s), defina
+`INGRESSO_PARTNERSHIPS` (separado por vírgula, ex: `cinemark,kinoplex`).
 
 ## 3. Rodar localmente (teste)
 
@@ -53,7 +53,7 @@ Render, que hiberna sem tráfego HTTP — ruim pra quem faz polling contínuo).
 2. **New Project** → **Deploy from GitHub repo** → escolher este repositório
 3. Em **Settings**, ajustar o **Root Directory** para `monitor-cinema`
 4. Em **Variables**, adicionar `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID`,
-   `INGRESSO_CITY_ID` e, se quiser, `INGRESSO_PARTNERSHIP` e
+   `INGRESSO_CITY_ID` e, se quiser, `INGRESSO_PARTNERSHIPS` e
    `POLL_INTERVAL_SECONDS`
 5. Deploy. Os logs mostram "Monitor de cinema no ar..." quando estiver rodando
 
@@ -74,10 +74,9 @@ de "ping" a cada poucos minutos pra manter acordado (funciona, mas é gambiarra)
 - Depende da fonte de dados continuar acessível e no mesmo formato; se o
   Ingresso.com mudar a estrutura da resposta, `src/source.js` precisa ser
   atualizado.
-- A checagem cobre só a rede de cinema (`INGRESSO_PARTNERSHIP`) e cidade
-  (`INGRESSO_CITY_ID`) configuradas — não é uma varredura de todas as redes
-  do Brasil de uma vez. Pré-venda de filme grande costuma abrir no mesmo dia
-  em todas as redes, então uma rede grande já serve como sinal, mas pode
-  perder pré-venda exclusiva de uma rede menor.
+- A checagem cobre a cidade (`INGRESSO_CITY_ID`) configurada e a lista de
+  redes conhecidas em `INGRESSO_PARTNERSHIPS` — não existe um endpoint único
+  que devolva "todas as redes do Brasil" de uma vez, então uma rede que não
+  esteja nessa lista (ou uma rede muito regional) pode passar despercebida.
 - Essa API não é documentada oficialmente pelo Ingresso.com (foi obtida de
   um projeto open-source que já a usa) — pode mudar sem aviso.
