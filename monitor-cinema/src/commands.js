@@ -20,8 +20,9 @@ function formatStatus(status) {
 }
 
 // Fica em long polling esperando comando do usuário (/filmes, /status) e
-// responde na hora. Roda em paralelo com o loop de checagem de pré-venda.
-export async function pollTelegramCommands(token, chatId, getState) {
+// responde na hora, no mesmo chat de onde veio (privado ou grupo). Roda em
+// paralelo com o loop de checagem de pré-venda.
+export async function pollTelegramCommands(token, getState) {
   let offset = 0;
 
   while (true) {
@@ -38,8 +39,9 @@ export async function pollTelegramCommands(token, chatId, getState) {
       offset = update.update_id + 1;
 
       const message = update.message;
-      if (!message?.text || String(message.chat.id) !== String(chatId)) continue;
+      if (!message?.text) continue;
 
+      const chatId = message.chat.id;
       const text = message.text.trim();
       const { lastMovies, lastCheckAt, lastError } = getState();
 

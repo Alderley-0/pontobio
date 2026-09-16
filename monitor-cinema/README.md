@@ -18,6 +18,19 @@ no Telegram assim que detecta. Também responde a comandos:
    verdade) depois de mandar a mensagem do passo 4 — o `chat_id` aparece no
    JSON retornado
 
+### Mandar alerta pra um grupo também
+
+1. Adiciona o bot no grupo
+2. Manda qualquer mensagem ou comando (ex: `/status`) no grupo
+3. Repete o `getUpdates` do passo 5 acima — vai aparecer uma entrada nova com
+   o `chat_id` do grupo (número negativo, tipo `-1001234567890`)
+4. Em `TELEGRAM_CHAT_ID`, coloca os dois separados por vírgula:
+   `5543649185,-1001234567890`
+
+O número que aparece na URL do `web.telegram.org` (ex: `#-3910517806`) **não**
+é o `chat_id` de verdade — é um id interno do cliente web. Sempre pega o
+número pelo `getUpdates`.
+
 ## 2. Descobrir CITY_ID
 
 `src/source.js` já usa a API interna do Ingresso.com
