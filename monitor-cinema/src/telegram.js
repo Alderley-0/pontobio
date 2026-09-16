@@ -19,6 +19,21 @@ export async function sendTelegramMessage(token, chatId, text) {
   }
 }
 
+// Long polling: fica esperando até 25s por mensagens novas (mais rápido pra
+// responder comando e mais leve que ficar checando a cada poucos segundos).
+export async function getTelegramUpdates(token, offset) {
+  const url = `${API_BASE}/bot${token}/getUpdates?timeout=25&offset=${offset}`;
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Telegram API respondeu ${res.status}: ${body}`);
+  }
+
+  const data = await res.json();
+  return data.result;
+}
+
 export async function sendTelegramPhoto(token, chatId, photoUrl, caption) {
   const url = `${API_BASE}/bot${token}/sendPhoto`;
   const res = await fetch(url, {
