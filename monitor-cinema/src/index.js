@@ -1,6 +1,6 @@
 import http from "node:http";
 import { fetchPreSaleMovies } from "./source.js";
-import { sendTelegramMessage } from "./telegram.js";
+import { sendTelegramMessage, sendTelegramPhoto } from "./telegram.js";
 import { loadSeenIds, saveSeenIds } from "./state.js";
 
 const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
@@ -22,8 +22,12 @@ async function checkOnce(seenIds) {
   const newMovies = movies.filter((movie) => !seenIds.has(movie.id));
 
   for (const movie of newMovies) {
-    const text = `🎬 <b>Pré-venda aberta!</b>\n${movie.title}\n${movie.url}`;
-    await sendTelegramMessage(TOKEN, CHAT_ID, text);
+    const caption = `🎬 <b>Pré-venda aberta!</b>\n${movie.title}\n${movie.url}`;
+    if (movie.poster) {
+      await sendTelegramPhoto(TOKEN, CHAT_ID, movie.poster, caption);
+    } else {
+      await sendTelegramMessage(TOKEN, CHAT_ID, caption);
+    }
     seenIds.add(movie.id);
   }
 
