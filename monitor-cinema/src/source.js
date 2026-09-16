@@ -74,6 +74,7 @@ export async function fetchPreSaleMovies() {
           id,
           title: movie.title,
           url: "https://www.ingresso.com/filmes/em-breve",
+          poster: movie?.images?.[0]?.url ?? null,
         });
       }
     }

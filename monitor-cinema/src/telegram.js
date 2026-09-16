@@ -18,3 +18,22 @@ export async function sendTelegramMessage(token, chatId, text) {
     throw new Error(`Telegram API respondeu ${res.status}: ${body}`);
   }
 }
+
+export async function sendTelegramPhoto(token, chatId, photoUrl, caption) {
+  const url = `${API_BASE}/bot${token}/sendPhoto`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: chatId,
+      photo: photoUrl,
+      caption,
+      parse_mode: "HTML",
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Telegram API respondeu ${res.status}: ${body}`);
+  }
+}
