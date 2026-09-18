@@ -28,13 +28,27 @@ const HELP_TEXT =
   "Todos esses comandos funcionam tanto no privado quanto em qualquer grupo " +
   "em que eu estiver.";
 
-function formatMovieList(movies) {
+// Telegram recusa mensagem com mais de 4096 caracteres — com o catálogo
+// completo (pode passar de 100 filmes), uma lista só não cabe. Divide em
+// várias mensagens.
+const MOVIES_PER_MESSAGE = 25;
+
+function formatMovieListChunks(movies) {
   if (movies.length === 0) {
-    return "Nenhum filme em pré-venda no momento.";
+    return ["Nenhum filme em pré-venda no momento."];
   }
 
-  const lines = movies.map((movie) => `• ${movie.title}\n  ${movie.url}`);
-  return `🎬 <b>Em pré-venda agora</b>\n${lines.join("\n")}`;
+  const chunks = [];
+  for (let i = 0; i < movies.length; i += MOVIES_PER_MESSAGE) {
+    const slice = movies.slice(i, i + MOVIES_PER_MESSAGE);
+    const lines = slice.map((movie) => `• ${movie.title}\n  ${movie.url}`);
+    const titulo =
+      movies.length > MOVIES_PER_MESSAGE
+        ? `🎬 <b>Em pré-venda agora</b> (${i + 1}–${i + slice.length} de ${movies.length})`
+        : "🎬 <b>Em pré-venda agora</b>";
+    chunks.push(`${titulo}\n${lines.join("\n")}`);
+  }
+  return chunks;
 }
 
 function formatStatus(status) {
@@ -154,23 +168,31 @@ export async function pollTelegramCommands(token, getState) {
       const text = message.text.trim();
       const { lastMovies, lastCheckAt, lastError } = getState();
 
-      if (text.startsWith("/filmes")) {
-        await sendTelegramMessage(token, chatId, formatMovieList(lastMovies));
-      } else if (text.startsWith("/status")) {
-        await sendTelegramMessage(token, chatId, formatStatus({ lastCheckAt, lastError }));
-      } else if (text.startsWith("/avisar")) {
-        const query = text.slice("/avisar".length).trim();
-        await handleAvisar(token, chatId, userId, query, lastMovies, subs);
-      } else if (text.startsWith("/parar")) {
-        const query = text.slice("/parar".length).trim();
-        const result = await handleParar(token, chatId, userId, query, subs);
-        subs = result.subs;
-      } else if (text.startsWith("/minhasassinaturas")) {
-        await handleMinhasAssinaturas(token, chatId, userId, subs);
-      } else if (text.startsWith("/ajuda") || text.startsWith("/help")) {
-        await sendTelegramMessage(token, chatId, HELP_TEXT);
-      } else if (text.startsWith("/start")) {
-        await sendTelegramMessage(token, chatId, HELP_TEXT);
+      // Um comando com problema (ex: resposta grande demais pro Telegram)
+      // não pode derrubar o processo inteiro — só loga e segue pro próximo.
+      try {
+        if (text.startsWith("/filmes")) {
+          for (const chunk of formatMovieListChunks(lastMovies)) {
+            await sendTelegramMessage(token, chatId, chunk);
+          }
+        } else if (text.startsWith("/status")) {
+          await sendTelegramMessage(token, chatId, formatStatus({ lastCheckAt, lastError }));
+        } else if (text.startsWith("/avisar")) {
+          const query = text.slice("/avisar".length).trim();
+          await handleAvisar(token, chatId, userId, query, lastMovies, subs);
+        } else if (text.startsWith("/parar")) {
+          const query = text.slice("/parar".length).trim();
+          const result = await handleParar(token, chatId, userId, query, subs);
+          subs = result.subs;
+        } else if (text.startsWith("/minhasassinaturas")) {
+          await handleMinhasAssinaturas(token, chatId, userId, subs);
+        } else if (text.startsWith("/ajuda") || text.startsWith("/help")) {
+          await sendTelegramMessage(token, chatId, HELP_TEXT);
+        } else if (text.startsWith("/start")) {
+          await sendTelegramMessage(token, chatId, HELP_TEXT);
+        }
+      } catch (err) {
+        console.error(`Erro ao processar comando "${text}": ${err.message}`);
       }
     }
   }
