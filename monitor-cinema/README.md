@@ -47,7 +47,7 @@ número pelo `getUpdates`.
 ## 2. Descobrir CITY_ID
 
 `src/source.js` já usa a API interna do Ingresso.com
-(`api-content.ingresso.com/v0/templates/nowplaying/...`), mas ela pede um
+(`api-content.ingresso.com/v0/templates/soon/...`), mas ela pede um
 `city_id` numérico — diferente do `city=sao-paulo` que aparece na URL do
 site.
 
