@@ -31,38 +31,45 @@ const DEFAULT_PARTNERSHIPS = [
   "cineflix",
   "cineart",
   "cinemais",
-  // Testando se existe um valor "genérico" que devolve a mesma listagem
-  // completa que o próprio site mostra pra cidade, independente de rede.
-  "home",
-  "ingresso",
 ];
 
 const PARTNERSHIPS = process.env.INGRESSO_PARTNERSHIPS
   ? process.env.INGRESSO_PARTNERSHIPS.split(",").map((p) => p.trim()).filter(Boolean)
   : DEFAULT_PARTNERSHIPS;
 
+const PAGE_SIZE = 50;
+const MAX_PAGES = 6; // até 300 filmes por rede — bem acima do que uma cidade real tem
+
+// O endpoint pagina por padrão (limit/skip), com um tamanho de página bem
+// pequeno se não pedirmos. Sem isso, só os primeiros ~10 filmes (em ordem
+// alfabética) voltavam, escondendo pré-vendas reais tipo "Duna - Parte 3".
 async function fetchFromPartnership(partnership) {
-  const url = `https://api-content.ingresso.com/v0/templates/nowplaying/${CITY_ID}?partnership=${partnership}`;
+  const all = [];
 
-  let res;
-  try {
-    res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-  } catch (err) {
-    console.log(`[debug] ${partnership}: erro de rede — ${err.message}`);
-    return [];
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const skip = page * PAGE_SIZE;
+    const url =
+      `https://api-content.ingresso.com/v0/templates/nowplaying/${CITY_ID}` +
+      `?partnership=${partnership}&limit=${PAGE_SIZE}&skip=${skip}`;
+
+    let res;
+    try {
+      res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
+    } catch {
+      break;
+    }
+
+    if (!res.ok) break;
+
+    const movies = await res.json();
+    const list = Array.isArray(movies) ? movies : [];
+    all.push(...list);
+
+    if (list.length < PAGE_SIZE) break;
   }
 
-  if (!res.ok) {
-    console.log(`[debug] ${partnership}: HTTP ${res.status}`);
-    return [];
-  }
-
-  const movies = await res.json();
-  const list = Array.isArray(movies) ? movies : [];
-  console.log(
-    `[debug] ${partnership}: ${list.length} filme(s) — ${list.map((m) => m.title).join(", ")}`
-  );
-  return list;
+  console.log(`[debug] ${partnership}: ${all.length} filme(s) no total`);
+  return all;
 }
 
 export async function fetchPreSaleMovies() {
