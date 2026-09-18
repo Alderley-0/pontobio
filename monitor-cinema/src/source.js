@@ -2,9 +2,11 @@
 // (a mesma que o app oficial e o site usam por trás dos panos).
 //
 // Endpoint: https://api-content.ingresso.com/v0/templates/soon/{city_id}?partnership={partnership}
-// Devolve o catálogo completo de "em breve" daquela cidade/rede, cada item
-// com "premiereDate.localDate". Quando essa data está no futuro, o filme
-// ainda não estreou mas já tem sessão à venda — ou seja, pré-venda aberta.
+// Devolve o catálogo de "em breve" daquela cidade/rede. Cada item tem um
+// campo "inPreSale": true só quando existe sessão de verdade à venda — o
+// mesmo catálogo também lista filmes apenas anunciados pelo estúdio (às
+// vezes com estreia prevista pra 2027+), que têm "inPreSale": false e não
+// contam como pré-venda de verdade.
 //
 // (existe também templates/nowplaying, mas esse devolve só uma "vitrine" de
 // ~10 destaques em ordem alfabética, ignorando limit/skip — não serve pra
@@ -54,19 +56,7 @@ async function fetchFromPartnership(partnership) {
   if (!res.ok) return [];
 
   const movies = await res.json();
-  const list = Array.isArray(movies) ? movies : [];
-
-  // DEBUG: compara o JSON completo de um filme "real" (com sessão à venda
-  // de verdade) com um claramente só anunciado, pra achar um campo que
-  // diferencie isso.
-  if (partnership === "cinemark") {
-    const real = list.find((m) => m.title?.includes("Duna"));
-    const anunciado = list.find((m) => m.title?.includes("Secret Wars"));
-    console.log(`[debug] Duna (real?): ${JSON.stringify(real)}`);
-    console.log(`[debug] Secret Wars (anunciado?): ${JSON.stringify(anunciado)}`);
-  }
-
-  return list;
+  return Array.isArray(movies) ? movies : [];
 }
 
 export async function fetchPreSaleMovies() {
@@ -74,22 +64,20 @@ export async function fetchPreSaleMovies() {
     throw new Error("Defina INGRESSO_CITY_ID nas variáveis de ambiente.");
   }
 
-  const today = new Date().toISOString().slice(0, 10);
   const found = new Map();
-
   const results = await Promise.all(PARTNERSHIPS.map(fetchFromPartnership));
 
   for (const movies of results) {
     for (const movie of movies) {
-      const premiere = movie?.premiereDate?.localDate;
-      if (!premiere || premiere <= today) continue;
+      if (!movie.inPreSale) continue;
 
+      const premiere = movie?.premiereDate?.localDate ?? "";
       const id = `${movie.title}::${premiere}`;
       if (!found.has(id)) {
         found.set(id, {
           id,
           title: movie.title,
-          url: "https://www.ingresso.com/filmes/em-breve",
+          url: movie.siteURL ?? "https://www.ingresso.com/filmes/em-breve",
           poster: movie?.images?.[0]?.url ?? null,
         });
       }
