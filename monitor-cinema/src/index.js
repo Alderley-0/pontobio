@@ -20,6 +20,15 @@ if (!TOKEN || CHAT_IDS.length === 0) {
   );
 }
 
+// Rede de segurança: um erro não previsto em qualquer lugar do código não
+// pode derrubar o processo (isso já causou um loop de reinício sem fim).
+process.on("uncaughtException", (err) => {
+  console.error(`Erro não tratado: ${err.message}`);
+});
+process.on("unhandledRejection", (err) => {
+  console.error(`Promise rejeitada sem tratamento: ${err?.message ?? err}`);
+});
+
 let lastCheckAt = null;
 let lastError = null;
 let lastMovies = [];
