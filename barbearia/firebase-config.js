@@ -16,10 +16,10 @@
 // continuam indo pro WhatsApp — só não dá pra editar o catálogo pelo painel
 // nem sincronizar a agenda entre aparelhos.
 window.FIREBASE_CONFIG = {
-  apiKey: 'COLE_AQUI',
-  authDomain: 'COLE_AQUI.firebaseapp.com',
-  projectId: 'COLE_AQUI',
-  storageBucket: 'COLE_AQUI.appspot.com',
-  messagingSenderId: 'COLE_AQUI',
-  appId: 'COLE_AQUI',
+  apiKey: 'AIzaSyDwjtNwGJ3O2OwQpq2pXnQ6TH7uyDDeU7I',
+  authDomain: 'barba-nobre-56038.firebaseapp.com',
+  projectId: 'barba-nobre-56038',
+  storageBucket: 'barba-nobre-56038.firebasestorage.app',
+  messagingSenderId: '932273788828',
+  appId: '1:932273788828:web:a9af15a9b6ae891c7f9a59',
 };
