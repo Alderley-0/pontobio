@@ -12,6 +12,8 @@ Páginas de links para criador de conteúdo. Um repositório, um domínio, uma p
 /hamburgueria/painel/        painel do dono (pedidos + edição do cardápio)
 /hamburgueria/firebase-config.js  configuração do Firebase usada pelos dois acima
 /barbearia/       agendamento de exemplo pra barbearia, com painel do dono
+/barbearia/painel/           painel do dono (agenda + edição do catálogo)
+/barbearia/firebase-config.js  configuração do Firebase usada pelos dois acima (opcional)
 /monitor-cinema/  serviço à parte (Node) que avisa pré-venda de filme no Telegram
 CNAME             domínio custom do GitHub Pages
 .nojekyll         impede o GitHub de processar as pastas como Jekyll
@@ -151,10 +153,60 @@ E no topo do `<script>` de `barbearia/painel/index.html` (objeto
   qualquer um que veja o código-fonte consegue ler)
 - `whatsapp`, e a mesma lista de `servicos` e `barbeiros` do site público
 
-**Importante sobre os dados:** é tudo estático, sem servidor. Os
-agendamentos que o cliente faz ficam salvos só no aparelho dele (pra ele ver
-"meus agendamentos"), e os agendamentos/bloqueios que o dono registra no
+**Importante sobre os dados sem Firebase:** é tudo estático, sem servidor.
+Os agendamentos que o cliente faz ficam salvos só no aparelho dele (pra ele
+ver "meus agendamentos"), e os agendamentos/bloqueios que o dono registra no
 painel ficam salvos só no aparelho do dono — como uma agenda de papel no
 balcão, não sincroniza sozinho entre aparelhos. A ponte entre os dois lados
 é o WhatsApp: o cliente manda a mensagem, o dono confirma por lá e registra
 no painel pra não esquecer.
+
+### Catálogo em tempo real (opcional, Firebase)
+
+Com um projeto Firebase configurado, o painel ganha uma aba **Catálogo** onde
+o dono edita nome da loja, WhatsApp, Instagram, endereço, serviços (nome,
+preço, duração), barbeiros e horário de funcionamento direto na tela — sem
+mexer em código nem publicar nada. O site público (`barbearia/index.html`)
+busca esses dados no Firestore e atualiza sozinho em até 5 minutos (ou na
+próxima visita), com os dados de exemplo do arquivo como reserva se o
+Firebase estiver fora do ar ou não configurado.
+
+Fazer login nessa aba também liga a sincronização automática da **Agenda**:
+os agendamentos feitos pelo site passam a aparecer sozinhos no painel (sem
+precisar digitar cada um na mão), e os agendamentos criados no painel ficam
+disponíveis em qualquer aparelho em que o dono entrar com a mesma conta. Sem
+esse login, tudo continua funcionando exatamente como antes (agenda e
+bloqueios salvos só no aparelho, catálogo editado no código).
+
+Configuração (mesmos passos do cardápio da hamburgueria — dá pra reusar o
+mesmo projeto Firebase ou criar um novo só pra barbearia):
+
+1. Crie um projeto grátis em https://console.firebase.google.com
+2. **Firestore Database** → criar banco → modo produção → escolher uma região
+3. **Authentication** → Sign-in method → ativar **E-mail/senha**
+4. Authentication → Users → **Add user** → crie o login do dono
+5. ⚙ Configurações do projeto → Seus apps → `</>` (Web) → registre um app e
+   copie os valores gerados
+6. Cole esses valores em `barbearia/firebase-config.js`, no lugar de cada
+   `'COLE_AQUI'`
+7. Firestore Database → **Regras**, cole e publique:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /configuracao/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /agendamentos/{id} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+  }
+}
+```
+
+Essas regras deixam qualquer cliente criar um agendamento (ele não faz
+login), mas só quem estiver logado (o dono) consegue ler a agenda completa,
+editar o catálogo ou mudar/excluir um agendamento.
