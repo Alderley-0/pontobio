@@ -31,6 +31,10 @@ const DEFAULT_PARTNERSHIPS = [
   "cineflix",
   "cineart",
   "cinemais",
+  // Testando se existe um valor "genérico" que devolve a mesma listagem
+  // completa que o próprio site mostra pra cidade, independente de rede.
+  "home",
+  "ingresso",
 ];
 
 const PARTNERSHIPS = process.env.INGRESSO_PARTNERSHIPS
@@ -43,14 +47,22 @@ async function fetchFromPartnership(partnership) {
   let res;
   try {
     res = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" } });
-  } catch {
+  } catch (err) {
+    console.log(`[debug] ${partnership}: erro de rede — ${err.message}`);
     return [];
   }
 
-  if (!res.ok) return [];
+  if (!res.ok) {
+    console.log(`[debug] ${partnership}: HTTP ${res.status}`);
+    return [];
+  }
 
   const movies = await res.json();
-  return Array.isArray(movies) ? movies : [];
+  const list = Array.isArray(movies) ? movies : [];
+  console.log(
+    `[debug] ${partnership}: ${list.length} filme(s) — ${list.map((m) => m.title).join(", ")}`
+  );
+  return list;
 }
 
 export async function fetchPreSaleMovies() {
