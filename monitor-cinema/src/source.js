@@ -54,7 +54,19 @@ async function fetchFromPartnership(partnership) {
   if (!res.ok) return [];
 
   const movies = await res.json();
-  return Array.isArray(movies) ? movies : [];
+  const list = Array.isArray(movies) ? movies : [];
+
+  // DEBUG: compara o JSON completo de um filme "real" (com sessão à venda
+  // de verdade) com um claramente só anunciado, pra achar um campo que
+  // diferencie isso.
+  if (partnership === "cinemark") {
+    const real = list.find((m) => m.title?.includes("Duna"));
+    const anunciado = list.find((m) => m.title?.includes("Secret Wars"));
+    console.log(`[debug] Duna (real?): ${JSON.stringify(real)}`);
+    console.log(`[debug] Secret Wars (anunciado?): ${JSON.stringify(anunciado)}`);
+  }
+
+  return list;
 }
 
 export async function fetchPreSaleMovies() {
