@@ -13,6 +13,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js"></script>
 <script src="../firebase-config.js"></script>
 <style>
 :root{
@@ -771,6 +772,64 @@ function renderListaBloqueios() {
 }
 
 /* =========================================================
+   8b. AVISOS NO CELULAR (Firebase Cloud Messaging, opcional)
+   Avisa o dono mesmo com o painel fechado quando um cliente cancela.
+   Exige: chave VAPID configurada (firebase-config.js) e a Cloud
+   Function "avisarCancelamento" publicada (veja o README).
+   ========================================================= */
+async function tokenNotificacaoAtual() {
+  if (!('serviceWorker' in navigator)) return null;
+  try {
+    const registro = await navigator.serviceWorker.getRegistration('../firebase-messaging-sw.js');
+    if (!registro || Notification.permission !== 'granted') return null;
+    return await firebase.messaging().getToken({ vapidKey: window.FIREBASE_VAPID_KEY, serviceWorkerRegistration: registro });
+  } catch (e) { return null; }
+}
+
+async function atualizarStatusNotificacoes() {
+  const statusEl = document.getElementById('notif-status');
+  const btn = document.getElementById('btn-ativar-notif');
+  if (!statusEl || !btn) return;
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    statusEl.textContent = 'Esse navegador não suporta avisos push.';
+    btn.disabled = true;
+    return;
+  }
+  if (!window.FIREBASE_VAPID_KEY || window.FIREBASE_VAPID_KEY === 'COLE_AQUI') {
+    statusEl.textContent = 'Chave VAPID ainda não configurada (veja o README).';
+    return;
+  }
+  const token = await tokenNotificacaoAtual();
+  if (token) { statusEl.textContent = 'Avisos ativados neste aparelho ✓'; btn.textContent = 'Reativar avisos'; }
+}
+
+async function ativarNotificacoes() {
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) {
+    alert('Esse navegador não suporta avisos push.');
+    return;
+  }
+  const vapidKey = window.FIREBASE_VAPID_KEY;
+  if (!vapidKey || vapidKey === 'COLE_AQUI') {
+    alert('Falta configurar a chave VAPID em firebase-config.js. Veja o README.');
+    return;
+  }
+  const statusEl = document.getElementById('notif-status');
+  try {
+    const permissao = await Notification.requestPermission();
+    if (permissao !== 'granted') { statusEl.textContent = 'Permissão negada. Ative nas configurações do navegador se mudar de ideia.'; return; }
+    const registro = await navigator.serviceWorker.register('../firebase-messaging-sw.js');
+    const token = await firebase.messaging().getToken({ vapidKey, serviceWorkerRegistration: registro });
+    await db.collection('donoDispositivos').doc(token).set({
+      token, criadoEm: firebase.firestore.FieldValue.serverTimestamp(), userAgent: navigator.userAgent,
+    });
+    statusEl.textContent = 'Avisos ativados neste aparelho ✓';
+    document.getElementById('btn-ativar-notif').textContent = 'Reativar avisos';
+  } catch (e) {
+    statusEl.textContent = 'Não foi possível ativar: ' + e.message;
+  }
+}
+
+/* =========================================================
    9. CATÁLOGO (Firebase) — serviços, barbeiros, horários e
    dados da loja editáveis direto na tela, sem mexer em código.
    ========================================================= */
@@ -840,6 +899,13 @@ function renderEditorCatalogo() {
   const d = dadosCatalogoEdicao;
   const alvo = document.getElementById('catalogo-conteudo');
   alvo.innerHTML = `
+    <div class="editor-bloco">
+      <h3>Avisos no celular</h3>
+      <p style="color:var(--texto-dim);font-size:.85rem;margin-bottom:.6rem">Receba um aviso mesmo com o painel fechado quando um cliente cancelar um horário.</p>
+      <button class="ag-btn" id="btn-ativar-notif" type="button">Ativar avisos neste aparelho</button>
+      <p class="salvar-status" id="notif-status" style="margin-top:.5rem"></p>
+    </div>
+
     <div class="editor-bloco">
       <h3>Dados da barbearia</h3>
       <div class="campo"><label for="ed-nome">Nome</label><input type="text" id="ed-nome" value="${escaparHTML(d.nome)}"></div>
@@ -917,6 +983,8 @@ function renderEditorCatalogo() {
   document.getElementById('sair-catalogo-btn').addEventListener('click', () => auth.signOut());
   const btnImportar = document.getElementById('importar-agendamentos-btn');
   if (btnImportar) btnImportar.addEventListener('click', async () => { await importarAgendamentosLocaisPraFirebase(); renderEditorCatalogo(); });
+  document.getElementById('btn-ativar-notif').addEventListener('click', ativarNotificacoes);
+  atualizarStatusNotificacoes();
 }
 
 function renderListaServicosEditor() {

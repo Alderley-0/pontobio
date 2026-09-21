@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <style>
@@ -215,7 +216,7 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 .campo{margin-top:1.1rem}
 .campo:first-child{margin-top:0}
 .campo label{display:block;font-weight:700;margin-bottom:.4rem;font-size:.92rem}
-.campo input[type=text],.campo input[type=tel],.campo textarea{
+.campo input[type=text],.campo input[type=tel],.campo input[type=email],.campo input[type=password],.campo textarea{
   width:100%;background:var(--bg-3);border:1px solid var(--borda);color:var(--texto);
   border-radius:10px;padding:.7rem .8rem;font-size:1rem;font-family:inherit;
 }
@@ -322,6 +323,7 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 
 <footer class="rodape">
   <button class="link-rodape" id="btn-meus-agendamentos" type="button">Ver meus agendamentos</button>
+  <button class="link-rodape" id="btn-minha-conta" type="button" hidden>Entrar / Criar conta</button>
   <p class="rodape-texto">Barba Nobre · o horário só fica garantido depois da confirmação pelo WhatsApp</p>
 </footer>
 
@@ -331,6 +333,12 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 
 <script>
 'use strict';
+
+// Declarado logo no topo (não em "7. Navegação de painéis", onde é usado
+// normalmente) porque o Firebase Auth pode chamar onAuthStateChanged de
+// forma síncrona logo na inicialização — e essa referência precisa existir
+// antes disso.
+let painelAberto = null;
 
 /* =========================================================
    1. DADOS DA BARBEARIA — edite nomes, preços e horários aqui
@@ -468,13 +476,30 @@ const linkMapaDe = (endereco) => 'https://maps.google.com/?q=' + encodeURICompon
    nunca trava o cliente, e o WhatsApp continua sendo o canal principal.
    ========================================================= */
 let firebaseDb = null;
+let firebaseAuth = null;
 try {
   const cfg = window.FIREBASE_CONFIG;
   if (typeof firebase !== 'undefined' && cfg && cfg.apiKey && cfg.apiKey !== 'COLE_AQUI') {
     firebase.initializeApp(cfg);
     firebaseDb = firebase.firestore();
+    firebaseAuth = firebase.auth();
   }
 } catch (e) { /* Firebase indisponível: segue só com os dados locais */ }
+
+// Conta do cliente (opcional). Sem ela, "meus agendamentos" continua salvo
+// só neste aparelho, exatamente como antes. Com ela, os agendamentos ficam
+// ligados à conta e aparecem em qualquer aparelho em que o cliente entrar.
+let clienteUsuario = null;
+if (firebaseAuth) {
+  firebaseAuth.onAuthStateChanged((user) => {
+    clienteUsuario = user;
+    const link = document.getElementById('btn-minha-conta');
+    link.hidden = false;
+    link.textContent = user ? `Minha conta (${user.email})` : 'Entrar / Criar conta';
+    if (painelAberto === 'meus-agendamentos') renderMeusAgendamentos();
+    if (painelAberto === 'conta') renderMinhaConta();
+  });
+}
 
 async function tentarCarregarConfigRemota() {
   if (!firebaseDb) return;
@@ -514,11 +539,12 @@ async function salvarAgendamentoRemoto(registro) {
       barbeiroId: registro.barbeiroId, barbeiroNome: registro.barbeiroNome,
       data: registro.data, horarioMin: registro.horarioMin,
       clienteNome: registro.nome, telefone: registro.telefone, obs: registro.obs,
+      clienteUid: clienteUsuario ? clienteUsuario.uid : null,
       status: 'confirmado', origem: 'site',
       criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
     });
     registro.remotoId = ref.id;
-    salvarMeusAgendamentos(meusAgendamentos);
+    if (!clienteUsuario) salvarMeusAgendamentos(meusAgendamentos);
   } catch (e) { /* agendamento já foi pro WhatsApp; não trava o cliente por isso */ }
 }
 
@@ -679,7 +705,6 @@ function renderMarca() {
 /* =========================================================
    7. NAVEGAÇÃO DE PAINÉIS (com suporte ao botão voltar)
    ========================================================= */
-let painelAberto = null;
 function abrirPainel(tipo) {
   painelAberto = tipo;
   history.pushState({ painel: tipo }, '');
@@ -923,8 +948,10 @@ function confirmarAgendamento() {
     nome: novoAgendamento.nome.trim(), telefone: digitos, obs: novoAgendamento.obs.trim(),
     status: 'aguardando', criadoEm: Date.now(),
   };
-  meusAgendamentos.push(registro);
-  salvarMeusAgendamentos(meusAgendamentos);
+  if (!clienteUsuario) {
+    meusAgendamentos.push(registro);
+    salvarMeusAgendamentos(meusAgendamentos);
+  }
   salvarDadosCliente({ nome: registro.nome, telefone: novoAgendamento.telefone });
   salvarAgendamentoRemoto(registro);
 
@@ -973,12 +1000,43 @@ function abrirMeusAgendamentos() {
   renderMeusAgendamentos();
 }
 
-function renderMeusAgendamentos() {
-  meusAgendamentos = carregarMeusAgendamentos();
+const ROTULOS_STATUS_CLIENTE = {
+  aguardando: 'Aguardando confirmação', confirmado: 'Confirmado',
+  concluido: 'Concluído', cancelado: 'Cancelado', faltou: 'Não compareceu',
+};
+
+function converterAgendamentoRemoto(doc) {
+  const d = doc.data();
+  return {
+    id: doc.id, servicoNome: d.servicoNome, servicoPreco: d.servicoPreco,
+    barbeiroNome: d.barbeiroNome, data: d.data, horarioMin: d.horarioMin,
+    status: d.status, remoto: true,
+  };
+}
+
+let listaAgendamentosAtual = [];
+
+async function renderMeusAgendamentos() {
+  const corpo = montarOverlay('Meus agendamentos', '<p class="agendamentos-vazio">Carregando…</p>', 'overlay-meus');
+
+  if (clienteUsuario && firebaseDb) {
+    try {
+      const snap = await firebaseDb.collection('agendamentos').where('clienteUid', '==', clienteUsuario.uid).get();
+      listaAgendamentosAtual = snap.docs.map(converterAgendamentoRemoto);
+    } catch (e) {
+      listaAgendamentosAtual = [];
+    }
+  } else {
+    meusAgendamentos = carregarMeusAgendamentos();
+    listaAgendamentosAtual = meusAgendamentos;
+  }
+
+  // o painel pode ter sido fechado (ou reaberto de novo) enquanto a busca rodava
+  if (painelAberto !== 'meus-agendamentos' || !document.body.contains(corpo)) return;
+
   const hojeISO = hojeISOnaLoja(BARBEARIA.fuso);
   const agoraMin = agoraNaLoja(BARBEARIA.fuso);
-  const ordenados = [...meusAgendamentos].sort((a, b) => (a.data + a.horarioMin).localeCompare(b.data + b.horarioMin));
-  const corpo = montarOverlay('Meus agendamentos', '', 'overlay-meus');
+  const ordenados = [...listaAgendamentosAtual].sort((a, b) => (a.data + a.horarioMin).localeCompare(b.data + b.horarioMin));
 
   if (!ordenados.length) {
     corpo.innerHTML = `<p class="agendamentos-vazio">Você ainda não agendou nenhum horário por aqui.</p>`;
@@ -986,9 +1044,10 @@ function renderMeusAgendamentos() {
   }
 
   corpo.innerHTML = `<div class="lista-agendamentos">${ordenados.map((ag) => {
-    const passado = ag.status === 'cancelado' ||
-      ag.data < hojeISO || (ag.data === hojeISO && ag.horarioMin < agoraMin);
-    const rotuloStatus = ag.status === 'cancelado' ? 'Cancelado' : passado ? 'Já passou' : 'Aguardando confirmação';
+    const passado = ag.data < hojeISO || (ag.data === hojeISO && ag.horarioMin < agoraMin);
+    const finalizado = ag.status === 'cancelado' || ag.status === 'concluido' || ag.status === 'faltou';
+    const rotuloStatus = ROTULOS_STATUS_CLIENTE[ag.status] || (passado ? 'Já passou' : 'Aguardando confirmação');
+    const podeCancelar = !finalizado && !passado;
     return `
       <div class="agendamento-card">
         <div class="agendamento-topo">
@@ -996,12 +1055,12 @@ function renderMeusAgendamentos() {
             <div class="agendamento-data">${formatarDataLonga(ag.data)}</div>
             <div class="agendamento-hora tabular">${paraHHMM(ag.horarioMin)}</div>
           </div>
-          <span class="selo-status${passado ? ' passado' : ''}">${rotuloStatus}</span>
+          <span class="selo-status${passado || finalizado ? ' passado' : ''}">${rotuloStatus}</span>
         </div>
         <div class="agendamento-detalhe">
           ${escaparHTML(ag.servicoNome)} · ${escaparHTML(ag.barbeiroNome)}<br>${formatarPreco(ag.servicoPreco)}
         </div>
-        ${!passado ? `<div class="agendamento-acoes">
+        ${podeCancelar ? `<div class="agendamento-acoes">
           <button class="btn-cancelar" data-id="${ag.id}" type="button">Cancelar horário</button>
         </div>` : ''}
       </div>`;
@@ -1012,16 +1071,102 @@ function renderMeusAgendamentos() {
   });
 }
 
-function cancelarAgendamento(id) {
-  const ag = meusAgendamentos.find((a) => a.id === id);
+async function cancelarAgendamento(id) {
+  const ag = listaAgendamentosAtual.find((a) => a.id === id);
   if (!ag) return;
   if (!confirm(`Cancelar o horário de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}?`)) return;
   ag.status = 'cancelado';
-  salvarMeusAgendamentos(meusAgendamentos);
-  cancelarAgendamentoRemoto(ag);
+
+  if (ag.remoto && firebaseDb) {
+    try { await firebaseDb.collection('agendamentos').doc(id).update({ status: 'cancelado' }); }
+    catch (e) { alert('Não foi possível cancelar agora. Se não der certo, avise pelo WhatsApp.'); }
+  } else {
+    salvarMeusAgendamentos(meusAgendamentos);
+    cancelarAgendamentoRemoto(ag);
+  }
+
   const mensagem = `Olá! Preciso cancelar meu agendamento (${ag.servicoNome}) de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}. Obrigado!`;
   window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
   renderMeusAgendamentos();
+}
+
+/* =========================================================
+   9b. MINHA CONTA (opcional)
+   ========================================================= */
+function abrirMinhaConta() {
+  abrirPainel('conta');
+  renderMinhaConta();
+}
+
+function renderMinhaConta() {
+  const corpo = montarOverlay('Minha conta', '', 'overlay-conta');
+  if (clienteUsuario) {
+    corpo.innerHTML = `
+      <p style="color:var(--texto-dim);font-size:.92rem">Conectado como <b style="color:var(--texto)">${escaparHTML(clienteUsuario.email)}</b></p>
+      <p class="confirma-aviso" style="margin-top:1rem">Seus agendamentos aparecem em qualquer aparelho em que você entrar com essa conta.</p>
+      <div class="etapa-botoes"><button class="btn-secundario" id="btn-sair-conta" type="button" style="flex:1">Sair da conta</button></div>`;
+    corpo.querySelector('#btn-sair-conta').addEventListener('click', () => firebaseAuth.signOut());
+    return;
+  }
+  let modo = 'entrar';
+  const render = () => {
+    corpo.innerHTML = `
+      <p style="color:var(--texto-dim);font-size:.9rem">Criar conta é opcional — sem ela, seus agendamentos continuam salvos só neste aparelho. Com conta, você vê tudo em qualquer aparelho.</p>
+      <div class="campo" id="conta-campo-email">
+        <label for="conta-email">E-mail</label>
+        <input type="email" id="conta-email" placeholder="seu@email.com">
+      </div>
+      <div class="campo" id="conta-campo-senha">
+        <label for="conta-senha">Senha</label>
+        <input type="password" id="conta-senha" placeholder="mínimo 6 caracteres">
+      </div>
+      <p class="campo-erro" id="conta-erro" hidden></p>
+      <div class="etapa-botoes">
+        <button class="btn-primario" id="conta-confirmar" type="button">${modo === 'entrar' ? 'Entrar' : 'Criar conta'}</button>
+      </div>
+      <button class="link-rodape" id="conta-trocar-modo" type="button" style="margin-top:1rem;display:block;width:100%;text-align:center">
+        ${modo === 'entrar' ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
+      </button>`;
+    corpo.querySelector('#conta-trocar-modo').addEventListener('click', () => { modo = modo === 'entrar' ? 'criar' : 'entrar'; render(); });
+    corpo.querySelector('#conta-confirmar').addEventListener('click', () => confirmarConta(modo));
+  };
+  render();
+}
+
+function mensagemErroConta(code) {
+  const mapa = {
+    'auth/email-already-in-use': 'Esse e-mail já tem conta. Tente entrar.',
+    'auth/invalid-email': 'E-mail inválido.',
+    'auth/weak-password': 'Senha muito fraca (mínimo 6 caracteres).',
+    'auth/wrong-password': 'Senha incorreta.',
+    'auth/user-not-found': 'Não achamos conta com esse e-mail.',
+    'auth/invalid-credential': 'E-mail ou senha incorretos.',
+  };
+  return mapa[code] || 'Não foi possível concluir. Tente de novo.';
+}
+
+async function confirmarConta(modo) {
+  const email = document.getElementById('conta-email').value.trim();
+  const senha = document.getElementById('conta-senha').value;
+  const erroEl = document.getElementById('conta-erro');
+  erroEl.hidden = true;
+  if (!email || senha.length < 6) {
+    erroEl.textContent = 'Digite um e-mail válido e uma senha com pelo menos 6 caracteres.';
+    erroEl.hidden = false;
+    return;
+  }
+  const btn = document.getElementById('conta-confirmar');
+  btn.disabled = true;
+  try {
+    if (modo === 'entrar') await firebaseAuth.signInWithEmailAndPassword(email, senha);
+    else await firebaseAuth.createUserWithEmailAndPassword(email, senha);
+    renderMinhaConta();
+  } catch (e) {
+    erroEl.textContent = mensagemErroConta(e.code);
+    erroEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+  }
 }
 
 /* =========================================================
@@ -1040,6 +1185,7 @@ if (firebaseDb) setInterval(tentarCarregarConfigRemota, 5 * 60000);
 document.getElementById('btn-agendar-topo').addEventListener('click', () => abrirAgendamento(null));
 document.getElementById('barra-agendar').addEventListener('click', () => abrirAgendamento(null));
 document.getElementById('btn-meus-agendamentos').addEventListener('click', abrirMeusAgendamentos);
+document.getElementById('btn-minha-conta').addEventListener('click', abrirMinhaConta);
 </script>
 </body>
 </html>
