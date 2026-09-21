@@ -1,0 +1,35 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Catálogo (serviços, barbeiros, horários, dados da loja): qualquer
+    // um pode ler (o site público precisa disso), só o dono edita.
+    match /configuracao/{docId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.token.owner == true;
+    }
+
+    // Agendamentos: qualquer um pode criar (cliente sem conta inclusive).
+    // Leitura: o dono vê tudo; um cliente logado só enxerga os dele.
+    // Atualização: o dono pode tudo; um cliente logado só pode cancelar
+    // o próprio agendamento (e só o campo "status", pra "cancelado").
+    // Exclusão: só o dono.
+    match /agendamentos/{id} {
+      allow create: if true;
+      allow read: if request.auth != null &&
+        (request.auth.token.owner == true || resource.data.clienteUid == request.auth.uid);
+      allow update: if request.auth != null && (
+        request.auth.token.owner == true ||
+        (resource.data.clienteUid == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && request.resource.data.status == 'cancelado')
+      );
+      allow delete: if request.auth != null && request.auth.token.owner == true;
+    }
+
+    // Tokens de notificação push dos aparelhos do dono. Só o dono mexe.
+    match /donoDispositivos/{token} {
+      allow read, write: if request.auth != null && request.auth.token.owner == true;
+    }
+  }
+}

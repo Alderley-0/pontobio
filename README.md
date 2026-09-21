@@ -12,8 +12,13 @@ Páginas de links para criador de conteúdo. Um repositório, um domínio, uma p
 /hamburgueria/painel/        painel do dono (pedidos + edição do cardápio)
 /hamburgueria/firebase-config.js  configuração do Firebase usada pelos dois acima
 /barbearia/       agendamento de exemplo pra barbearia, com painel do dono
-/barbearia/painel/           painel do dono (agenda + edição do catálogo)
-/barbearia/firebase-config.js  configuração do Firebase usada pelos dois acima (opcional)
+/barbearia/painel/            painel do dono (agenda + edição do catálogo)
+/barbearia/firebase-config.js  configuração do Firebase usada pelos acima (opcional)
+/barbearia/firebase-messaging-sw.js  service worker dos avisos push (opcional)
+/barbearia/firestore.rules     regras de segurança do banco (opcional)
+/barbearia/firebase.json       config de deploy pra Firestore + Cloud Functions
+/barbearia/functions/          Cloud Function que dispara os avisos push
+/barbearia/scripts/            script pra marcar sua conta como dona (uma vez só)
 /monitor-cinema/  serviço à parte (Node) que avisa pré-venda de filme no Telegram
 CNAME             domínio custom do GitHub Pages
 .nojekyll         impede o GitHub de processar as pastas como Jekyll
@@ -141,7 +146,8 @@ horários).
 Antes de publicar, trocar no topo do `<script>` de `barbearia/index.html`
 (objeto `BARBEARIA`):
 
-- `whatsapp`, `instagram`, `endereco` e `mapsLink`
+- `whatsapp`, `instagram` e `endereco` (o link do mapa é gerado sozinho a
+  partir do endereço)
 - `horarios` de funcionamento, `barbeiros` e `servicos` (preço e duração)
 - `bloqueios` fixos que você já sabe de antemão (feriado, folga) — precisa
   editar essa lista e publicar de novo pra valer pro site público
@@ -178,8 +184,20 @@ disponíveis em qualquer aparelho em que o dono entrar com a mesma conta. Sem
 esse login, tudo continua funcionando exatamente como antes (agenda e
 bloqueios salvos só no aparelho, catálogo editado no código).
 
-Configuração (mesmos passos do cardápio da hamburgueria — dá pra reusar o
-mesmo projeto Firebase ou criar um novo só pra barbearia):
+### Conta do cliente (opcional, Firebase)
+
+No site público, o cliente pode criar uma conta (e-mail/senha, pelo link
+"Entrar / Criar conta" no rodapé) — isso é **opcional**: sem conta, o
+agendamento continua funcionando exatamente como antes (salvo só naquele
+aparelho). Com conta, os agendamentos ficam ligados a ela e aparecem em
+"Meus agendamentos" em qualquer aparelho em que o cliente entrar, e ele
+mesmo pode cancelar um horário direto por ali (o pedido de cancelamento
+também abre o WhatsApp, como já acontecia).
+
+### Configurar o Firebase (catálogo + contas de cliente)
+
+Mesmos passos do cardápio da hamburgueria — dá pra reusar o mesmo projeto
+Firebase ou criar um novo só pra barbearia:
 
 1. Crie um projeto grátis em https://console.firebase.google.com
 2. **Firestore Database** → criar banco → modo produção → escolher uma região
@@ -189,24 +207,60 @@ mesmo projeto Firebase ou criar um novo só pra barbearia):
    copie os valores gerados
 6. Cole esses valores em `barbearia/firebase-config.js`, no lugar de cada
    `'COLE_AQUI'`
-7. Firestore Database → **Regras**, cole e publique:
+7. **Marque sua conta como dona** — isso é o que diferencia sua conta das
+   contas comuns de cliente perante as regras de segurança abaixo:
+   ```bash
+   cd barbearia/scripts
+   npm install firebase-admin --no-save
+   gcloud auth application-default login
+   node definir-dono.js seu@email.com SEU_PROJECT_ID
+   ```
+   Depois de rodar, saia e entre de novo no painel (aba Catálogo) — o
+   navegador só busca a marcação nova ao logar de novo.
+8. Firestore Database → **Regras**, cole o conteúdo de
+   `barbearia/firestore.rules` e publique (ou rode
+   `firebase deploy --only firestore:rules` de dentro da pasta
+   `barbearia/`, com a CLI do Firebase instalada e logada).
 
-```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /configuracao/{docId} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-    match /agendamentos/{id} {
-      allow create: if true;
-      allow read, update, delete: if request.auth != null;
-    }
-  }
-}
-```
+As regras (em `barbearia/firestore.rules`, já testadas com o emulador do
+Firestore) deixam: qualquer um ler o catálogo e criar um agendamento (sem
+precisar de conta); um cliente logado ler e cancelar só os próprios
+agendamentos; e só a conta marcada como dona ler a agenda inteira, editar o
+catálogo, mudar qualquer status ou excluir um agendamento.
 
-Essas regras deixam qualquer cliente criar um agendamento (ele não faz
-login), mas só quem estiver logado (o dono) consegue ler a agenda completa,
-editar o catálogo ou mudar/excluir um agendamento.
+### Avisos push pro barbeiro (opcional, Cloud Functions)
+
+Com isso ligado, o dono recebe um aviso no celular quando um cliente cancela
+um horário — **mesmo com o painel fechado**. Sem isso, o cancelamento
+continua chegando pelo WhatsApp (como sempre) e aparecendo na hora na Agenda
+se o painel estiver aberto num aparelho logado.
+
+Como esse aviso roda em segundo plano (sem alguém com o site aberto pra
+disparar nada), ele depende de uma Cloud Function — o que exige colocar o
+projeto Firebase no plano **Blaze** (pago por uso; o uso de uma barbearia
+fica bem dentro da faixa gratuita mensal, mas o plano em si pede um cartão
+cadastrado como garantia):
+
+1. No [console do Firebase](https://console.firebase.google.com), ⚙ →
+   **Uso e faturamento** → **Detalhes e configurações do plano** → mude pra
+   **Blaze**
+2. **Cloud Messaging** → aba **Configuração da Web** → **Gerar par de
+   chaves** → copie o valor gerado
+3. Cole esse valor em `barbearia/firebase-config.js`, em
+   `FIREBASE_VAPID_KEY` (no lugar de `'COLE_AQUI'`)
+4. Publique a função (num Cloud Shell ou terminal com `gcloud`/`firebase`
+   autenticados nesse projeto):
+   ```bash
+   git clone https://github.com/Alderley-0/pontobio.git
+   cd pontobio/barbearia
+   firebase deploy --only firestore:rules,functions --project SEU_PROJECT_ID
+   ```
+5. No painel, aba **Catálogo**, logado com a conta do dono: botão
+   **"Ativar avisos neste aparelho"** — o navegador vai pedir permissão de
+   notificação; aceite
+
+A função (`barbearia/functions/index.js`) só dispara quando um
+`agendamentos/{id}` muda de status **para** `cancelado`, manda o aviso pra
+todos os aparelhos do dono que já ativaram (coleção `donoDispositivos`), e
+limpa sozinha os tokens de aparelhos que pararam de responder (app
+desinstalado, permissão revogada etc.).
