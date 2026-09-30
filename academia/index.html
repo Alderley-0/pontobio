@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Coach de Academia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: painel de treino — cabeçalho compacto, abas fixas, conteúdo em cartões só onde há objeto separado. Cores das anilhas olímpicas como sistema de destaque. */
+:root{
+  --bg:#f3f4f2; --surface:#ffffff; --sunk:#e8eae6; --fg:#1b1f1d; --muted:#5d6560; --line:#d5d9d4;
+  --accent:#c8241f; --accent-fg:#ffffff;
+  --plate-blue:#1f5fbf; --plate-yellow:#d99a00; --plate-green:#2f8a3e;
+  --good:#2f8a3e; --warn:#b67a00; --weak:#7a817c;
+  --display:"Big Shoulders Display","Arial Narrow",Impact,sans-serif;
+  --body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121514; --surface:#1b1f1d; --sunk:#232826; --fg:#e9ece9; --muted:#9aa39d; --line:#2f3532;
+  --accent:#ef4a42; --accent-fg:#160605;
+  --plate-blue:#5b93e6; --plate-yellow:#f0b93a; --plate-green:#5fbf6e;
+  --good:#5fbf6e; --warn:#f0b93a; --weak:#8d958f; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#121514; --surface:#1b1f1d; --sunk:#232826; --fg:#e9ece9; --muted:#9aa39d; --line:#2f3532;
+  --accent:#ef4a42; --accent-fg:#160605;
+  --plate-blue:#5b93e6; --plate-yellow:#f0b93a; --plate-green:#5fbf6e;
+  --good:#5fbf6e; --warn:#f0b93a; --weak:#8d958f; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);margin:0}
+.wrap{max-width:1040px;margin:0 auto;padding-inline:20px;padding-block:0 64px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;line-height:1.05;margin:0;letter-spacing:.01em}
+h1{font-size:clamp(2.4rem,7vw,3.6rem);font-weight:800;text-transform:uppercase}
+h2{font-size:1.9rem;font-weight:800;text-transform:uppercase}
+h3{font-size:1.35rem;font-weight:600;text-transform:uppercase}
+p{margin:0;max-width:68ch}
+.muted{color:var(--muted)}
+.label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--muted)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+
+header.top{padding-block:28px 18px;display:flex;flex-wrap:wrap;gap:12px 24px;align-items:end;justify-content:space-between}
+.plates{display:flex;gap:4px;align-items:center}
+.plates i{display:block;width:10px;border-radius:3px}
+.plates i:nth-child(1){height:38px;background:var(--accent)}
+.plates i:nth-child(2){height:34px;background:var(--plate-blue)}
+.plates i:nth-child(3){height:28px;background:var(--plate-yellow)}
+.plates i:nth-child(4){height:22px;background:var(--plate-green)}
+.brand{display:flex;gap:14px;align-items:center}
+
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);margin-bottom:28px}
+nav.tabs .in{max-width:1040px;margin:0 auto;padding-inline:20px;display:flex;gap:4px;overflow-x:auto}
+nav.tabs button{font:600 .95rem var(--body);background:none;border:0;color:var(--muted);padding:14px 12px;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap}
+nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--accent)}
+nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+section.panel{display:grid;gap:28px}
+.grid2{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start}
+@media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px}
+form.calc{display:grid;gap:14px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:grid;gap:5px;min-width:0}
+.field label{font-size:.82rem;font-weight:600;color:var(--muted)}
+input,select{font:500 1rem var(--body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:10px 11px;width:100%;min-width:0}
+.seg{display:flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
+.seg label{flex:1;text-align:center;padding:9px 6px;cursor:pointer;font-weight:600;font-size:.92rem;color:var(--muted);background:var(--bg)}
+.seg input{position:absolute;opacity:0;width:1px;height:1px}
+.seg input:checked+span{color:var(--accent-fg)}
+.seg label:has(input:checked){background:var(--accent);color:var(--accent-fg)}
+.seg label:has(input:focus-visible){outline:2px solid var(--accent);outline-offset:-2px}
+
+.result{display:grid;gap:22px}
+.kcal{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.kcal .big{font-family:var(--display);font-weight:800;font-size:clamp(3.2rem,11vw,5.2rem);line-height:.9}
+.chain{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.92rem}
+.chain b{font-family:var(--mono);font-weight:500}
+.macros{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.macro{border-top:5px solid var(--c);padding-top:10px;display:grid;gap:2px}
+.macro .g{font-family:var(--display);font-weight:800;font-size:2.2rem;line-height:1}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--sunk)}
+.bar span{display:block;height:100%}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.fact{background:var(--sunk);border-radius:8px;padding:12px 14px;display:grid;gap:2px}
+.fact b{font-family:var(--mono);font-weight:500;font-size:1.05rem}
+.note{border-left:4px solid var(--warn);padding:10px 14px;background:var(--sunk);border-radius:0 8px 8px 0;font-size:.93rem}
+.note.stop{border-left-color:var(--accent)}
+
+/* suplementos */
+.filters{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:600 .85rem var(--body);border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:7px 12px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+.supp-list{display:grid;gap:10px}
+details.supp{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+details.supp summary{list-style:none;cursor:pointer;padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
+details.supp summary::-webkit-details-marker{display:none}
+details.supp summary .dose{font-family:var(--mono);font-size:.85rem;color:var(--muted);text-align:right}
+details.supp[open] summary{border-bottom:1px solid var(--line)}
+.ev{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 1.05rem var(--display);color:#fff}
+.ev.A{background:var(--good)} .ev.B{background:var(--warn)} .ev.C{background:var(--weak)}
+.supp .body{padding:16px 18px;display:grid;gap:10px;font-size:.95rem}
+.supp .body dl{display:grid;grid-template-columns:130px 1fr;gap:6px 14px;margin:0}
+.supp .body dt{font-weight:700;font-size:.85rem;color:var(--muted)}
+.supp .body dd{margin:0;min-width:0}
+@media (max-width:560px){.supp .body dl{grid-template-columns:1fr}.supp .body dd{margin-bottom:6px}details.supp summary{grid-template-columns:auto 1fr}details.supp summary .dose{grid-column:2;text-align:left}}
+.stack{counter-reset:s;display:grid;gap:8px;padding:0;margin:0;list-style:none}
+.stack li{counter-increment:s;display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start}
+.stack li::before{content:counter(s);font:800 1.4rem/1 var(--display);color:var(--accent)}
+
+/* tabelas */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.93rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--sunk)}
+tr:last-child td{border-bottom:0}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+
+/* treinos */
+.plan-pick{display:flex;flex-wrap:wrap;gap:8px}
+.days{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.day h3{margin-bottom:10px;display:flex;gap:10px;align-items:center}
+.day h3 .tag{font:700 .72rem var(--body);letter-spacing:.08em;background:var(--accent);color:var(--accent-fg);border-radius:4px;padding:3px 7px}
+.principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:18px 28px}
+.principles div{display:grid;gap:4px}
+.principles b{font-size:1rem}
+
+/* peso */
+.log{display:grid;gap:12px}
+.log form{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.log form .field{flex:1 1 140px}
+.btn{font:700 .95rem var(--body);background:var(--accent);color:var(--accent-fg);border:0;border-radius:7px;padding:11px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line)}
+.entries{display:flex;flex-wrap:wrap;gap:6px}
+.entries span{font-family:var(--mono);font-size:.82rem;background:var(--sunk);border-radius:6px;padding:4px 8px}
+svg.spark{width:100%;height:120px;display:block}
+
+footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);font-size:.85rem;color:var(--muted)}
+@media (prefers-reduced-motion:no-preference){.kcal .big{transition:color .2s}}
+</style>
+</head>
+<body>
+
+
+<header class="wrap top">
+  <div class="brand">
+    <div class="plates" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+    <div>
+      <div class="label">Treino · Dieta · Suplementos</div>
+      <h1>Coach de Academia</h1>
+    </div>
+  </div>
+  <p class="muted" style="max-width:40ch">Calcule sua dieta, consulte suplementos e escolha um treino. Tudo baseado em evidência.</p>
+</header>
+
+<nav class="tabs" aria-label="Seções">
+  <div class="in" role="tablist">
+    <button role="tab" data-tab="calc" aria-selected="true">Calculadora</button>
+    <button role="tab" data-tab="supl" aria-selected="false">Suplementos</button>
+    <button role="tab" data-tab="treino" aria-selected="false">Treinos</button>
+    <button role="tab" data-tab="dieta" aria-selected="false">Alimentação</button>
+    <button role="tab" data-tab="peso" aria-selected="false">Meu peso</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- CALCULADORA -->
+<section class="panel" id="p-calc">
+  <div class="grid2">
+    <form class="card calc" id="calcForm" autocomplete="off">
+      <div class="label">Seus dados</div>
+      <div class="field">
+        <label>Sexo</label>
+        <div class="seg">
+          <label><input type="radio" name="sex" id="sexM" value="m" checked><span>Masculino</span></label>
+          <label><input type="radio" name="sex" id="sexF" value="f"><span>Feminino</span></label>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label for="age">Idade</label><input id="age" type="number" inputmode="numeric" min="12" max="100" value="30"></div>
+        <div class="field"><label for="weight">Peso (kg)</label><input id="weight" type="number" inputmode="decimal" min="30" max="250" step="0.1" value="80"></div>
+      </div>
+      <div class="field"><label for="height">Altura (cm)</label><input id="height" type="number" inputmode="numeric" min="120" max="230" value="178"></div>
+      <div class="field"><label for="activity">Atividade</label>
+        <select id="activity">
+          <option value="1.2">Sedentário</option>
+          <option value="1.375">Leve · treina 1–3x/sem</option>
+          <option value="1.55" selected>Moderado · treina 3–5x/sem</option>
+          <option value="1.725">Alto · treina 6–7x/sem</option>
+          <option value="1.9">Muito alto · treino + trabalho braçal</option>
+        </select>
+      </div>
+      <div class="field"><label>Objetivo</label>
+        <div class="seg">
+          <label><input type="radio" name="goal" id="goalCut" value="cut"><span>Emagrecer</span></label>
+          <label><input type="radio" name="goal" id="goalMain" value="main"><span>Manter</span></label>
+          <label><input type="radio" name="goal" id="goalBulk" value="bulk" checked><span>Ganhar</span></label>
+        </div>
+      </div>
+      <p class="muted" style="font-size:.85rem">Fórmula Mifflin-St Jeor. É uma estimativa: ajuste pelo seu peso real em 2–3 semanas.</p>
+    </form>
+
+    <div class="result" id="result" aria-live="polite"></div>
+  </div>
+</section>
+
+<!-- SUPLEMENTOS -->
+<section class="panel" id="p-supl" hidden>
+  <div style="display:grid;gap:10px">
+    <h2>Suplementos</h2>
+    <p class="muted">Nível de evidência: <strong>A</strong> forte · <strong>B</strong> moderada · <strong>C</strong> fraca ou desnecessária. Suplemento complementa a dieta, não substitui.</p>
+  </div>
+  <div class="card" style="display:grid;gap:12px">
+    <div class="label">Prioridade de compra</div>
+    <ol class="stack">
+      <li><span><b>Comida e proteína total adequadas.</b> Sem isso, nada funciona.</span></li>
+      <li><span><b>Creatina monohidratada</b> 3–5 g por dia, todo dia.</span></li>
+      <li><span><b>Whey</b> só se não bater a proteína com comida.</span></li>
+      <li><span><b>Cafeína</b> antes do treino, se tolerar. Café já serve.</span></li>
+      <li><span><b>Hipercalórico</b> só para quem não consegue comer calorias suficientes. Prefira o caseiro.</span></li>
+    </ol>
+  </div>
+  <div class="filters" id="suppFilters">
+    <button class="chip" data-f="all" aria-pressed="true">Todos</button>
+    <button class="chip" data-f="A" aria-pressed="false">Evidência A</button>
+    <button class="chip" data-f="B" aria-pressed="false">Evidência B</button>
+    <button class="chip" data-f="C" aria-pressed="false">Evidência C</button>
+  </div>
+  <div class="supp-list" id="suppList"></div>
+  <div class="note stop"><strong>Fora do escopo:</strong> anabolizantes, SARMs, hormônio do crescimento, insulina, clembuterol, diuréticos, DNP e sibutramina. Riscos cardiovasculares, hepáticos, hormonais e de infertilidade. Procure um médico.</div>
+  <div class="note"><strong>Como escolher:</strong> produto regularizado na ANVISA (RDC 243/2018 e IN 28/2018), de preferência com laudo de análise de terceiros. Desconfie de preço muito abaixo do mercado e de rótulo sem doses claras.</div>
+</section>
+
+<!-- TREINOS -->
+<section class="panel" id="p-treino" hidden>
+  <div style="display:grid;gap:10px">
+    <h2>Treinos</h2>
+    <p class="muted">Escolha pelo número de dias que você consegue treinar.</p>
+  </div>
+  <div class="plan-pick" id="planPick"></div>
+  <div class="days" id="planDays"></div>
+  <p class="muted" id="planNote"></p>
+
+  <div style="display:grid;gap:16px;margin-top:8px">
+    <h3>Princípios que funcionam</h3>
+    <div class="principles">
+      <div><b>Sobrecarga progressiva</b><span class="muted">Fechou o topo da faixa de reps em todas as séries? Suba 2,5–5% de carga e volte ao início da faixa.</span></div>
+      <div><b>Volume</b><span class="muted">10–20 séries duras por músculo por semana. Iniciante começa com 8–10.</span></div>
+      <div><b>Frequência</b><span class="muted">Cada músculo 2x por semana rende mais que 1x com o mesmo volume.</span></div>
+      <div><b>Esforço</b><span class="muted">Termine as séries a 0–3 repetições da falha. Falha total mais em isolados.</span></div>
+      <div><b>Descanso</b><span class="muted">2–3 min em compostos, 1–2 min em isolados.</span></div>
+      <div><b>Sono</b><span class="muted">7–9 h. Consistência vale mais que o plano perfeito.</span></div>
+      <div><b>Aquecimento</b><span class="muted">5–10 min leve + séries de aproximação: 50% ×10, 70% ×5, 85% ×2.</span></div>
+      <div><b>Deload</b><span class="muted">A cada 4–8 semanas, reduza o volume em 40–50% por uma semana.</span></div>
+    </div>
+  </div>
+
+  <div style="display:grid;gap:12px">
+    <h3>Substituições</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Exercício</th><th>Alternativas</th></tr></thead>
+      <tbody>
+        <tr><td>Agachamento livre</td><td>Hack, leg press, goblet, búlgaro</td></tr>
+        <tr><td>Supino reto com barra</td><td>Supino com halteres, máquina, flexão com carga</td></tr>
+        <tr><td>Barra fixa</td><td>Puxada, barra com elástico, remada invertida</td></tr>
+        <tr><td>Levantamento terra</td><td>RDL, hip thrust, good morning</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+  <div class="note stop"><strong>Pare e procure um profissional</strong> se sentir dor aguda em articulação, dor no peito, falta de ar desproporcional, tontura ou desmaio, formigamento persistente ou dor que piora de um treino para o outro.</div>
+</section>
+
+<!-- ALIMENTAÇÃO -->
+<section class="panel" id="p-dieta" hidden>
+  <div style="display:grid;gap:10px">
+    <h2>Alimentação</h2>
+    <p class="muted">Fontes baratas no Brasil. Valores aproximados.</p>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Alimento</th><th>Porção</th><th>Proteína</th><th>kcal</th></tr></thead>
+    <tbody id="foodRows"></tbody>
+  </table></div>
+
+  <div style="display:grid;gap:12px">
+    <h3>Cardápios modelo</h3>
+    <div class="plan-pick" id="menuPick"></div>
+    <div class="card" id="menuBody"></div>
+    <p class="muted" style="font-size:.9rem">Ajuste as quantidades às metas da calculadora. Vegetarianos: ovos, laticínios, tofu, soja, lentilha, grão-de-bico. Veganos: suplementar vitamina B12.</p>
+  </div>
+
+  <div class="principles">
+    <div><b>Distribuição</b><span class="muted">3–5 refeições com 25–40 g de proteína cada.</span></div>
+    <div><b>Pré-treino</b><span class="muted">1–3 h antes: carboidrato + proteína, pouca gordura. Ex.: pão com ovo e banana.</span></div>
+    <div><b>Pós-treino</b><span class="muted">Refeição normal nas horas seguintes. Não existe janela rígida de 30 min.</span></div>
+    <div><b>Água</b><span class="muted">~35 ml por kg por dia, mais a reposição do suor.</span></div>
+  </div>
+
+  <div style="display:grid;gap:12px">
+    <h3>Mitos comuns</h3>
+    <div class="tbl"><table>
+      <tbody>
+        <tr><td><b>Comer à noite engorda</b></td><td>Não. O total do dia é o que conta.</td></tr>
+        <tr><td><b>Carboidrato engorda</b></td><td>O excesso de calorias engorda, não um macro isolado.</td></tr>
+        <tr><td><b>Jejum intermitente é superior</b></td><td>Funciona se ajudar a comer menos. Com as mesmas calorias, o resultado é igual.</td></tr>
+        <tr><td><b>Low carb queima mais gordura</b></td><td>Mesma perda com mesmas calorias e proteína. Pode reduzir o rendimento no treino.</td></tr>
+        <tr><td><b>Álcool não atrapalha</b></td><td>São 7 kcal/g e ele piora sono e recuperação.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<!-- PESO -->
+<section class="panel" id="p-peso" hidden>
+  <div style="display:grid;gap:10px">
+    <h2>Meu peso</h2>
+    <p class="muted">Pese-se 3–7x por semana, em jejum, e acompanhe a média. O registro fica salvo só neste navegador.</p>
+  </div>
+  <div class="card log">
+    <form id="logForm">
+      <div class="field"><label for="logDate">Data</label><input id="logDate" type="date"></div>
+      <div class="field"><label for="logKg">Peso (kg)</label><input id="logKg" type="number" inputmode="decimal" step="0.1" min="30" max="250" placeholder="80,0"></div>
+      <button class="btn" type="submit">Registrar</button>
+    </form>
+    <div id="logOut"></div>
+  </div>
+  <div class="card" style="display:grid;gap:10px">
+    <div class="label">Como ajustar em 2–4 semanas</div>
+    <ul style="margin:0;padding-left:1.1em;display:grid;gap:6px">
+      <li>Emagrecendo sem progresso por 2–3 semanas: tire 100–200 kcal ou caminhe mais.</li>
+      <li>Ganhando massa sem subir o peso em 2–3 semanas: some 150–200 kcal.</li>
+      <li>Ganho acima de 0,5% por semana, cintura crescendo muito: tire 100–200 kcal.</li>
+      <li>Força caindo no déficit: revise sono, proteína e o tamanho do déficit.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>Conteúdo educativo baseado em diretrizes da ISSN, ACSM e OMS. Não substitui avaliação de nutricionista, educador físico ou médico. Procure um profissional se tiver doença renal, hepática ou cardíaca, diabetes, hipertensão, gestação ou uso contínuo de medicamentos.</footer>
+</main>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s);
+const fmt=(n,d=0)=>n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* ---------- abas ---------- */
+const tabs=[...document.querySelectorAll('nav.tabs button')];
+function show(t){
+  if(!document.getElementById('p-'+t)) t='calc';
+  tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));
+  document.querySelectorAll('section.panel').forEach(p=>p.hidden=p.id!=='p-'+t);
+  store.set('coach.tab',t);
+}
+tabs.forEach(b=>b.addEventListener('click',()=>{show(b.dataset.tab);try{history.replaceState(null,'','#'+b.dataset.tab)}catch(e){}}));
+show((location.hash||'').slice(1)||store.get('coach.tab','calc'));
+
+/* ---------- calculadora ---------- */
+const calcIds=['age','weight','height','activity'];
+const saved=store.get('coach.profile',null);
+if(saved){calcIds.forEach(id=>{if(saved[id]!=null)$('#'+id).value=saved[id]});
+  if(saved.sex)$('#sex'+(saved.sex==='f'?'F':'M')).checked=true;
+  if(saved.goal)$({cut:'#goalCut',main:'#goalMain',bulk:'#goalBulk'}[saved.goal]).checked=true;}
+
+function calc(){
+  const sex=document.querySelector('input[name=sex]:checked').value;
+  const goal=document.querySelector('input[name=goal]:checked').value;
+  const age=+$('#age').value, w=+$('#weight').value, h=+$('#height').value, af=+$('#activity').value;
+  store.set('coach.profile',{sex,goal,age,weight:w,height:h,activity:af});
+  const out=$('#result');
+  if(!age||!w||!h){out.innerHTML='<p class="muted">Preencha idade, peso e altura.</p>';return}
+  if(age<18){out.innerHTML=`<div class="note stop"><strong>Menores de 18 anos:</strong> o foco é aprender a técnica e comer de forma equilibrada, sem dietas restritivas nem suplementos por conta própria. Converse com um nutricionista e um educador físico para montar um plano para a sua fase.</div>`;return}
+  const tmb=10*w+6.25*h-5*age+(sex==='m'?5:-161);
+  const get=tmb*af;
+  const adj={cut:-400,main:0,bulk:+250}[goal];
+  const kcal=Math.round((get+adj)/10)*10;
+  const pPerKg=goal==='cut'?2.2:2.0;
+  const p=Math.round(w*pPerKg), f=Math.round(w*0.8);
+  const c=Math.max(0,Math.round((kcal-p*4-f*9)/4));
+  const pk=p*4,fk=f*9,ck=c*4,tot=pk+fk+ck;
+  const rate={cut:[0.005,0.01],main:[0,0],bulk:[0.0025,0.005]}[goal];
+  const goalTxt={cut:'Emagrecer',main:'Manter / recompor',bulk:'Ganhar massa'}[goal];
+  const rateTxt=goal==='main'?'peso estável':`${goal==='cut'?'−':'+'}${fmt(w*rate[0],2)} a ${fmt(w*rate[1],2)} kg por semana`;
+  const caf1=Math.round(w*3), caf2=Math.min(400,Math.round(w*6));
+  out.innerHTML=`
+  <div style="display:grid;gap:6px">
+    <div class="label">Meta diária · ${goalTxt}</div>
+    <div class="kcal"><span class="big num" style="font-family:var(--display)">${fmt(kcal)}</span><span class="muted" style="font-size:1.1rem">kcal por dia</span></div>
+    <div class="chain muted"><span>TMB <b>${fmt(tmb)}</b></span><span>× ${fmt(af,af%1?String(af).split('.')[1].length:0)} = gasto <b>${fmt(get)}</b></span><span>${adj===0?'sem ajuste':(adj>0?'+':'−')+' '+Math.abs(adj)+' kcal'}</span></div>
+  </div>
+  <div style="display:grid;gap:12px">
+    <div class="macros">
+      <div class="macro" style="--c:var(--accent)"><span class="label">Proteína</span><span class="g">${p} g</span><span class="muted num" style="font-size:.85rem">${fmt(pPerKg,1)} g/kg · ${fmt(pk)} kcal</span></div>
+      <div class="macro" style="--c:var(--plate-yellow)"><span class="label">Gordura</span><span class="g">${f} g</span><span class="muted num" style="font-size:.85rem">0,8 g/kg · ${fmt(fk)} kcal</span></div>
+      <div class="macro" style="--c:var(--plate-blue)"><span class="label">Carboidrato</span><span class="g">${c} g</span><span class="muted num" style="font-size:.85rem">${fmt(c/w,1)} g/kg · ${fmt(ck)} kcal</span></div>
+    </div>
+    <div class="bar" aria-hidden="true"><span style="width:${pk/tot*100}%;background:var(--accent)"></span><span style="width:${fk/tot*100}%;background:var(--plate-yellow)"></span><span style="width:${ck/tot*100}%;background:var(--plate-blue)"></span></div>
+  </div>
+  <div class="facts">
+    <div class="fact"><span class="label">Ritmo esperado</span><b>${rateTxt}</b></div>
+    <div class="fact"><span class="label">Proteína por refeição</span><b>${Math.round(p/4)} g × 4 refeições</b></div>
+    <div class="fact"><span class="label">Água</span><b>${fmt(w*0.035,1)} L por dia</b></div>
+    <div class="fact"><span class="label">Creatina</span><b>3–5 g por dia</b></div>
+    <div class="fact"><span class="label">Cafeína pré-treino</span><b>${caf1}–${caf2} mg</b></div>
+    <div class="fact"><span class="label">Fibras</span><b>25–35 g por dia</b></div>
+  </div>
+  ${c/w<2&&goal!=='cut'?'<div class="note">Carboidrato ficou baixo para quem treina. Confira o nível de atividade.</div>':''}
+  <p class="muted" style="font-size:.9rem">Pese-se na aba <strong>Meu peso</strong> e ajuste as calorias depois de 2–3 semanas.</p>`;
+}
+$('#calcForm').addEventListener('input',calc);
+$('#calcForm').addEventListener('submit',e=>e.preventDefault());
+calc();
+
+/* ---------- suplementos ---------- */
+const SUPPS=[
+ {n:'Whey protein',e:'A',d:'20–40 g de proteína por dose',
+  o:'Proteína do soro do leite, rica em leucina. É comida em pó: use se for difícil bater a proteína com alimentos.',
+  rows:[['Tipos','Concentrado (70–80% de proteína, tem lactose, mais barato). Isolado (~90%, quase sem lactose). Hidrolisado (pré-digerido, mais caro, pouca vantagem). Blend: confira quanto é proteína de fato.'],
+   ['Horário','Qualquer um. O total do dia é o que importa; pós-treino é só prático.'],
+   ['Como comparar','Custo por grama de proteína = preço ÷ (proteína por dose × nº de doses). Desconfie de dose com pouca proteína e de "aminoácidos adicionados".'],
+   ['Alternativas','Soja, ervilha/arroz, albumina, caseína (lenta, boa antes de dormir).'],
+   ['Cuidados','Intolerante à lactose: isolado. Alergia à proteína do leite: evitar. Doença renal: só com orientação médica.']]},
+ {n:'Creatina',e:'A',d:'3–5 g por dia',
+  o:'Aumenta a fosfocreatina no músculo: mais força, mais volume de treino e ganho de massa magra.',
+  rows:[['Forma','Monohidratada, a mais estudada e barata. Selo Creapure indica pureza, mas não é obrigatório. HCl e outras formas não são superiores.'],
+   ['Dose','3–5 g todos os dias, inclusive sem treino. Satura em 3–4 semanas. Saturação opcional: ~0,3 g/kg/dia em 4 doses por 5–7 dias.'],
+   ['Ciclar?','Não é necessário. O horário também não importa.'],
+   ['Efeitos','Ganho de 0,5–2 kg de água dentro do músculo nas primeiras semanas. Doses grandes podem dar desconforto gástrico: divida.'],
+   ['Mitos','Não faz mal ao rim de pessoas saudáveis, mas eleva a creatinina no exame de sangue: avise o médico. Queda de cabelo: evidência fraca, um estudo de 2009 não replicado.']]},
+ {n:'Hipercalórico',e:'C',d:'conforme rótulo',
+  o:'Mistura de carboidratos (maltodextrina, dextrose, açúcar) com pouca proteína. Serve só para aumentar calorias de quem não consegue comer o suficiente.',
+  rows:[['Atenção','Muitos têm só 10–20% de proteína e bastante açúcar. Veja kcal e proteína por dose.'],
+   ['Versão caseira','300 ml de leite integral + 1 banana + 40 g de aveia + 1 colher (sopa) de pasta de amendoim + 1 scoop de whey (opcional). Dá cerca de 700–750 kcal e ~40 g de proteína.'],
+   ['Cuidados','Diabéticos e quem controla glicemia devem evitar os produtos com muito açúcar.']]},
+ {n:'Cafeína',e:'A',d:'3–6 mg/kg, 30–60 min antes',
+  o:'Melhora força, resistência e foco, e reduz a sensação de esforço.',
+  rows:[['Dose','Comece pela menor. 70 kg: 200–400 mg.'],
+   ['Limite','Até ~400 mg por dia para adultos saudáveis. Gestantes: até 200 mg.'],
+   ['Fontes','Café (~80–100 mg por xícara de 150 ml), cápsulas, pré-treinos.'],
+   ['Cuidados','Evite 6–8 h antes de dormir. Ansiedade, taquicardia, hipertensão e arritmias pedem cautela.']]},
+ {n:'Pré-treino',e:'B',d:'depende da fórmula',
+  o:'Geralmente cafeína + beta-alanina + citrulina. O efeito vem dos ativos em dose adequada.',
+  rows:[['Atenção','Evite "blends proprietários" que escondem as doses. Muitas vezes café + boa refeição resolve.'],
+   ['Formigamento','Vem da beta-alanina (parestesia) e é inofensivo.']]},
+ {n:'Beta-alanina',e:'B',d:'3,2–6,4 g/dia divididos',o:'Ajuda em esforços de 1–4 minutos. Precisa de 4 semanas ou mais de uso.',rows:[['Efeito colateral','Formigamento inofensivo. Dividir a dose reduz.']]},
+ {n:'Citrulina malato',e:'B',d:'6–8 g, 60 min antes',o:'Possível melhora no número de repetições e no pump.',rows:[]},
+ {n:'Nitrato (suco de beterraba)',e:'B',d:'~6–8 mmol, 2–3 h antes',o:'Efeito maior em exercícios de resistência.',rows:[]},
+ {n:'Bicarbonato de sódio',e:'B',d:'0,2–0,3 g/kg, 1–3 h antes',o:'Esforços intensos de 1–7 minutos.',rows:[['Cuidados','Costuma causar desconforto gástrico. Teste fora de competição.']]},
+ {n:'Caseína',e:'A',d:'30–40 g antes de dormir',o:'Proteína de digestão lenta. Conta como proteína do dia.',rows:[]},
+ {n:'Ômega-3 (EPA + DHA)',e:'B',d:'1–3 g/dia de EPA+DHA',o:'Saúde cardiovascular. Útil para quem come pouco peixe.',rows:[]},
+ {n:'Vitamina D',e:'B',d:'conforme exame',o:'Ajuda se houver deficiência. Suplemente só com exame e orientação.',rows:[]},
+ {n:'Colágeno',e:'C',d:'10–15 g',o:'Não substitui whey para músculo. Possível benefício em tendões, junto com vitamina C.',rows:[]},
+ {n:'Multivitamínico',e:'C',d:'—',o:'Só faz sentido com dieta pobre. Não melhora desempenho.',rows:[]},
+ {n:'Magnésio / ZMA',e:'C',d:'—',o:'Só ajuda se houver deficiência.',rows:[]},
+ {n:'BCAA',e:'C',d:'—',o:'Desnecessário quando a proteína diária está adequada.',rows:[]},
+ {n:'Glutamina',e:'C',d:'—',o:'Sem efeito em hipertrofia ou força.',rows:[]},
+ {n:'Termogênicos',e:'C',d:'—',o:'Efeito pequeno, quase todo vindo da cafeína. Riscos cardíacos.',rows:[]},
+ {n:'Tribulus e "boosters" de testosterona',e:'C',d:'—',o:'Não aumentam a testosterona de forma relevante.',rows:[]}
+];
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+function renderSupps(f){
+  $('#suppList').innerHTML=SUPPS.filter(s=>f==='all'||s.e===f).map(s=>`
+   <details class="supp"${['Whey protein','Creatina'].includes(s.n)&&f==='all'?'':''}>
+    <summary><span class="ev ${s.e}" title="Evidência ${s.e}">${s.e}</span><strong>${esc(s.n)}</strong><span class="dose">${esc(s.d)}</span></summary>
+    <div class="body"><p>${esc(s.o)}</p>${s.rows.length?`<dl>${s.rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>`:''}</div>
+   </details>`).join('');
+}
+document.querySelectorAll('#suppFilters .chip').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('#suppFilters .chip').forEach(x=>x.setAttribute('aria-pressed',x===b));renderSupps(b.dataset.f)}));
+renderSupps('all');
+
+/* ---------- treinos ---------- */
+const PLANS={
+ fb:{t:'Full body · 3x',note:'Iniciante. Alterne A e B: semana 1 = A B A, semana 2 = B A B.',days:[
+  ['A',[['Agachamento (livre ou guiado)','3','8–10','2–3 min'],['Supino reto (barra ou halteres)','3','8–10','2 min'],['Remada curvada ou baixa','3','10–12','2 min'],['Stiff / RDL','2','10–12','2 min'],['Elevação lateral','2','12–15','1 min'],['Prancha','3','30–45 s','1 min']]],
+  ['B',[['Leg press','3','10–12','2 min'],['Puxada frontal','3','10–12','2 min'],['Desenvolvimento com halteres','3','8–10','2 min'],['Mesa flexora','2','12–15','1–2 min'],['Rosca direta + tríceps corda','2 cada','12–15','1 min'],['Panturrilha em pé','3','12–15','1 min']]]]},
+ ul:{t:'Superior / Inferior · 4x',note:'Iniciante a intermediário. Ordem sugerida: Superior 1, Inferior 1, descanso, Superior 2, Inferior 2.',days:[
+  ['Superior 1',[['Supino reto','4','6–8','2–3 min'],['Remada curvada','4','8–10','2 min'],['Desenvolvimento','3','8–10','2 min'],['Puxada','3','10–12','2 min'],['Rosca','2','10–12','1 min'],['Tríceps francês','2','10–12','1 min']]],
+  ['Inferior 1',[['Agachamento','4','6–8','2–3 min'],['Stiff','3','8–10','2 min'],['Leg press','3','10–12','2 min'],['Flexora','3','12–15','1–2 min'],['Panturrilha','4','10–15','1 min'],['Abdominal','3','12–15','1 min']]],
+  ['Superior 2',[['Supino inclinado com halteres','3','8–12','2 min'],['Barra fixa ou puxada','3','8–12','2 min'],['Remada unilateral','3','10–12','2 min'],['Elevação lateral','3','12–20','1 min'],['Rosca martelo','2','12','1 min'],['Tríceps corda','2','12–15','1 min']]],
+  ['Inferior 2',[['Terra ou hip thrust','3','6–10','2–3 min'],['Agachamento búlgaro','3','8–12 /perna','2 min'],['Cadeira extensora','3','12–15','1–2 min'],['Flexora sentada','3','12–15','1–2 min'],['Panturrilha sentado','3','15','1 min'],['Prancha','3','45 s','1 min']]]]},
+ ppl:{t:'Push / Pull / Legs · 6x',note:'Intermediário a avançado. Faça a sequência duas vezes por semana. Com 3 dias, faça uma vez.',days:[
+  ['Push',[['Supino reto','3','6–10','2–3 min'],['Desenvolvimento','3','8–10','2 min'],['Supino inclinado halteres','3','8–12','2 min'],['Elevação lateral','3','12–20','1 min'],['Tríceps corda','2','12–15','1 min'],['Tríceps francês','2','10–12','1 min']]],
+  ['Pull',[['Barra fixa ou puxada','3','6–10','2–3 min'],['Remada curvada','3','8–10','2 min'],['Face pull','3','12–15','1 min'],['Crucifixo inverso','2','12–15','1 min'],['Rosca direta','2','10–12','1 min'],['Rosca martelo','2','12','1 min']]],
+  ['Legs',[['Agachamento','3','6–10','2–3 min'],['Stiff / RDL','3','8–10','2 min'],['Leg press ou búlgaro','3','10–12','2 min'],['Extensora','2','12–15','1–2 min'],['Flexora','2','12–15','1–2 min'],['Panturrilha','3','10–15','1 min']]]]},
+ casa:{t:'Em casa',note:'Sem equipamento ou com halteres leves. Progrida com mais repetições, descida em 3 segundos e variações mais difíceis.',days:[
+  ['Casa A',[['Agachamento búlgaro','3','10–15 /perna','1–2 min'],['Flexão de braço','3','até 2 da falha','1–2 min'],['Remada com mochila ou elástico','3','12–15','1–2 min'],['Ponte de glúteo unilateral','3','12–15 /perna','1 min'],['Prancha','3','30–60 s','1 min']]],
+  ['Casa B',[['Afundo alternado','3','10–12 /perna','1–2 min'],['Flexão com pés elevados','3','até 2 da falha','1–2 min'],['Remada invertida na mesa','3','8–12','1–2 min'],['Stiff unilateral com mochila','3','10–12 /perna','1 min'],['Prancha lateral','3','30 s /lado','1 min']]]]}
+};
+let curPlan=store.get('coach.plan','fb'); if(!PLANS[curPlan])curPlan='fb';
+function renderPlan(){
+  $('#planPick').innerHTML=Object.entries(PLANS).map(([k,v])=>`<button class="chip" data-p="${k}" aria-pressed="${k===curPlan}">${v.t}</button>`).join('');
+  const P=PLANS[curPlan];
+  $('#planDays').innerHTML=P.days.map(([name,ex])=>`<div class="day"><h3><span class="tag">Treino</span>${name}</h3>
+   <div class="tbl"><table><thead><tr><th>Exercício</th><th>Séries</th><th>Reps</th><th>Desc.</th></tr></thead><tbody>
+   ${ex.map(r=>`<tr><td>${r[0]}</td><td class="n">${r[1]}</td><td class="n">${r[2]}</td><td class="n">${r[3]}</td></tr>`).join('')}</tbody></table></div></div>`).join('');
+  $('#planNote').textContent=P.note;
+  document.querySelectorAll('#planPick .chip').forEach(b=>b.addEventListener('click',()=>{curPlan=b.dataset.p;store.set('coach.plan',curPlan);renderPlan()}));
+}
+renderPlan();
+
+/* ---------- alimentação ---------- */
+const FOODS=[['Ovo','1 unidade (50 g)',6,70],['Peito de frango cozido','100 g',31,165],['Patinho moído cozido','100 g',30,220],['Sardinha em lata','1 lata drenada (~85 g)',20,170],['Atum em água','1 lata drenada (~120 g)',25,120],['Leite integral','200 ml',6,120],['Iogurte natural','170 g','6–10','100–120'],['Queijo cottage','100 g',11,100],['Feijão cozido','1 concha (100 g)',5,75],['Arroz cozido','4 colheres (100 g)',2.5,130],['Aveia','30 g',4,115],['Pão francês','1 unidade (50 g)',4,150],['Batata-doce cozida','100 g',1,85],['Banana','1 média',1,90],['Pasta de amendoim','1 colher de sopa (15 g)',4,90],['Whey','1 dose (~30 g)','20–25','110–130']];
+$('#foodRows').innerHTML=FOODS.map(f=>`<tr><td>${f[0]}</td><td>${f[1]}</td><td class="n">${typeof f[2]==='number'?fmt(f[2],f[2]%1?1:0):f[2]} g</td><td class="n">${f[3]}</td></tr>`).join('');
+
+const MENUS={
+ cut:{t:'~2.200 kcal · emagrecer',sub:'cerca de 160 g de proteína',m:[['Café','3 ovos mexidos + 1 pão francês + 1 fruta + café sem açúcar'],['Almoço','150 g de frango + 4 colheres de arroz + 1 concha de feijão + salada à vontade + 1 colher (chá) de azeite'],['Lanche','Iogurte natural + 30 g de aveia + 1 dose de whey'],['Jantar','150 g de carne magra ou peixe + 150 g de batata-doce + legumes'],['Ceia (opcional)','200 ml de leite desnatado ou 100 g de cottage']]},
+ bulk:{t:'~2.900 kcal · ganhar massa',sub:'cerca de 150 g de proteína',m:[['Café','3 ovos + 2 pães + 1 banana + 200 ml de leite integral'],['Lanche','Shake caseiro: leite + banana + aveia + pasta de amendoim'],['Almoço','150 g de carne + 6 colheres de arroz + 1–2 conchas de feijão + salada + azeite'],['Pré-treino','2 fatias de pão com pasta de amendoim + fruta'],['Jantar','150 g de frango + 200 g de macarrão ou arroz cozido + legumes'],['Ceia','Iogurte ou leite + 1 dose de whey, se precisar fechar a proteína']]}
+};
+let curMenu=store.get('coach.menu','cut'); if(!MENUS[curMenu])curMenu='cut';
+function renderMenu(){
+  $('#menuPick').innerHTML=Object.entries(MENUS).map(([k,v])=>`<button class="chip" data-m="${k}" aria-pressed="${k===curMenu}">${v.t}</button>`).join('');
+  const M=MENUS[curMenu];
+  $('#menuBody').innerHTML=`<div class="label" style="margin-bottom:10px">${M.sub}</div><div class="tbl" style="border:0"><table><tbody>${M.m.map(r=>`<tr><td style="width:130px"><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('')}</tbody></table></div>`;
+  document.querySelectorAll('#menuPick .chip').forEach(b=>b.addEventListener('click',()=>{curMenu=b.dataset.m;store.set('coach.menu',curMenu);renderMenu()}));
+}
+renderMenu();
+
+/* ---------- peso ---------- */
+const today=new Date(); const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+$('#logDate').value=iso(today);
+let log=store.get('coach.log',null);
+const isExample=!log;
+if(!log){log=[];for(let i=20;i>=0;i-=2){const d=new Date(today);d.setDate(d.getDate()-i);log.push({d:iso(d),kg:+(80.6-(20-i)*0.035+(i%4?0.2:-0.15)).toFixed(1)})}}
+let example=isExample;
+function avg(a){return a.reduce((s,x)=>s+x.kg,0)/a.length}
+function renderLog(){
+  const L=[...log].sort((a,b)=>a.d.localeCompare(b.d));
+  const out=$('#logOut');
+  if(!L.length){out.innerHTML='<p class="muted">Nenhum registro ainda. Adicione o primeiro peso acima.</p>';return}
+  const last=new Date(L[L.length-1].d);
+  const inRange=(from,to)=>L.filter(x=>{const t=new Date(x.d);return t>from&&t<=to});
+  const d7=new Date(last);d7.setDate(d7.getDate()-7);const d14=new Date(last);d14.setDate(d14.getDate()-14);
+  const w1=inRange(d7,last), w0=inRange(d14,d7);
+  const a1=w1.length?avg(w1):null, a0=w0.length?avg(w0):null;
+  const diff=a1!=null&&a0!=null?a1-a0:null;
+  const min=Math.min(...L.map(x=>x.kg)),max=Math.max(...L.map(x=>x.kg));
+  const W=600,H=120,pad=10,span=Math.max(0.5,max-min);
+  const t0=new Date(L[0].d).getTime(),t1=Math.max(t0+1,last.getTime());
+  const pts=L.map(x=>[pad+(new Date(x.d).getTime()-t0)/(t1-t0)*(W-2*pad),H-pad-(x.kg-min)/span*(H-2*pad)]);
+  const path=pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+  const lp=pts[pts.length-1];
+  out.innerHTML=`
+   ${example?'<div class="note">Dados de exemplo. Eles somem quando você registrar o primeiro peso.</div>':''}
+   <div class="facts">
+    <div class="fact"><span class="label">Média últimos 7 dias</span><b>${a1!=null?fmt(a1,1)+' kg':'—'}</b></div>
+    <div class="fact"><span class="label">Semana anterior</span><b>${a0!=null?fmt(a0,1)+' kg':'—'}</b></div>
+    <div class="fact"><span class="label">Variação semanal</span><b>${diff!=null?(diff>0?'+':'')+fmt(diff,2)+' kg ('+(diff>0?'+':'')+fmt(diff/a0*100,1)+'%)':'—'}</b></div>
+   </div>
+   <svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Gráfico do peso">
+    <line x1="${pad}" x2="${W-pad}" y1="${H-pad}" y2="${H-pad}" stroke="var(--line)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+    <path d="${path} L ${lp[0]} ${H-pad} L ${pts[0][0]} ${H-pad} Z" fill="var(--accent)" fill-opacity=".1"/>
+    <path d="${path}" fill="none" stroke="var(--accent)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+   </svg>
+   <div class="muted num" style="display:flex;justify-content:space-between;font-size:.8rem"><span>${fmt(min,1)}–${fmt(max,1)} kg</span><span>${L.length} registros</span></div>
+   <div class="entries">${L.slice(-14).reverse().map(x=>`<span>${x.d.slice(8,10)}/${x.d.slice(5,7)} · ${fmt(x.kg,1)}</span>`).join('')}</div>
+   ${example?'':'<div><button class="btn ghost" id="undoLog" type="button">Apagar último registro</button></div>'}`;
+  const u=$('#undoLog'); if(u)u.addEventListener('click',()=>{const s=[...log].sort((a,b)=>a.d.localeCompare(b.d));s.pop();log=s;store.set('coach.log',log);renderLog()});
+}
+$('#logForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const kg=parseFloat(String($('#logKg').value).replace(',','.')); const d=$('#logDate').value;
+  if(!d||!(kg>=30&&kg<=250)){$('#logKg').focus();return}
+  if(example){log=[];example=false}
+  log=log.filter(x=>x.d!==d);log.push({d,kg:+kg.toFixed(1)});
+  store.set('coach.log',log);$('#logKg').value='';renderLog();
+});
+renderLog();
+})();
+</script>
+
+</body>
+</html>
