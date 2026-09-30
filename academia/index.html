@@ -59,6 +59,7 @@ nav.tabs button[aria-selected="true"]{color:var(--fg);border-bottom-color:var(--
 nav.tabs button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
 section.panel{display:grid;gap:28px}
+section.panel[hidden]{display:none}
 .grid2{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:28px;align-items:start}
 @media (max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}}
 
@@ -119,10 +120,12 @@ th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vert
 th{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);background:var(--sunk)}
 tr:last-child td{border-bottom:0}
 td.n{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:560px){table{font-size:.86rem}th,td{padding:9px 8px}th{letter-spacing:.04em}.day td.n{white-space:normal}}
 
 /* treinos */
 .plan-pick{display:flex;flex-wrap:wrap;gap:8px}
 .days{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px}
+.day{min-width:0}
 .day h3{margin-bottom:10px;display:flex;gap:10px;align-items:center}
 .day h3 .tag{font:700 .72rem var(--body);letter-spacing:.08em;background:var(--accent);color:var(--accent-fg);border-radius:4px;padding:3px 7px}
 .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:18px 28px}
