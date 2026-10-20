@@ -1,15 +1,16 @@
 # pontobio
 
-Páginas de links para criador de conteúdo. Um repositório, um domínio, uma pasta por perfil.
+Site do **Estúdio Ápice** (sites profissionais para pequenos negócios) e dos
+projetos de clientes. Um repositório, um domínio, uma pasta por projeto.
 
 ## Estrutura
 
 ```
-/                 landing do serviço (mrzeus.co.uk)
-/forsaken/        página de um criador (mrzeus.co.uk/forsaken/)
-/modelo/          template para o próximo perfil
-/academia/        página de exemplo de coach de academia
-/barbearia/       agendamento de exemplo pra barbearia, com painel do dono
+/                 apresentação do Estúdio Ápice (mrzeus.co.uk)
+/forsaken/        página de um criador (fora da vitrine da apresentação)
+/modelo/          template para o próximo perfil de criador
+/academia/        exemplo de app de coach de academia
+/barbearia/       Rick' Barbearia: agendamento online, com painel do dono
 /barbearia/painel/            painel do dono (agenda + edição do catálogo)
 /barbearia/firebase-config.js  configuração do Firebase usada pelos acima (opcional)
 /barbearia/firebase-messaging-sw.js  service worker dos avisos push (opcional)
