@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Painel — Rickelme Barber</title>
-<meta name="description" content="Painel de controle de agendamentos da barbearia Rickelme Barber.">
+<title>Painel — Rick’ Barbearia</title>
+<meta name="description" content="Painel de controle de agendamentos da barbearia Rick’ Barbearia.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#15130F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -206,7 +206,7 @@ details.avancado textarea{
 
 <div class="tela-login" id="tela-login">
   <div class="login-caixa">
-    <h1>Rickelme Barber</h1>
+    <h1>Rick’ Barbearia</h1>
     <p id="login-instrucao">Painel do dono — digite a senha para entrar</p>
     <input type="email" id="in-email" placeholder="E-mail" autocomplete="username" hidden>
     <input type="password" id="in-senha" placeholder="Senha" autocomplete="current-password">
@@ -218,7 +218,7 @@ details.avancado textarea{
 <div id="app-painel" hidden>
   <header class="topo-painel">
     <div>
-      <h1>Rickelme Barber</h1>
+      <h1>Rick’ Barbearia</h1>
       <div class="sub">Painel do dono</div>
     </div>
     <button class="btn-sair" id="btn-sair" type="button">Sair</button>
@@ -595,7 +595,7 @@ function renderListaAgendamentos() {
       acoes.push(`<button class="ag-btn perigo" data-acao="excluir" data-id="${ag.id}">Excluir</button>`);
     }
     if (ag.telefone) {
-      acoes.push(`<a class="ag-btn" href="${linkWhatsApp(ag.telefone, `Olá, ${ag.clienteNome}! Aqui é da Rickelme Barber.`)}" target="_blank" rel="noopener">WhatsApp</a>`);
+      acoes.push(`<a class="ag-btn" href="${linkWhatsApp(ag.telefone, `Olá, ${ag.clienteNome}! Aqui é da Rick’ Barbearia.`)}" target="_blank" rel="noopener">WhatsApp</a>`);
     }
     return `
       <div class="ag-card status-${ag.status}">
@@ -870,11 +870,11 @@ async function ativarNotificacoes() {
 function estadoCatalogoParaEdicao() {
   if (catalogoRemoto) return JSON.parse(JSON.stringify(catalogoRemoto));
   return {
-    nome: 'Rickelme Barber',
+    nome: 'Rick’ Barbearia',
     whatsapp: CONFIG_PAINEL.whatsapp,
     instagram: 'https://instagram.com/rickelme_barber',
-    endereco: '',
-    horarios: { 0: [], 1: [['09:00', '19:00']], 2: [['09:00', '19:00']], 3: [['09:00', '19:00']], 4: [['09:00', '19:00']], 5: [['09:00', '20:00']], 6: [['09:00', '17:00']] },
+    endereco: 'Rua Edmundo Calheiros, 264 - São Francisco, São Luís - MA, 65076-390',
+    horarios: { 0: [], 1: [['09:00', '12:00'], ['14:00', '19:00']], 2: [['09:00', '12:00'], ['14:00', '19:00']], 3: [['09:00', '12:00'], ['14:00', '19:00']], 4: [['09:00', '12:00'], ['14:00', '19:00']], 5: [['09:00', '12:00'], ['14:00', '19:00']], 6: [['09:00', '12:00'], ['14:00', '19:00']] },
     barbeiros: CONFIG_PAINEL.barbeiros.map((b) => ({ ...b, especialidade: b.especialidade || '' })),
     servicos: JSON.parse(JSON.stringify(CONFIG_PAINEL.servicos)),
   };

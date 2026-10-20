@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Rickelme Barber — Agendar horário</title>
-<meta name="description" content="Agende seu horário com o Rickelme Barber em poucos toques. Escolha serviço, barbeiro, data e horário, e confirme pelo WhatsApp.">
+<title>Rick’ Barbearia — Agendar horário</title>
+<meta name="description" content="Agende seu horário na Rick’ Barbearia em poucos toques. Escolha serviço, barbeiro, data e horário, e confirme pelo WhatsApp.">
 <meta name="theme-color" content="#0A0A0A">
-<meta property="og:title" content="Rickelme Barber — Agendar horário">
+<meta property="og:title" content="Rick’ Barbearia — Agendar horário">
 <meta property="og:description" content="Corte, barba e acabamento. Agende pelo site e confirme pelo WhatsApp.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -78,7 +78,7 @@ h1,h2,h3,.rotulo-grande{font-family:"Montserrat",system-ui,sans-serif;letter-spa
 .info-loja{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:.9rem}
 .info-chip{
   background:var(--bg-3);border:1px solid var(--borda);border-radius:999px;
-  padding:.4rem .85rem;font-size:.82rem;color:var(--texto-dim);white-space:nowrap;
+  padding:.4rem .85rem;font-size:.82rem;color:var(--texto-dim);max-width:100%;text-align:center;
   display:inline-flex;align-items:center;gap:.35rem;text-decoration:none;
 }
 .info-chip:hover{border-color:var(--destaque)}
@@ -295,10 +295,10 @@ img.barbeiro-avatar{object-fit:cover;object-position:60% 35%}
   <img class="foto-perfil" src="rickelme.jpg" alt="Rickelme, barbeiro" width="136" height="136">
   <div class="topo-conteudo">
     <div class="marca">
-      <h1 id="marca-nome">Rickelme Barber</h1>
+      <h1 id="marca-nome">Rick’ Barbearia</h1>
       <p class="marca-usuario">@Rickelme_Barber</p>
     </div>
-    <p class="marca-sub">Corte, barba e acabamento — no seu horário</p>
+    <p class="marca-sub">Um espaço dedicado ao cuidado, estilo e bem-estar. Venha renovar seu visual.</p>
     <div class="status-linha">
       <span class="status-bolha" id="status-bolha"></span>
       <span class="status-texto" id="status-texto">Verificando horário…</span>
@@ -338,7 +338,7 @@ img.barbeiro-avatar{object-fit:cover;object-position:60% 35%}
 <footer class="rodape">
   <button class="link-rodape" id="btn-meus-agendamentos" type="button">Ver meus agendamentos</button>
   <button class="link-rodape" id="btn-minha-conta" type="button" hidden>Entrar / Criar conta</button>
-  <p class="rodape-texto">Rickelme Barber · o horário só fica garantido depois da confirmação pelo WhatsApp</p>
+  <p class="rodape-texto">Rick’ Barbearia · o horário só fica garantido depois da confirmação pelo WhatsApp</p>
 </footer>
 
 <button class="barra-inferior" id="barra-agendar" type="button">Agendar horário</button>
@@ -358,10 +358,10 @@ let painelAberto = null;
    1. DADOS DA BARBEARIA — edite nomes, preços e horários aqui
    ========================================================= */
 const BARBEARIA = {
-  nome: 'Rickelme Barber',
+  nome: 'Rick’ Barbearia',
   whatsapp: '559889247025',
   instagram: 'https://instagram.com/rickelme_barber',
-  endereco: 'Rua Exemplo, 123 - Centro, Sua Cidade - SP',
+  endereco: 'Rua Edmundo Calheiros, 264 - São Francisco, São Luís - MA, 65076-390',
   fuso: 'America/Sao_Paulo',
   diasAntecedencia: 14,      // quantos dias pra frente o cliente pode agendar
   antecedenciaMinMin: 60,    // antecedência mínima pra marcar em cima da hora (minutos)
@@ -369,12 +369,12 @@ const BARBEARIA = {
   // 0 = domingo ... 6 = sábado. Pode ter mais de um bloco no dia (ex.: manhã e tarde)
   horarios: {
     0: [],
-    1: [['09:00', '19:00']],
-    2: [['09:00', '19:00']],
-    3: [['09:00', '19:00']],
-    4: [['09:00', '19:00']],
-    5: [['09:00', '20:00']],
-    6: [['09:00', '17:00']],
+    1: [['09:00', '12:00'], ['14:00', '19:00']],
+    2: [['09:00', '12:00'], ['14:00', '19:00']],
+    3: [['09:00', '12:00'], ['14:00', '19:00']],
+    4: [['09:00', '12:00'], ['14:00', '19:00']],
+    5: [['09:00', '12:00'], ['14:00', '19:00']],
+    6: [['09:00', '12:00'], ['14:00', '19:00']],
   },
   barbeiros: [
     { id: 'qualquer', nome: 'Sem preferência', especialidade: 'Primeiro barbeiro livre' },
