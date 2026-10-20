@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Painel — Barba Nobre</title>
-<meta name="description" content="Painel de controle de agendamentos da barbearia Barba Nobre.">
+<title>Painel — Rickelme Barber</title>
+<meta name="description" content="Painel de controle de agendamentos da barbearia Rickelme Barber.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#15130F">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
@@ -17,15 +17,15 @@
 <script src="../firebase-config.js"></script>
 <style>
 :root{
-  --bg:#15130f;
-  --bg-2:#1e1b15;
-  --bg-3:#2a251c;
-  --borda:#3d3626;
-  --texto:#f4efe4;
-  --texto-dim:#b7ac97;
-  --ouro:#cda039;
-  --ouro-claro:#e4c169;
-  --ouro-escuro:#a87f21;
+  --bg:#0a0a0a;
+  --bg-2:#141414;
+  --bg-3:#1f1f1f;
+  --borda:#2f2f2f;
+  --texto:#f5f5f5;
+  --texto-dim:#a6a6a6;
+  --destaque:#e6e6e6;
+  --destaque-forte:#ffffff;
+  --destaque-suave:#8c8c8c;
   --erro:#e0645a;
   --sucesso:#6fae7f;
   --aviso:#d9a441;
@@ -41,15 +41,15 @@ body{
 a{color:inherit}
 button,select,input,textarea{font-family:inherit}
 button{cursor:pointer}
-:focus-visible{outline:2px solid var(--ouro);outline-offset:2px}
-h1,h2,h3{font-family:"Oswald",system-ui,sans-serif;letter-spacing:.02em}
+:focus-visible{outline:2px solid var(--destaque);outline-offset:2px}
+h1,h2,h3{font-family:"Montserrat",system-ui,sans-serif;letter-spacing:.02em}
 .tabular{font-variant-numeric:tabular-nums}
 [hidden]{display:none!important}
 
 /* ---------- Login ---------- */
 .tela-login{
   min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1.5rem;
-  background:radial-gradient(140% 90% at 50% -10%, rgba(205,160,57,.16), transparent 60%), var(--bg);
+  background:radial-gradient(140% 90% at 50% -10%, rgba(255,255,255,.16), transparent 60%), var(--bg);
 }
 .login-caixa{
   width:100%;max-width:340px;background:var(--bg-2);border:1px solid var(--borda);
@@ -83,17 +83,17 @@ h1,h2,h3{font-family:"Oswald",system-ui,sans-serif;letter-spacing:.02em}
   flex-shrink:0;background:var(--bg-2);border:1px solid var(--borda);color:var(--texto-dim);
   border-radius:999px;padding:.5rem 1rem;font-size:.85rem;font-weight:600;white-space:nowrap;
 }
-.aba-painel.ativa{background:var(--ouro);border-color:var(--ouro);color:#241c08}
+.aba-painel.ativa{background:var(--destaque);border-color:var(--destaque);color:#0a0a0a}
 
 main{max-width:720px;margin:0 auto;padding:1.2rem 1.1rem 4rem}
 .secao-painel{display:none}
 .secao-painel.ativa{display:block}
-.secao-painel h2{font-size:1.15rem;color:var(--ouro-claro);margin-bottom:1rem}
+.secao-painel h2{font-size:1.15rem;color:var(--destaque-forte);margin-bottom:1rem}
 
 /* ---------- Estatísticas ---------- */
 .stats-grade{display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1.4rem}
 .stat-card{background:var(--bg-2);border:1px solid var(--borda);border-radius:12px;padding:.8rem;text-align:center}
-.stat-valor{font-family:"Oswald",sans-serif;font-size:1.5rem;color:var(--ouro)}
+.stat-valor{font-family:"Montserrat",sans-serif;font-size:1.5rem;color:var(--destaque)}
 .stat-rotulo{color:var(--texto-dim);font-size:.72rem;margin-top:.2rem}
 
 /* ---------- Navegador de data ---------- */
@@ -101,22 +101,22 @@ main{max-width:720px;margin:0 auto;padding:1.2rem 1.1rem 4rem}
 .nav-data-btn{background:var(--bg-2);border:1px solid var(--borda);color:var(--texto);width:38px;height:38px;
   border-radius:50%;font-size:1.1rem;flex-shrink:0}
 .nav-data-central{flex:1;text-align:center}
-.nav-data-titulo{font-family:"Oswald",sans-serif;font-size:1.05rem;text-transform:capitalize}
-.nav-data-hoje{background:none;border:0;color:var(--ouro-claro);font-size:.78rem;text-decoration:underline;padding:.15rem}
+.nav-data-titulo{font-family:"Montserrat",sans-serif;font-size:1.05rem;text-transform:capitalize}
+.nav-data-hoje{background:none;border:0;color:var(--destaque-forte);font-size:.78rem;text-decoration:underline;padding:.15rem}
 
 /* ---------- Lista de agendamentos ---------- */
 .lista-agendamentos{display:grid;gap:.75rem}
-.ag-card{background:var(--bg-2);border:1px solid var(--borda);border-left:3px solid var(--ouro);border-radius:12px;padding:1rem}
+.ag-card{background:var(--bg-2);border:1px solid var(--borda);border-left:3px solid var(--destaque);border-radius:12px;padding:1rem}
 .ag-card.status-cancelado{border-left-color:var(--erro);opacity:.75}
 .ag-card.status-concluido{border-left-color:var(--sucesso)}
 .ag-card.status-faltou{border-left-color:var(--texto-dim);opacity:.75}
 .ag-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:.7rem}
-.ag-hora{font-family:"Oswald",sans-serif;font-size:1.3rem;color:var(--ouro-claro)}
+.ag-hora{font-family:"Montserrat",sans-serif;font-size:1.3rem;color:var(--destaque-forte)}
 .ag-hora-sub{color:var(--texto-dim);font-size:.75rem}
 .selo-status{
   font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
   border-radius:5px;padding:.22rem .5rem;flex-shrink:0;white-space:nowrap;
-  background:rgba(205,160,57,.16);color:var(--ouro-claro);
+  background:rgba(255,255,255,.16);color:var(--destaque-forte);
 }
 .selo-status.st-concluido{background:rgba(111,174,127,.16);color:var(--sucesso)}
 .selo-status.st-cancelado{background:rgba(224,100,90,.16);color:var(--erro)}
@@ -153,11 +153,11 @@ main{max-width:720px;margin:0 auto;padding:1.2rem 1.1rem 4rem}
   border-radius:10px;padding:.7rem .9rem;font-size:.85rem;margin-top:1rem;
 }
 .btn-primario{
-  display:block;width:100%;background:var(--ouro);color:#241c08;border:0;border-radius:999px;
-  padding:.95rem;font-size:1rem;font-weight:700;font-family:"Oswald",sans-serif;letter-spacing:.02em;
+  display:block;width:100%;background:var(--destaque);color:#0a0a0a;border:0;border-radius:999px;
+  padding:.95rem;font-size:1rem;font-weight:700;font-family:"Montserrat",sans-serif;letter-spacing:.02em;
   text-transform:uppercase;margin-top:1.4rem;transition:background .15s;
 }
-.btn-primario:hover{background:var(--ouro-claro)}
+.btn-primario:hover{background:var(--destaque-forte)}
 
 /* ---------- Bloqueios ---------- */
 .bloqueio-card{
@@ -167,14 +167,14 @@ main{max-width:720px;margin:0 auto;padding:1.2rem 1.1rem 4rem}
 .bloqueio-info b{display:block;font-size:.95rem}
 .bloqueio-info span{color:var(--texto-dim);font-size:.82rem}
 .info-banner{
-  background:rgba(205,160,57,.1);border:1px solid var(--ouro-escuro);color:var(--ouro-claro);
+  background:rgba(255,255,255,.1);border:1px solid var(--destaque-suave);color:var(--destaque-forte);
   border-radius:12px;padding:.9rem 1rem;font-size:.85rem;line-height:1.55;margin-bottom:1.2rem;
 }
 .info-banner b{color:var(--texto)}
 
 /* ---------- Catálogo ---------- */
 .editor-bloco{margin-bottom:1.6rem}
-.editor-bloco h3{font-size:1rem;color:var(--ouro-claro);margin-bottom:.6rem}
+.editor-bloco h3{font-size:1rem;color:var(--destaque-forte);margin-bottom:.6rem}
 .editor-linha{
   display:flex;align-items:center;gap:.6rem;background:var(--bg-2);border:1px solid var(--borda);
   border-radius:10px;padding:.6rem .8rem;margin-bottom:.5rem;flex-wrap:wrap;
@@ -206,7 +206,7 @@ details.avancado textarea{
 
 <div class="tela-login" id="tela-login">
   <div class="login-caixa">
-    <h1>Barba Nobre</h1>
+    <h1>Rickelme Barber</h1>
     <p id="login-instrucao">Painel do dono — digite a senha para entrar</p>
     <input type="email" id="in-email" placeholder="E-mail" autocomplete="username" hidden>
     <input type="password" id="in-senha" placeholder="Senha" autocomplete="current-password">
@@ -218,7 +218,7 @@ details.avancado textarea{
 <div id="app-painel" hidden>
   <header class="topo-painel">
     <div>
-      <h1>Barba Nobre</h1>
+      <h1>Rickelme Barber</h1>
       <div class="sub">Painel do dono</div>
     </div>
     <button class="btn-sair" id="btn-sair" type="button">Sair</button>
@@ -382,8 +382,7 @@ const CONFIG_PAINEL = {
     { id: 'sobrancelha', nome: 'Sobrancelha', duracaoMin: 15, preco: 15 },
   ],
   barbeiros: [
-    { id: 'carlos', nome: 'Carlos' },
-    { id: 'diego', nome: 'Diego' },
+    { id: 'rickelme', nome: 'Rickelme', especialidade: 'Corte, barba e acabamento', foto: 'rickelme.jpg' },
   ],
 };
 
@@ -596,7 +595,7 @@ function renderListaAgendamentos() {
       acoes.push(`<button class="ag-btn perigo" data-acao="excluir" data-id="${ag.id}">Excluir</button>`);
     }
     if (ag.telefone) {
-      acoes.push(`<a class="ag-btn" href="${linkWhatsApp(ag.telefone, `Olá, ${ag.clienteNome}! Aqui é da Barba Nobre.`)}" target="_blank" rel="noopener">WhatsApp</a>`);
+      acoes.push(`<a class="ag-btn" href="${linkWhatsApp(ag.telefone, `Olá, ${ag.clienteNome}! Aqui é da Rickelme Barber.`)}" target="_blank" rel="noopener">WhatsApp</a>`);
     }
     return `
       <div class="ag-card status-${ag.status}">
@@ -871,12 +870,12 @@ async function ativarNotificacoes() {
 function estadoCatalogoParaEdicao() {
   if (catalogoRemoto) return JSON.parse(JSON.stringify(catalogoRemoto));
   return {
-    nome: 'Barba Nobre',
+    nome: 'Rickelme Barber',
     whatsapp: CONFIG_PAINEL.whatsapp,
-    instagram: '',
+    instagram: 'https://instagram.com/rickelme_barber',
     endereco: '',
     horarios: { 0: [], 1: [['09:00', '19:00']], 2: [['09:00', '19:00']], 3: [['09:00', '19:00']], 4: [['09:00', '19:00']], 5: [['09:00', '20:00']], 6: [['09:00', '17:00']] },
-    barbeiros: CONFIG_PAINEL.barbeiros.map((b) => ({ ...b, especialidade: '' })),
+    barbeiros: CONFIG_PAINEL.barbeiros.map((b) => ({ ...b, especialidade: b.especialidade || '' })),
     servicos: JSON.parse(JSON.stringify(CONFIG_PAINEL.servicos)),
   };
 }

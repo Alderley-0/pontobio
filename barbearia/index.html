@@ -3,29 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Barba Nobre — Agendar horário</title>
-<meta name="description" content="Agende seu horário na barbearia Barba Nobre em poucos toques. Escolha serviço, barbeiro, data e horário, e confirme pelo WhatsApp.">
-<meta name="theme-color" content="#15130F">
-<meta property="og:title" content="Barba Nobre — Agendar horário">
-<meta property="og:description" content="Corte, barba e navalha. Agende pelo site e confirme pelo WhatsApp.">
+<title>Rickelme Barber — Agendar horário</title>
+<meta name="description" content="Agende seu horário com o Rickelme Barber em poucos toques. Escolha serviço, barbeiro, data e horário, e confirme pelo WhatsApp.">
+<meta name="theme-color" content="#0A0A0A">
+<meta property="og:title" content="Rickelme Barber — Agendar horário">
+<meta property="og:description" content="Corte, barba e acabamento. Agende pelo site e confirme pelo WhatsApp.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="firebase-config.js"></script>
 <style>
 :root{
-  --bg:#15130f;
-  --bg-2:#1e1b15;
-  --bg-3:#2a251c;
-  --borda:#3d3626;
-  --texto:#f4efe4;
-  --texto-dim:#b7ac97;
-  --ouro:#cda039;
-  --ouro-claro:#e4c169;
-  --ouro-escuro:#a87f21;
+  --bg:#0a0a0a;
+  --bg-2:#141414;
+  --bg-3:#1f1f1f;
+  --borda:#2f2f2f;
+  --texto:#f5f5f5;
+  --texto-dim:#a6a6a6;
+  --destaque:#e6e6e6;
+  --destaque-forte:#ffffff;
+  --destaque-suave:#8c8c8c;
   --erro:#e0645a;
   --sucesso:#6fae7f;
   --radius:14px;
@@ -45,59 +45,68 @@ body{
 a{color:inherit}
 img{display:block;max-width:100%}
 button{font-family:inherit;cursor:pointer}
-:focus-visible{outline:2px solid var(--ouro);outline-offset:2px}
-h1,h2,h3,.rotulo-grande{font-family:"Oswald",system-ui,sans-serif;letter-spacing:.02em;text-transform:uppercase}
+:focus-visible{outline:2px solid var(--destaque);outline-offset:2px}
+h1,h2,h3,.rotulo-grande{font-family:"Montserrat",system-ui,sans-serif;letter-spacing:.02em;text-transform:uppercase}
 .tabular{font-variant-numeric:tabular-nums}
 [hidden]{display:none!important}
 
 /* ---------- Topo ---------- */
-.topo{
-  background:
-    radial-gradient(140% 90% at 15% -20%, rgba(205,160,57,.22), transparent 60%),
-    var(--bg-2);
-  border-bottom:1px solid var(--borda);
-  padding:1.6rem 1.1rem 1.2rem;
+.topo{background:var(--bg);border-bottom:1px solid var(--borda);padding-bottom:1.5rem;text-align:center}
+/* Capa preta com o logo cursivo prateado, no estilo da marca */
+.capa{
+  background:radial-gradient(120% 110% at 50% 0%, #2b2b2b 0%, #111 55%, #0a0a0a 100%);
+  padding:2rem 1.1rem 4.6rem;overflow:hidden;
 }
-.topo-conteudo{max-width:640px;margin:0 auto}
-.marca h1{font-size:clamp(2rem,8vw,2.7rem);color:var(--texto);line-height:1}
-.marca .ouro{color:var(--ouro)}
-.marca-sub{color:var(--texto-dim);font-size:.96rem;margin-top:.3rem}
-.status-linha{display:flex;align-items:center;gap:.5rem;margin-top:1rem;font-size:.92rem;flex-wrap:wrap}
+.logo-script{
+  display:block;font-family:"Great Vibes",cursive;font-size:clamp(4.4rem,22vw,7rem);line-height:1;
+  background:linear-gradient(180deg,#ffffff 0%,#d4d4d4 45%,#8a8a8a 100%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+}
+.foto-perfil{
+  width:136px;height:136px;border-radius:50%;object-fit:cover;object-position:60% 35%;
+  border:4px solid var(--bg);box-shadow:0 0 0 1px #3a3a3a;margin:-68px auto 0;position:relative;background:var(--bg-3);
+}
+.topo-conteudo{max-width:640px;margin:0 auto;padding:0 1.1rem}
+.marca h1{font-size:1.2rem;font-weight:600;letter-spacing:.3em;color:var(--texto);line-height:1.2;margin-top:.9rem}
+.marca-usuario{color:var(--texto-dim);font-size:.88rem;margin-top:.2rem}
+.marca-sub{color:var(--texto-dim);font-size:.95rem;margin-top:.6rem}
+.status-linha{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:1rem;font-size:.92rem;flex-wrap:wrap}
 .status-bolha{width:.55rem;height:.55rem;border-radius:50%;background:var(--sucesso);flex-shrink:0}
 .status-bolha.fechado{background:var(--erro)}
 .status-texto{font-weight:700}
 .status-detalhe{color:var(--texto-dim)}
-.info-loja{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+.info-loja{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center;margin-top:.9rem}
 .info-chip{
   background:var(--bg-3);border:1px solid var(--borda);border-radius:999px;
   padding:.4rem .85rem;font-size:.82rem;color:var(--texto-dim);white-space:nowrap;
   display:inline-flex;align-items:center;gap:.35rem;text-decoration:none;
 }
-.info-chip:hover{border-color:var(--ouro)}
+.info-chip:hover{border-color:var(--destaque)}
 
 /* ---------- CTA topo ---------- */
 main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 .hero-cta{padding-top:1.4rem}
 .btn-agendar-grande{
-  display:block;width:100%;background:var(--ouro);color:#241c08;border:0;border-radius:999px;
-  padding:1.05rem;font-family:"Oswald",sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:.03em;
+  display:block;width:100%;background:var(--destaque);color:#0a0a0a;border:0;border-radius:999px;
+  padding:1.05rem;font-family:"Montserrat",sans-serif;font-weight:700;font-size:1.1rem;letter-spacing:.14em;
   text-transform:uppercase;transition:background .15s;
 }
-.btn-agendar-grande:hover{background:var(--ouro-claro)}
+.btn-agendar-grande:hover{background:var(--destaque-forte)}
 
 /* ---------- Seções ---------- */
 .secao{padding-top:2.4rem}
-.secao h2{font-size:1.5rem;color:var(--ouro-claro);margin-bottom:.9rem}
+.secao h2{font-size:1rem;font-weight:600;letter-spacing:.24em;color:var(--texto);margin-bottom:1rem;display:flex;align-items:center;gap:.8rem}
+.secao h2::after{content:"";flex:1;height:1px;background:var(--borda)}
 
 .grade-servicos{display:grid;gap:.7rem}
 .servico-card{
   display:flex;justify-content:space-between;align-items:center;gap:.9rem;
-  background:var(--bg-2);border:1px solid var(--borda);border-left:3px solid var(--ouro);
+  background:var(--bg-2);border:1px solid var(--borda);border-left:3px solid var(--destaque);
   border-radius:var(--radius);padding:.9rem 1.05rem;width:100%;text-align:left;color:inherit;
 }
 .servico-nome{font-weight:700;font-size:1rem}
 .servico-duracao{color:var(--texto-dim);font-size:.85rem;margin-top:.2rem}
-.servico-preco{color:var(--ouro);font-weight:700;font-size:1rem;flex-shrink:0}
+.servico-preco{color:var(--destaque);font-weight:700;font-size:1rem;flex-shrink:0}
 .servico-preco-sub{display:block;color:var(--texto-dim);font-weight:500;font-size:.72rem;text-transform:none;letter-spacing:0}
 
 .grade-barbeiros{display:grid;gap:.7rem;grid-template-columns:1fr 1fr}
@@ -109,8 +118,10 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 .barbeiro-avatar{
   width:56px;height:56px;border-radius:50%;background:var(--bg-3);border:1px solid var(--borda);
   margin:0 auto .6rem;display:flex;align-items:center;justify-content:center;
-  font-family:"Oswald",sans-serif;font-size:1.3rem;color:var(--ouro);
+  font-family:"Montserrat",sans-serif;font-size:1.3rem;color:var(--destaque);
 }
+img.barbeiro-avatar{object-fit:cover;object-position:60% 35%}
+.grade-barbeiros:has(> :only-child){grid-template-columns:1fr}
 .barbeiro-nome{font-weight:700}
 .barbeiro-especialidade{color:var(--texto-dim);font-size:.82rem;margin-top:.25rem}
 
@@ -119,7 +130,7 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 .tabela-horarios tr:last-child td{border-bottom:0}
 .tabela-horarios td:first-child{color:var(--texto-dim);text-transform:capitalize}
 .tabela-horarios td:last-child{text-align:right;font-weight:600}
-.tabela-horarios tr.linha-hoje td{color:var(--ouro-claro)}
+.tabela-horarios tr.linha-hoje td{color:var(--destaque-forte)}
 .tabela-horarios tr.linha-fechado td:last-child{color:var(--texto-dim);font-weight:500}
 
 .endereco-texto{color:var(--texto-dim);font-size:.95rem;margin-bottom:.9rem}
@@ -127,24 +138,24 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
   display:inline-flex;align-items:center;gap:.5rem;background:var(--bg-3);border:1px solid var(--borda);
   color:var(--texto);border-radius:999px;padding:.65rem 1.1rem;font-size:.9rem;font-weight:600;text-decoration:none;
 }
-.btn-mapa:hover{border-color:var(--ouro)}
+.btn-mapa:hover{border-color:var(--destaque)}
 
 .rodape{max-width:640px;margin:2.6rem auto 1rem;padding:0 1.1rem;text-align:center}
-.link-rodape{background:none;border:0;color:var(--ouro-claro);font-size:.9rem;font-weight:600;text-decoration:underline;padding:.4rem}
+.link-rodape{background:none;border:0;color:var(--destaque-forte);font-size:.9rem;font-weight:600;text-decoration:underline;padding:.4rem}
 .rodape-texto{color:var(--texto-dim);font-size:.8rem;margin-top:.8rem}
 
 /* ---------- Barra inferior ---------- */
 .barra-inferior{
   position:fixed;left:0;right:0;bottom:0;z-index:30;
-  background:var(--ouro);color:#241c08;padding:.95rem 1.1rem;
+  background:var(--destaque);color:#0a0a0a;padding:.95rem 1.1rem;
   padding-bottom:calc(.95rem + env(safe-area-inset-bottom));
-  text-align:center;border:0;width:100%;font-family:"Oswald",sans-serif;
-  font-weight:700;font-size:1.02rem;letter-spacing:.03em;text-transform:uppercase;
+  text-align:center;border:0;width:100%;font-family:"Montserrat",sans-serif;
+  font-weight:700;font-size:1.02rem;letter-spacing:.14em;text-transform:uppercase;
 }
 
 /* ---------- Overlay / painéis ---------- */
 .overlay{
-  position:fixed;inset:0;background:rgba(8,6,3,.65);z-index:40;
+  position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:40;
   display:flex;align-items:flex-end;justify-content:center;
 }
 @media (min-width:720px){.overlay{align-items:center}}
@@ -169,8 +180,8 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 /* Progresso do assistente */
 .etapa-progresso{display:flex;gap:.35rem;margin-bottom:1.1rem}
 .etapa-ponto{flex:1;height:4px;border-radius:2px;background:var(--bg-3)}
-.etapa-ponto.feita{background:var(--ouro)}
-.etapa-ponto.atual{background:var(--ouro-claro)}
+.etapa-ponto.feita{background:var(--destaque)}
+.etapa-ponto.atual{background:var(--destaque-forte)}
 .resumo-mini{
   display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:1.2rem;
 }
@@ -185,10 +196,10 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
   display:flex;justify-content:space-between;align-items:center;gap:.9rem;width:100%;text-align:left;
   background:var(--bg-3);border:1px solid var(--borda);border-radius:12px;padding:.85rem 1rem;color:inherit;
 }
-.opcao-selecionavel.marcada{border-color:var(--ouro);background:rgba(205,160,57,.12)}
+.opcao-selecionavel.marcada{border-color:var(--destaque);background:rgba(255,255,255,.12)}
 .opcao-selecionavel-nome{font-weight:700;font-size:.97rem}
 .opcao-selecionavel-sub{color:var(--texto-dim);font-size:.82rem;margin-top:.2rem}
-.opcao-selecionavel-preco{color:var(--ouro);font-weight:700;font-size:.95rem;flex-shrink:0;white-space:nowrap}
+.opcao-selecionavel-preco{color:var(--destaque);font-weight:700;font-size:.95rem;flex-shrink:0;white-space:nowrap}
 
 .datas-scroll{display:flex;gap:.55rem;overflow-x:auto;padding-bottom:.3rem;scrollbar-width:none}
 .datas-scroll::-webkit-scrollbar{display:none}
@@ -196,10 +207,10 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
   flex-shrink:0;min-width:64px;background:var(--bg-3);border:1px solid var(--borda);border-radius:12px;
   padding:.7rem .5rem;text-align:center;color:var(--texto);
 }
-.data-chip.marcada{border-color:var(--ouro);background:rgba(205,160,57,.14)}
+.data-chip.marcada{border-color:var(--destaque);background:rgba(255,255,255,.14)}
 .data-chip:disabled{opacity:.4}
 .data-chip .dc-dia{display:block;font-size:.72rem;color:var(--texto-dim);text-transform:uppercase}
-.data-chip .dc-numero{display:block;font-family:"Oswald",sans-serif;font-size:1.25rem;margin-top:.15rem}
+.data-chip .dc-numero{display:block;font-family:"Montserrat",sans-serif;font-size:1.25rem;margin-top:.15rem}
 .data-chip .dc-mes{display:block;font-size:.68rem;color:var(--texto-dim)}
 
 .grade-horarios{display:grid;grid-template-columns:repeat(3,1fr);gap:.55rem;margin-top:.9rem}
@@ -208,7 +219,7 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
   background:var(--bg-3);border:1px solid var(--borda);border-radius:10px;padding:.65rem .3rem;
   font-size:.9rem;font-weight:600;color:var(--texto);text-align:center;
 }
-.horario-btn.marcada{background:var(--ouro);border-color:var(--ouro);color:#241c08}
+.horario-btn.marcada{background:var(--destaque);border-color:var(--destaque);color:#0a0a0a}
 .sem-horarios{
   text-align:center;color:var(--texto-dim);padding:2rem 1rem;font-size:.92rem;
 }
@@ -226,11 +237,11 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 
 .etapa-botoes{display:flex;gap:.7rem;margin-top:1.5rem}
 .btn-primario{
-  flex:1;background:var(--ouro);color:#241c08;border:0;border-radius:999px;
-  padding:.95rem;font-size:1rem;font-weight:700;font-family:"Oswald",sans-serif;letter-spacing:.02em;
+  flex:1;background:var(--destaque);color:#0a0a0a;border:0;border-radius:999px;
+  padding:.95rem;font-size:1rem;font-weight:700;font-family:"Montserrat",sans-serif;letter-spacing:.02em;
   text-transform:uppercase;transition:background .15s;
 }
-.btn-primario:hover{background:var(--ouro-claro)}
+.btn-primario:hover{background:var(--destaque-forte)}
 .btn-primario:disabled{background:var(--bg-3);color:var(--texto-dim);cursor:not-allowed}
 .btn-secundario{
   flex:0 0 auto;background:transparent;color:var(--texto);border:1px solid var(--borda);
@@ -250,7 +261,7 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 .confirma-resumo p{font-size:.92rem;padding:.25rem 0;display:flex;justify-content:space-between;gap:.8rem}
 .confirma-resumo p b{font-weight:700;text-align:right}
 .confirma-aviso{
-  background:rgba(205,160,57,.12);border:1px solid var(--ouro-escuro);color:var(--ouro-claro);
+  background:rgba(255,255,255,.12);border:1px solid var(--destaque-suave);color:var(--destaque-forte);
   border-radius:10px;padding:.75rem .9rem;font-size:.84rem;margin-top:1rem;line-height:1.5;
 }
 
@@ -260,8 +271,8 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
   background:var(--bg-3);border:1px solid var(--borda);border-radius:12px;padding:1rem;
 }
 .agendamento-topo{display:flex;justify-content:space-between;align-items:flex-start;gap:.7rem}
-.agendamento-data{font-family:"Oswald",sans-serif;font-size:1.05rem;text-transform:capitalize}
-.agendamento-hora{color:var(--ouro-claro);font-weight:700;font-size:1.1rem}
+.agendamento-data{font-family:"Montserrat",sans-serif;font-size:1.05rem;text-transform:capitalize}
+.agendamento-hora{color:var(--destaque-forte);font-weight:700;font-size:1.1rem}
 .agendamento-detalhe{color:var(--texto-dim);font-size:.85rem;margin-top:.35rem;line-height:1.5}
 .selo-status{
   font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
@@ -280,11 +291,14 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 <body>
 
 <header class="topo">
+  <div class="capa" aria-hidden="true"><span class="logo-script">Rick’</span></div>
+  <img class="foto-perfil" src="rickelme.jpg" alt="Rickelme, barbeiro" width="136" height="136">
   <div class="topo-conteudo">
     <div class="marca">
-      <h1 id="marca-nome">Barba <span class="ouro">Nobre</span></h1>
+      <h1 id="marca-nome">Rickelme Barber</h1>
+      <p class="marca-usuario">@Rickelme_Barber</p>
     </div>
-    <p class="marca-sub">Corte, barba e navalha — no seu horário</p>
+    <p class="marca-sub">Corte, barba e acabamento — no seu horário</p>
     <div class="status-linha">
       <span class="status-bolha" id="status-bolha"></span>
       <span class="status-texto" id="status-texto">Verificando horário…</span>
@@ -305,7 +319,7 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
   </section>
 
   <section class="secao" id="secao-barbeiros">
-    <h2>Equipe</h2>
+    <h2>Barbeiro</h2>
     <div class="grade-barbeiros" id="grade-barbeiros"></div>
   </section>
 
@@ -324,7 +338,7 @@ main{max-width:640px;margin:0 auto;padding:0 1.1rem}
 <footer class="rodape">
   <button class="link-rodape" id="btn-meus-agendamentos" type="button">Ver meus agendamentos</button>
   <button class="link-rodape" id="btn-minha-conta" type="button" hidden>Entrar / Criar conta</button>
-  <p class="rodape-texto">Barba Nobre · o horário só fica garantido depois da confirmação pelo WhatsApp</p>
+  <p class="rodape-texto">Rickelme Barber · o horário só fica garantido depois da confirmação pelo WhatsApp</p>
 </footer>
 
 <button class="barra-inferior" id="barra-agendar" type="button">Agendar horário</button>
@@ -344,9 +358,9 @@ let painelAberto = null;
    1. DADOS DA BARBEARIA — edite nomes, preços e horários aqui
    ========================================================= */
 const BARBEARIA = {
-  nome: 'Barba Nobre',
+  nome: 'Rickelme Barber',
   whatsapp: '559889247025',
-  instagram: 'https://instagram.com/barbanobre',
+  instagram: 'https://instagram.com/rickelme_barber',
   endereco: 'Rua Exemplo, 123 - Centro, Sua Cidade - SP',
   fuso: 'America/Sao_Paulo',
   diasAntecedencia: 14,      // quantos dias pra frente o cliente pode agendar
@@ -364,8 +378,7 @@ const BARBEARIA = {
   },
   barbeiros: [
     { id: 'qualquer', nome: 'Sem preferência', especialidade: 'Primeiro barbeiro livre' },
-    { id: 'carlos', nome: 'Carlos', especialidade: 'Cortes clássicos e navalha' },
-    { id: 'diego', nome: 'Diego', especialidade: 'Fade, risco e desenhos' },
+    { id: 'rickelme', nome: 'Rickelme', especialidade: 'Corte, barba e acabamento', foto: 'rickelme.jpg' },
   ],
   servicos: [
     { id: 'corte', nome: 'Corte', duracaoMin: 30, preco: 40 },
@@ -675,7 +688,9 @@ function renderBarbeiros() {
   const grade = document.getElementById('grade-barbeiros');
   grade.innerHTML = BARBEARIA.barbeiros.filter((b) => b.id !== 'qualquer').map((b) => `
     <div class="barbeiro-card">
-      <div class="barbeiro-avatar">${escaparHTML(b.nome.charAt(0))}</div>
+      ${b.foto
+        ? `<img class="barbeiro-avatar" src="${escaparHTML(b.foto)}" alt="" width="56" height="56">`
+        : `<div class="barbeiro-avatar">${escaparHTML(b.nome.charAt(0))}</div>`}
       <div class="barbeiro-nome">${escaparHTML(b.nome)}</div>
       <div class="barbeiro-especialidade">${escaparHTML(b.especialidade || '')}</div>
     </div>`).join('');
