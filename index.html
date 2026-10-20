@@ -3,87 +3,366 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>pontobio — página de links para criador</title>
-<meta name="description" content="Página de links própria para criador de conteúdo, com kit de mídia e código de criador. Sem marca d'água, sem propaganda de terceiro.">
-<meta name="theme-color" content="#0A0E24">
+<title>Estúdio Ápice — sites profissionais para pequenos negócios</title>
+<meta name="description" content="Sites de agendamento, cardápios digitais e páginas de apresentação para pequenos negócios. Bonitos no celular, com pedidos e agendamentos direto no seu WhatsApp.">
+<meta name="theme-color" content="#07090F">
+<meta property="og:title" content="Estúdio Ápice — sites profissionais para pequenos negócios">
+<meta property="og:description" content="Agendamento online, cardápio digital e páginas de apresentação, com o cliente chegando direto no seu WhatsApp.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--noite:#0A0E24;--noite-2:#141B3D;--borda:#26305C;--azul:#2FA8FF;--laranja:#FF7A2F;--gelo:#E9EEFC;--cinza:#8D98C2}
-*{box-sizing:border-box;margin:0;padding:0}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-body{
-  font-family:"Barlow",system-ui,sans-serif;background:var(--noite);color:var(--gelo);
-  background-image:radial-gradient(120% 55% at 50% -10%,rgba(47,168,255,.16),transparent 60%);
-  background-repeat:no-repeat;min-height:100vh;padding:3rem 1.25rem 4rem;line-height:1.55;
+:root{
+  --bg:#07090f; --bg-2:#0d1119; --superficie:#111723; --borda:#1f2736; --borda-forte:#2c3648;
+  --texto:#eef1f6; --suave:#939cb0; --apagado:#5f6880;
+  --destaque:#5b8cff; --destaque-2:#2dd4bf; --destaque-texto:#06101f;
+  --raio:16px; --largura:1120px;
 }
-.env{max-width:40rem;margin:0 auto}
-h1,h2,h3{font-family:"Chakra Petch",sans-serif;letter-spacing:.01em}
-h1{font-size:clamp(2rem,7vw,2.9rem);line-height:1.1}
-h1 em{font-style:normal;color:var(--azul)}
-.sub{color:var(--cinza);margin-top:1rem;font-size:1.08rem}
+*{box-sizing:border-box;margin:0;padding:0}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:"Inter",system-ui,sans-serif;background:var(--bg);color:var(--texto);line-height:1.6;font-size:16px;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
-:focus-visible{outline:2px solid var(--azul);outline-offset:3px}
+img{display:block;max-width:100%}
+:focus-visible{outline:2px solid var(--destaque);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:"Sora",system-ui,sans-serif;line-height:1.15;letter-spacing:-.02em}
+.env{max-width:var(--largura);margin:0 auto;padding:0 20px}
+.gradiente{background:linear-gradient(90deg,var(--destaque),var(--destaque-2));-webkit-background-clip:text;background-clip:text;color:transparent}
 
-.blocos{margin-top:2.5rem;display:grid;gap:.9rem}
-.item{background:var(--noite-2);border:1px solid var(--borda);border-left:3px solid var(--laranja);border-radius:10px;padding:1rem 1.15rem}
-.item h3{font-size:1.05rem}
-.item p{color:var(--cinza);font-size:.95rem;margin-top:.3rem}
+/* ---------- Topo ---------- */
+.nav{position:sticky;top:0;z-index:20;background:rgba(7,9,15,.78);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(31,39,54,.7)}
+.nav .env{display:flex;align-items:center;justify-content:space-between;height:68px;gap:16px}
+.marca{display:flex;align-items:center;gap:10px;font-family:"Sora",sans-serif;font-weight:700;font-size:1.12rem;letter-spacing:-.01em}
+.marca svg{flex-shrink:0}
+.nav-links{display:flex;gap:28px;font-size:.92rem;color:var(--suave)}
+.nav-links a:hover{color:var(--texto)}
+@media (max-width:820px){.nav-links{display:none}}
 
-h2{margin-top:3rem;font-size:1.3rem}
-.exemplos{margin-top:1rem;display:grid;gap:.7rem}
-.exemplo{display:flex;align-items:center;gap:.8rem;border:1px solid var(--borda);border-radius:10px;padding:.9rem 1.1rem;background:var(--noite-2);transition:border-color .12s,transform .12s}
-.exemplo:hover{border-color:var(--azul);transform:translateX(3px)}
-.exemplo-nome{font-family:"Chakra Petch",sans-serif;font-weight:600}
-.exemplo-sub{font-size:.85rem;color:var(--cinza)}
-.seta{margin-left:auto;color:var(--azul);font-family:"Chakra Petch",sans-serif}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:999px;font-weight:600;font-size:.95rem;padding:12px 22px;transition:transform .15s,background .15s,border-color .15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px)}
+.btn-principal{background:var(--texto);color:var(--bg)}
+.btn-principal:hover{background:#fff}
+.btn-contorno{border:1px solid var(--borda-forte);color:var(--texto)}
+.btn-contorno:hover{border-color:var(--suave)}
+.btn-pequeno{padding:9px 16px;font-size:.88rem}
 
-.cta{display:block;margin-top:2.5rem;text-align:center;background:var(--azul);color:#04122A;font-family:"Chakra Petch",sans-serif;font-weight:700;font-size:1.05rem;border-radius:10px;padding:.95rem}
-.cta:hover{background:#5DBDFF}
-.rodape{margin-top:2.5rem;text-align:center;font-size:.82rem;color:#5C6795}
+/* ---------- Hero ---------- */
+.hero{position:relative;padding:72px 0 88px;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:-30% -10% auto;height:620px;background:
+  radial-gradient(45% 55% at 30% 40%,rgba(91,140,255,.20),transparent 70%),
+  radial-gradient(35% 45% at 75% 30%,rgba(45,212,191,.12),transparent 70%);pointer-events:none}
+.hero .env{position:relative;display:grid;grid-template-columns:1.15fr .85fr;gap:56px;align-items:center}
+@media (max-width:900px){.hero .env{grid-template-columns:1fr;gap:48px}.hero{padding-top:48px}}
+.selo{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--borda-forte);background:rgba(17,23,35,.7);border-radius:999px;padding:6px 14px 6px 8px;font-size:.84rem;color:var(--suave)}
+.selo b{background:rgba(45,212,191,.14);color:var(--destaque-2);border-radius:999px;padding:2px 9px;font-weight:600;font-size:.76rem}
+.hero h1{font-size:clamp(2.3rem,5.4vw,3.9rem);margin-top:22px;font-weight:700}
+.hero-sub{color:var(--suave);font-size:clamp(1.02rem,1.6vw,1.15rem);margin-top:20px;max-width:34rem}
+.hero-acoes{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.hero-pontos{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:32px;font-size:.88rem;color:var(--suave)}
+.hero-pontos span{display:inline-flex;align-items:center;gap:7px}
+.hero-pontos span::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--destaque-2)}
+
+/* Celular com um projeto real rodando ao vivo */
+.celular-area{display:flex;justify-content:center}
+.celular{
+  --l:300px;
+  position:relative;width:var(--l);height:calc(var(--l) * 2.05);border-radius:46px;padding:12px;
+  background:linear-gradient(160deg,#2a3242,#10141d);box-shadow:0 0 0 1px #343e52,0 40px 80px -20px rgba(0,0,0,.8),0 0 120px -30px rgba(91,140,255,.45);
+}
+@media (max-width:380px){.celular{--l:260px}}
+.celular-tela{position:relative;width:100%;height:100%;border-radius:36px;overflow:hidden;background:#0a0a0a}
+/* A escala e a altura do iframe são ajustadas pelo script no fim da página */
+.celular-tela iframe{position:absolute;top:0;left:0;width:390px;height:800px;border:0;transform:scale(.705);transform-origin:0 0;pointer-events:none}
+.celular-ilha{position:absolute;top:22px;left:50%;transform:translateX(-50%);width:88px;height:24px;border-radius:20px;background:#000;z-index:2}
+.celular-legenda{position:absolute;left:50%;bottom:-44px;transform:translateX(-50%);font-size:.82rem;color:var(--apagado);white-space:nowrap}
+
+/* ---------- Seções ---------- */
+.secao{padding:96px 0;border-top:1px solid var(--borda)}
+@media (max-width:700px){.secao{padding:72px 0}}
+.secao-topo{max-width:40rem;margin-bottom:48px}
+.rotulo{font-size:.8rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--destaque)}
+.secao h2{font-size:clamp(1.8rem,3.6vw,2.6rem);margin-top:12px}
+.secao-topo p{color:var(--suave);margin-top:14px;font-size:1.05rem}
+
+.grade{display:grid;gap:16px;grid-template-columns:repeat(4,1fr)}
+@media (max-width:1000px){.grade{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.grade{grid-template-columns:1fr}}
+.cartao{background:var(--superficie);border:1px solid var(--borda);border-radius:var(--raio);padding:26px;transition:border-color .2s,transform .2s}
+.cartao:hover{border-color:var(--borda-forte);transform:translateY(-2px)}
+.icone{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:rgba(91,140,255,.12);color:var(--destaque);margin-bottom:20px}
+.cartao h3{font-size:1.08rem}
+.cartao p{color:var(--suave);font-size:.94rem;margin-top:8px}
+.cartao .para{display:block;margin-top:16px;font-size:.82rem;color:var(--apagado)}
+
+/* Projetos */
+.projetos{display:grid;gap:20px;grid-template-columns:repeat(2,1fr)}
+@media (max-width:820px){.projetos{grid-template-columns:1fr}}
+.projeto{display:grid;grid-template-columns:150px 1fr;gap:24px;align-items:center;background:var(--superficie);border:1px solid var(--borda);border-radius:var(--raio);padding:20px;transition:border-color .2s}
+.projeto:hover{border-color:var(--borda-forte)}
+@media (max-width:460px){.projeto{grid-template-columns:1fr}}
+.mini-tela{position:relative;width:150px;height:300px;border-radius:22px;overflow:hidden;border:6px solid #1c2230;background:#0a0a0a;margin:0 auto}
+.mini-tela iframe{position:absolute;top:0;left:0;width:390px;height:780px;border:0;transform:scale(.354);transform-origin:0 0;pointer-events:none}
+.projeto-tipo{font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--destaque-2)}
+.projeto h3{font-size:1.3rem;margin-top:8px}
+.projeto p{color:var(--suave);font-size:.94rem;margin-top:8px}
+.projeto ul{list-style:none;margin-top:14px;display:grid;gap:6px;font-size:.88rem;color:var(--suave)}
+.projeto li::before{content:"✓";color:var(--destaque-2);margin-right:8px;font-weight:700}
+.projeto .link{display:inline-flex;align-items:center;gap:6px;margin-top:18px;font-weight:600;font-size:.92rem;color:var(--texto)}
+.projeto .link:hover{color:var(--destaque)}
+
+/* Como funciona */
+.passos{display:grid;gap:16px;grid-template-columns:repeat(4,1fr);counter-reset:passo}
+@media (max-width:1000px){.passos{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:560px){.passos{grid-template-columns:1fr}}
+.passo{position:relative;padding:26px;border-radius:var(--raio);border:1px solid var(--borda);background:linear-gradient(180deg,var(--superficie),var(--bg-2))}
+.passo::before{counter-increment:passo;content:"0" counter(passo);font-family:"Sora",sans-serif;font-weight:700;font-size:.9rem;color:var(--destaque)}
+.passo h3{font-size:1.05rem;margin-top:14px}
+.passo p{color:var(--suave);font-size:.93rem;margin-top:8px}
+
+/* Incluso */
+.incluso{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--borda);border:1px solid var(--borda);border-radius:var(--raio);overflow:hidden}
+@media (max-width:820px){.incluso{grid-template-columns:1fr}}
+.incluso div{background:var(--bg-2);padding:28px}
+.incluso h3{font-size:1rem}
+.incluso p{color:var(--suave);font-size:.92rem;margin-top:6px}
+
+/* Perguntas */
+.perguntas{max-width:46rem;display:grid;gap:12px}
+.perguntas details{border:1px solid var(--borda);border-radius:14px;background:var(--superficie);padding:0 22px}
+.perguntas summary{cursor:pointer;list-style:none;padding:20px 0;font-weight:600;display:flex;justify-content:space-between;gap:16px}
+.perguntas summary::-webkit-details-marker{display:none}
+.perguntas summary::after{content:"+";color:var(--suave);font-size:1.3rem;line-height:1}
+.perguntas details[open] summary::after{content:"–"}
+.perguntas details p{color:var(--suave);padding-bottom:20px;font-size:.95rem}
+
+/* Chamada final */
+.final{position:relative;text-align:center;border-radius:28px;padding:72px 24px;overflow:hidden;border:1px solid var(--borda-forte);
+  background:radial-gradient(60% 90% at 50% 0%,rgba(91,140,255,.22),transparent 70%),var(--superficie)}
+.final h2{font-size:clamp(1.9rem,4vw,2.8rem);max-width:36rem;margin:0 auto}
+.final p{color:var(--suave);margin:16px auto 0;max-width:30rem}
+.final .btn{margin-top:32px}
+
+.rodape{padding:40px 0 56px;color:var(--apagado);font-size:.86rem}
+.rodape .env{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.rodape a:hover{color:var(--texto)}
+
+/* Botão flutuante do WhatsApp no celular */
+.zap-flutuante{display:none;position:fixed;right:16px;bottom:16px;z-index:30;width:56px;height:56px;border-radius:50%;background:#25d366;color:#fff;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.45)}
+@media (max-width:820px){.zap-flutuante{display:flex}}
 </style>
 </head>
 <body>
-<div class="env">
 
-  <h1>Sua página de links, <em>sem propaganda dos outros</em>.</h1>
-  <p class="sub">Linktree e Beacons colocam a marca deles na sua página e escondem seus números. Aqui a página é sua, carrega em menos de um segundo e serve para fechar patrocínio.</p>
-
-  <div class="blocos">
-    <div class="item">
-      <h3>Código de criador em destaque</h3>
-      <p>Com botão de copiar e a explicação de por que usar. Código escondido na bio não converte.</p>
-    </div>
-    <div class="item">
-      <h3>Kit de mídia embutido</h3>
-      <p>Alcance, formatos e prazos numa aba só. A marca manda proposta pelo botão, com os campos já prontos.</p>
-    </div>
-    <div class="item">
-      <h3>Todos os canais no lugar certo</h3>
-      <p>TikTok, Instagram, Discord, playlist e YouTube, cada um com o número de seguidores do lado.</p>
-    </div>
-    <div class="item">
-      <h3>Domínio e dados seus</h3>
-      <p>Endereço próprio e painel de cliques hospedado por mim. Nada preso em plataforma de terceiro.</p>
-    </div>
-  </div>
-
-  <h2>Exemplos</h2>
-  <div class="exemplos">
-    <a class="exemplo" href="./forsaken/">
-      <div>
-        <div class="exemplo-nome">forsaken</div>
-        <div class="exemplo-sub">Rocket League · 21 mil no TikTok</div>
-      </div>
-      <span class="seta">ver</span>
+<header class="nav">
+  <div class="env">
+    <a class="marca" href="#topo" aria-label="Estúdio Ápice, início">
+      <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+        <defs><linearGradient id="g" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#5b8cff"/><stop offset="1" stop-color="#2dd4bf"/></linearGradient></defs>
+        <rect width="32" height="32" rx="9" fill="#111723" stroke="#2c3648"/>
+        <path d="M8 22 L16 9 L24 22" fill="none" stroke="url(#g)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Estúdio Ápice
     </a>
+    <nav class="nav-links" aria-label="Seções">
+      <a href="#servicos">Serviços</a>
+      <a href="#projetos">Projetos</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#perguntas">Dúvidas</a>
+    </nav>
+    <a class="btn btn-principal btn-pequeno" href="https://wa.me/5598981790599?text=Ol%C3%A1!%20Quero%20um%20or%C3%A7amento%20de%20site." target="_blank" rel="noopener">Pedir orçamento</a>
   </div>
+</header>
 
-  <a class="cta" href="https://wa.me/5598981790599?text=Quero%20uma%20p%C3%A1gina%20de%20links">Quero a minha</a>
+<main id="topo">
+  <section class="hero">
+    <div class="env">
+      <div>
+        <span class="selo"><b>Novo</b> Agendamento online direto no WhatsApp</span>
+        <h1>Seu negócio com um site <span class="gradiente">profissional</span> e clientes chegando no WhatsApp.</h1>
+        <p class="hero-sub">Criamos sites de agendamento, cardápios digitais e páginas de apresentação para pequenos negócios. Bonitos no celular, rápidos e sem complicação para você.</p>
+        <div class="hero-acoes">
+          <a class="btn btn-principal" href="https://wa.me/5598981790599?text=Ol%C3%A1!%20Quero%20um%20or%C3%A7amento%20de%20site." target="_blank" rel="noopener">Pedir orçamento no WhatsApp</a>
+          <a class="btn btn-contorno" href="#projetos">Ver projetos</a>
+        </div>
+        <div class="hero-pontos">
+          <span>Feito para o celular</span>
+          <span>Painel para você editar</span>
+          <span>Domínio próprio</span>
+        </div>
+      </div>
+      <div class="celular-area">
+        <div class="celular" id="celular">
+          <div class="celular-ilha"></div>
+          <div class="celular-tela">
+            <iframe src="barbearia/" title="Prévia do site da Rick’ Barbearia" loading="lazy" tabindex="-1" scrolling="no"></iframe>
+          </div>
+          <span class="celular-legenda">Projeto real: Rick’ Barbearia, ao vivo</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-  <p class="rodape">pontobio · páginas de links para criador</p>
+  <section class="secao" id="servicos">
+    <div class="env">
+      <div class="secao-topo">
+        <span class="rotulo">Serviços</span>
+        <h2>Tudo o que um pequeno negócio precisa para vender online.</h2>
+        <p>Cada site é feito sob medida para o seu tipo de negócio, com a sua identidade visual.</p>
+      </div>
+      <div class="grade">
+        <article class="cartao">
+          <div class="icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h2M14 14h2M8 17h2"/></svg></div>
+          <h3>Agendamento online</h3>
+          <p>O cliente escolhe serviço, dia e horário livre. Você recebe tudo organizado no WhatsApp e no painel.</p>
+          <span class="para">Barbearias, salões, clínicas, estúdios</span>
+        </article>
+        <article class="cartao">
+          <div class="icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+          <h3>Cardápio digital</h3>
+          <p>Cardápio com fotos, adicionais e sacola. O pedido chega pronto no WhatsApp, inclusive por QR code na mesa.</p>
+          <span class="para">Restaurantes, hamburguerias, delivery</span>
+        </article>
+        <article class="cartao">
+          <div class="icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div>
+          <h3>Site de apresentação</h3>
+          <p>Uma página que mostra quem você é, o que oferece e como contratar. Ideal para quem vende o próprio trabalho.</p>
+          <span class="para">Personal trainers, coaches, autônomos</span>
+        </article>
+        <article class="cartao">
+          <div class="icone"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></div>
+          <h3>Página de links</h3>
+          <p>Todos os seus links num endereço seu, sem marca de outra plataforma. Com kit de mídia para fechar parcerias.</p>
+          <span class="para">Criadores de conteúdo, influenciadores</span>
+        </article>
+      </div>
+    </div>
+  </section>
 
-</div>
+  <section class="secao" id="projetos">
+    <div class="env">
+      <div class="secao-topo">
+        <span class="rotulo">Projetos</span>
+        <h2>Veja funcionando de verdade.</h2>
+        <p>Abra no seu celular e teste como se fosse um cliente.</p>
+      </div>
+      <div class="projetos">
+        <article class="projeto">
+          <div class="mini-tela"><iframe src="barbearia/" title="Prévia da Rick’ Barbearia" loading="lazy" tabindex="-1" scrolling="no"></iframe></div>
+          <div>
+            <span class="projeto-tipo">Agendamento online</span>
+            <h3>Rick’ Barbearia</h3>
+            <p>Barbearia em São Luís - MA. Os clientes agendam pelo site e a confirmação cai direto no WhatsApp.</p>
+            <ul>
+              <li>Horários livres em tempo real</li>
+              <li>Painel do dono com agenda e catálogo</li>
+              <li>Conta do cliente para acompanhar e cancelar</li>
+            </ul>
+            <a class="link" href="barbearia/">Ver o site →</a>
+          </div>
+        </article>
+        <article class="projeto">
+          <div class="mini-tela"><iframe src="academia/" title="Prévia da página de coach de academia" loading="lazy" tabindex="-1" scrolling="no"></iframe></div>
+          <div>
+            <span class="projeto-tipo">Ferramenta interativa</span>
+            <h3>Coach de Academia</h3>
+            <p>Exemplo de app para personal trainer: o aluno calcula a dieta, consulta suplementos e escolhe um treino.</p>
+            <ul>
+              <li>Calculadora de dieta e calorias</li>
+              <li>Guia de suplementos e treinos</li>
+              <li>Acompanhamento do próprio peso</li>
+            </ul>
+            <a class="link" href="academia/">Ver o site →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="como-funciona">
+    <div class="env">
+      <div class="secao-topo">
+        <span class="rotulo">Como funciona</span>
+        <h2>Do primeiro contato ao site no ar, sem dor de cabeça.</h2>
+      </div>
+      <div class="passos">
+        <div class="passo"><h3>Conversa</h3><p>Você conta sobre o seu negócio pelo WhatsApp: serviços, preços, fotos e estilo.</p></div>
+        <div class="passo"><h3>Criação</h3><p>Montamos o site com a sua identidade e mandamos uma prévia para você aprovar.</p></div>
+        <div class="passo"><h3>No ar</h3><p>Publicamos no seu endereço e deixamos tudo pronto para divulgar na bio e no WhatsApp.</p></div>
+        <div class="passo"><h3>Acompanhamento</h3><p>Você atualiza preços e horários pelo painel, e a gente segue por perto para ajustes.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao">
+    <div class="env">
+      <div class="secao-topo">
+        <span class="rotulo">Incluso</span>
+        <h2>Feito para durar e para você ter controle.</h2>
+      </div>
+      <div class="incluso">
+        <div><h3>Seu domínio</h3><p>Um endereço próprio, com o nome do seu negócio.</p></div>
+        <div><h3>Painel do dono</h3><p>Edite serviços, preços e horários sem mexer em código.</p></div>
+        <div><h3>Segurança</h3><p>Login protegido e dados dos seus clientes guardados com regras de acesso.</p></div>
+        <div><h3>Rápido no celular</h3><p>Carrega em segundos, mesmo com internet fraca.</p></div>
+        <div><h3>Sem propaganda</h3><p>Nenhuma marca de plataforma de terceiros no seu site.</p></div>
+        <div><h3>Ajustes</h3><p>Mudou algo no negócio? A gente atualiza o site com você.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao" id="perguntas">
+    <div class="env">
+      <div class="secao-topo">
+        <span class="rotulo">Dúvidas</span>
+        <h2>Perguntas frequentes</h2>
+      </div>
+      <div class="perguntas">
+        <details><summary>Preciso entender de tecnologia?</summary><p>Não. A gente cuida de toda a parte técnica. Depois de pronto, você só usa o painel, que é simples como mexer no celular.</p></details>
+        <details><summary>Quanto tempo leva para ficar pronto?</summary><p>Depende do tipo de site, mas a maioria fica pronta em poucos dias depois que recebemos as informações e as fotos.</p></details>
+        <details><summary>Posso usar um endereço com o nome do meu negócio?</summary><p>Pode. Ajudamos você a registrar o domínio e deixamos o site funcionando nele.</p></details>
+        <details><summary>Como o meu cliente agenda ou faz o pedido?</summary><p>Ele escolhe tudo pelo site e, ao confirmar, a mensagem pronta abre no WhatsApp. Você recebe e responde como já faz hoje.</p></details>
+        <details><summary>Consigo mudar preços e horários depois?</summary><p>Sim, pelo painel do dono. As mudanças aparecem no site em poucos minutos.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao">
+    <div class="env">
+      <div class="final">
+        <h2>Vamos colocar o seu negócio no ar?</h2>
+        <p>Chama no WhatsApp, conta o que você precisa e receba uma proposta sem compromisso.</p>
+        <a class="btn btn-principal" href="https://wa.me/5598981790599?text=Ol%C3%A1!%20Quero%20um%20or%C3%A7amento%20de%20site." target="_blank" rel="noopener">Falar no WhatsApp</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="rodape">
+  <div class="env">
+    <span>© <span id="ano">2026</span> Estúdio Ápice · Sites profissionais para pequenos negócios</span>
+    <a href="https://wa.me/5598981790599" target="_blank" rel="noopener">WhatsApp (98) 98179-0599</a>
+  </div>
+</footer>
+
+<a class="zap-flutuante" href="https://wa.me/5598981790599?text=Ol%C3%A1!%20Quero%20um%20or%C3%A7amento%20de%20site." target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.2-.4.2-.4.7-1.3.1-.2 0-.3 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.2-1.2-.1-.1-.3-.2-.5-.3z"/></svg>
+</a>
+
+<script>
+// Ajusta a escala do site dentro do celular do topo ao tamanho real da moldura
+(function () {
+  const celular = document.getElementById('celular');
+  const iframe = celular.querySelector('iframe');
+  function ajustar() {
+    const tela = celular.querySelector('.celular-tela');
+    const escala = tela.clientWidth / 390;
+    iframe.style.transform = `scale(${escala})`;
+    iframe.style.height = `${tela.clientHeight / escala}px`;
+  }
+  ajustar();
+  window.addEventListener('resize', ajustar);
+  document.getElementById('ano').textContent = new Date().getFullYear();
+})();
+</script>
 </body>
 </html>
