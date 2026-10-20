@@ -9,13 +9,43 @@ service cloud.firestore {
       allow write: if request.auth != null && request.auth.token.owner == true;
     }
 
-    // Agendamentos: qualquer um pode criar (cliente sem conta inclusive).
+    function ehDono() {
+      return request.auth != null && request.auth.token.owner == true;
+    }
+
+    // Agendamento criado pelo site público: só os campos que o site manda,
+    // com tipo e tamanho conferidos, status inicial fixo e, se vier
+    // clienteUid, ele tem que ser o do próprio cliente logado.
+    function agendamentoDoSiteValido() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['servicoId', 'servicoNome', 'servicoPreco', 'barbeiroId', 'barbeiroNome',
+                               'data', 'horarioMin', 'clienteNome', 'telefone', 'obs', 'clienteUid',
+                               'status', 'origem', 'criadoEm'])
+        && d.keys().hasAll(['servicoId', 'barbeiroId', 'data', 'horarioMin', 'clienteNome', 'telefone',
+                            'status', 'origem', 'criadoEm'])
+        && d.status == 'confirmado' && d.origem == 'site' && d.criadoEm == request.time
+        && d.servicoId is string && d.servicoId.size() <= 60
+        && d.barbeiroId is string && d.barbeiroId.size() <= 60
+        && (!('servicoNome' in d) || (d.servicoNome is string && d.servicoNome.size() <= 100))
+        && (!('barbeiroNome' in d) || (d.barbeiroNome is string && d.barbeiroNome.size() <= 100))
+        && (!('servicoPreco' in d) || d.servicoPreco is number)
+        && d.data is string && d.data.matches('[0-9]{4}-[0-9]{2}-[0-9]{2}')
+        && d.horarioMin is int && d.horarioMin >= 0 && d.horarioMin < 1440
+        && d.clienteNome is string && d.clienteNome.size() > 0 && d.clienteNome.size() <= 80
+        && d.telefone is string && d.telefone.size() <= 20
+        && (!('obs' in d) || (d.obs is string && d.obs.size() <= 500))
+        && (!('clienteUid' in d) || d.clienteUid == null
+            || (request.auth != null && d.clienteUid == request.auth.uid));
+    }
+
+    // Agendamentos: qualquer um pode criar pelo site (cliente sem conta
+    // inclusive), desde que passe na validação acima; o dono cria livre.
     // Leitura: o dono vê tudo; um cliente logado só enxerga os dele.
     // Atualização: o dono pode tudo; um cliente logado só pode cancelar
     // o próprio agendamento (e só o campo "status", pra "cancelado").
     // Exclusão: só o dono.
     match /agendamentos/{id} {
-      allow create: if true;
+      allow create: if ehDono() || agendamentoDoSiteValido();
       allow read: if request.auth != null &&
         (request.auth.token.owner == true || resource.data.clienteUid == request.auth.uid);
       allow update: if request.auth != null && (

@@ -61,6 +61,7 @@ h1,h2,h3{font-family:"Oswald",system-ui,sans-serif;letter-spacing:.02em}
   width:100%;margin-top:1.4rem;background:var(--bg-3);border:1px solid var(--borda);color:var(--texto);
   border-radius:10px;padding:.8rem .9rem;font-size:1rem;text-align:center;letter-spacing:.1em;
 }
+.login-caixa input + input{margin-top:.6rem}
 .login-caixa .btn-primario{width:100%;margin-top:1rem}
 .login-erro{color:var(--erro);font-size:.85rem;margin-top:.8rem}
 
@@ -206,8 +207,9 @@ details.avancado textarea{
 <div class="tela-login" id="tela-login">
   <div class="login-caixa">
     <h1>Barba Nobre</h1>
-    <p>Painel do dono — digite a senha para entrar</p>
-    <input type="password" id="in-senha" placeholder="Senha" inputmode="numeric" autocomplete="off">
+    <p id="login-instrucao">Painel do dono — digite a senha para entrar</p>
+    <input type="email" id="in-email" placeholder="E-mail" autocomplete="username" hidden>
+    <input type="password" id="in-senha" placeholder="Senha" autocomplete="current-password">
     <button class="btn-primario" id="btn-entrar" type="button">Entrar</button>
     <p class="login-erro" id="login-erro" hidden>Senha incorreta.</p>
   </div>
@@ -349,10 +351,10 @@ details.avancado textarea{
         <b>Catálogo</b>, além de liberar a edição de serviços/preços/horários, sua <b>Agenda</b> inteira passa a
         sincronizar automaticamente entre aparelhos, e os agendamentos feitos pelo site aparecem sozinhos, sem
         precisar digitar cada um manualmente. Veja como configurar no README, na pasta <b>barbearia/</b>.</p>
-        <p style="margin-top:.8rem"><b>Senha simples do painel:</b> é apenas uma trava contra curiosos —
-        qualquer pessoa que veja o código-fonte deste arquivo consegue ler a senha. Não guarde aqui nada que
-        exija segurança de verdade; quem precisa de segurança real é justamente o login do Firebase da aba
-        Catálogo.</p>
+        <p style="margin-top:.8rem"><b>Login do painel:</b> com o Firebase configurado, a entrada do painel
+        usa a sua conta de dono (e-mail e senha do Firebase) — contas de cliente não entram. Sem Firebase,
+        vale a senha simples de <b>CONFIG_PAINEL</b>, que é só uma trava contra curiosos: qualquer pessoa que
+        veja o código-fonte deste arquivo consegue ler.</p>
       </div>
     </section>
   </main>
@@ -365,7 +367,9 @@ details.avancado textarea{
    1. CONFIGURAÇÃO — edite a senha e o WhatsApp aqui
    ========================================================= */
 const CONFIG_PAINEL = {
-  senha: '1234',              // troque por uma senha só sua antes de publicar
+  // Só é usada quando o Firebase NÃO está configurado. Com Firebase, a entrada
+  // exige a conta de dono. Vazia = painel trancado até você definir uma.
+  senha: '',
   whatsapp: '5511999999999',  // mesmo número do site público
   fuso: 'America/Sao_Paulo',
   // Mesma lista de serviços e barbeiros do site público (barbearia/index.html).
@@ -463,22 +467,53 @@ function limparLogin() {
   try { sessionStorage.removeItem('barbanobre-painel-logado'); } catch (e) { /* ignora */ }
 }
 
-function tentarEntrar() {
+function mostrarErroLogin(texto) {
+  const el = document.getElementById('login-erro');
+  el.textContent = texto;
+  el.hidden = false;
+}
+
+async function tentarEntrar() {
   const senha = document.getElementById('in-senha').value;
-  if (senha === CONFIG_PAINEL.senha) {
+  document.getElementById('login-erro').hidden = true;
+  if (firebaseConfigurado) {
+    // Com Firebase, a entrada exige a conta marcada como dono (custom claim
+    // "owner"). Quem abre o painel é o onAuthStateChanged, depois de conferir.
+    const email = document.getElementById('in-email').value.trim();
+    if (!email || !senha) { mostrarErroLogin('Preencha e-mail e senha.'); return; }
+    const btn = document.getElementById('btn-entrar');
+    btn.disabled = true;
+    try {
+      await auth.signInWithEmailAndPassword(email, senha);
+    } catch (e) {
+      mostrarErroLogin('E-mail ou senha inválidos.');
+    } finally {
+      btn.disabled = false;
+    }
+    return;
+  }
+  if (!CONFIG_PAINEL.senha) {
+    mostrarErroLogin('Defina uma senha em CONFIG_PAINEL ou configure o Firebase.');
+  } else if (senha === CONFIG_PAINEL.senha) {
     marcarLogado();
     mostrarApp();
   } else {
-    document.getElementById('login-erro').hidden = false;
+    mostrarErroLogin('Senha incorreta.');
   }
 }
 function mostrarApp() {
+  if (!document.getElementById('app-painel').hidden) return;
   document.getElementById('tela-login').hidden = true;
   document.getElementById('app-painel').hidden = false;
   inicializarApp();
 }
 document.getElementById('btn-entrar').addEventListener('click', tentarEntrar);
 document.getElementById('in-senha').addEventListener('keydown', (e) => { if (e.key === 'Enter') tentarEntrar(); });
+document.getElementById('in-email').addEventListener('keydown', (e) => { if (e.key === 'Enter') tentarEntrar(); });
+if (firebaseConfigurado) {
+  document.getElementById('in-email').hidden = false;
+  document.getElementById('login-instrucao').textContent = 'Painel do dono — entre com sua conta';
+}
 document.getElementById('btn-sair').addEventListener('click', () => {
   limparLogin();
   if (auth && auth.currentUser) auth.signOut().finally(() => location.reload());
@@ -1110,16 +1145,30 @@ async function importarAgendamentosLocaisPraFirebase() {
 }
 
 if (auth) {
-  auth.onAuthStateChanged((user) => {
-    catalogoAutenticado = !!user;
+  auth.onAuthStateChanged(async (user) => {
     const appVisivel = !document.getElementById('app-painel').hidden;
+    if (user) {
+      // Contas de cliente também existem no mesmo Firebase: só a do dono entra
+      let dono = false;
+      try { dono = (await user.getIdTokenResult()).claims.owner === true; } catch (e) { /* trata como não-dono */ }
+      if (!dono) {
+        mostrarErroLogin('Esta conta não tem acesso ao painel do dono.');
+        await auth.signOut();
+        return;
+      }
+    } else if (appVisivel) {
+      // Saiu da conta: o painel volta pra tela de login
+      location.reload();
+      return;
+    }
+    catalogoAutenticado = !!user;
     if (user) {
       modoRemoto = true;
       iniciarListenerAgendamentosRemoto();
+      mostrarApp();
     } else {
       modoRemoto = false;
       pararListenerAgendamentosRemotoFn();
-      if (appVisivel) { agendamentos = carregarAgendamentos(); renderAgenda(); }
     }
     if (appVisivel) {
       dadosCatalogoEdicao = null;
@@ -1142,7 +1191,8 @@ function inicializarApp() {
   carregarCatalogoRemoto();
 }
 
-if (jaEstaLogado()) mostrarApp();
+// Com Firebase, quem abre o painel é o onAuthStateChanged (sessão do dono)
+if (!firebaseConfigurado && jaEstaLogado()) mostrarApp();
 </script>
 </body>
 </html>
