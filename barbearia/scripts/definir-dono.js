@@ -9,13 +9,16 @@
 //   2. npm install firebase-admin --no-save
 //   3. gcloud auth application-default login   (autoriza este script a
 //      agir no seu projeto, sem precisar baixar nenhuma chave)
-//   4. node definir-dono.js seu@email.com barba-nobre-56038
+//   4. GOOGLE_CLOUD_QUOTA_PROJECT=barba-nobre-56038 node definir-dono.js seu@email.com barba-nobre-56038
 //
-// Depois de rodar, saia e entre de novo no painel (aba Catálogo) pra essa
-// permissão valer — o navegador só busca a marcação nova ao logar de novo.
+// Depois de rodar, saia e entre de novo no painel pra essa permissão valer —
+// o navegador só busca a marcação nova ao logar de novo.
 'use strict';
 
-const admin = require('firebase-admin');
+// Imports modulares: as versões novas do firebase-admin não expõem mais
+// admin.credential / admin.auth() pelo require('firebase-admin')
+const { initializeApp, applicationDefault } = require('firebase-admin/app');
+const { getAuth } = require('firebase-admin/auth');
 
 const email = process.argv[2];
 const projectId = process.argv[3];
@@ -25,10 +28,11 @@ if (!email || !projectId) {
   process.exit(1);
 }
 
-admin.initializeApp({ credential: admin.credential.applicationDefault(), projectId });
+initializeApp({ credential: applicationDefault(), projectId });
+const auth = getAuth();
 
-admin.auth().getUserByEmail(email)
-  .then((user) => admin.auth().setCustomUserClaims(user.uid, { owner: true }).then(() => user))
+auth.getUserByEmail(email)
+  .then((user) => auth.setCustomUserClaims(user.uid, { owner: true }).then(() => user))
   .then((user) => {
     console.log(`Pronto! ${email} (uid ${user.uid}) agora é dono no projeto ${projectId}.`);
     process.exit(0);
