@@ -6,7 +6,7 @@
 //
 // Como preencher:
 // 1. Crie um projeto grátis em https://console.firebase.google.com (ou reuse
-//    um projeto que você já tenha criado pra outro site, como a hamburgueria)
+//    um projeto que você já tenha criado pra outro site)
 // 2. No projeto, ative o "Firestore Database" (modo produção) e o
 //    "Authentication" → método de login "E-mail/senha"
 // 3. Em ⚙ Configurações do projeto → Seus apps → </> (Web), registre um app
