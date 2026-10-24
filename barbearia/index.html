@@ -286,6 +286,26 @@ img.barbeiro-avatar{object-fit:cover;object-position:60% 35%}
   padding:.55rem 1rem;font-size:.85rem;font-weight:600;width:100%;
 }
 .agendamentos-vazio{text-align:center;color:var(--texto-dim);padding:2.5rem 1rem;font-size:.92rem}
+.cancelar-pergunta{font-size:.86rem;color:var(--texto-dim);margin-bottom:.6rem}
+.cancelar-botoes{display:grid;grid-template-columns:1fr 1.4fr;gap:.5rem}
+.btn-voltar-cancelar{
+  background:transparent;border:1px solid var(--borda);color:var(--texto);border-radius:999px;
+  padding:.55rem 1rem;font-size:.85rem;font-weight:600;
+}
+.btn-confirmar-cancelar{
+  background:var(--erro);border:1px solid var(--erro);color:#fff;border-radius:999px;
+  padding:.55rem 1rem;font-size:.85rem;font-weight:700;
+}
+.btn-avisar{
+  display:block;text-align:center;text-decoration:none;background:transparent;border:1px solid #3a6b48;color:#8fd3a2;
+  border-radius:999px;padding:.6rem 1rem;font-size:.86rem;font-weight:700;width:100%;
+}
+.aviso-cancelado{
+  background:rgba(224,100,90,.1);border:1px solid var(--erro);border-radius:12px;padding:1rem;margin-bottom:1rem;
+  font-size:.9rem;line-height:1.5;display:flex;flex-direction:column;gap:.75rem;
+}
+.aviso-cancelado b{color:var(--texto)}
+.aviso-cancelado .btn-avisar{background:#25d366;border-color:#25d366;color:#06240f;padding:.8rem 1rem;font-size:.95rem}
 </style>
 </head>
 <body>
@@ -546,16 +566,26 @@ async function tentarCarregarConfigRemota() {
 // isso é só pra não precisar digitar cada agendamento na mão.
 async function salvarAgendamentoRemoto(registro) {
   if (!firebaseDb) return;
+  const dados = {
+    servicoId: registro.servicoId, servicoNome: registro.servicoNome, servicoPreco: registro.servicoPreco,
+    barbeiroId: registro.barbeiroId, barbeiroNome: registro.barbeiroNome,
+    data: registro.data, horarioMin: registro.horarioMin,
+    clienteNome: registro.nome, telefone: registro.telefone, obs: registro.obs,
+    clienteUid: clienteUsuario ? clienteUsuario.uid : null,
+    chaveCancelamento: registro.chaveCancelamento,
+    status: 'confirmado', origem: 'site',
+    criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+  };
   try {
-    const ref = await firebaseDb.collection('agendamentos').add({
-      servicoId: registro.servicoId, servicoNome: registro.servicoNome, servicoPreco: registro.servicoPreco,
-      barbeiroId: registro.barbeiroId, barbeiroNome: registro.barbeiroNome,
-      data: registro.data, horarioMin: registro.horarioMin,
-      clienteNome: registro.nome, telefone: registro.telefone, obs: registro.obs,
-      clienteUid: clienteUsuario ? clienteUsuario.uid : null,
-      status: 'confirmado', origem: 'site',
-      criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
-    });
+    let ref;
+    try { ref = await firebaseDb.collection('agendamentos').add(dados); }
+    catch (e) {
+      // Regras do Firestore ainda sem a chave de cancelamento: grava sem ela.
+      if (!e || e.code !== 'permission-denied') throw e;
+      delete dados.chaveCancelamento;
+      registro.chaveCancelamento = null;
+      ref = await firebaseDb.collection('agendamentos').add(dados);
+    }
     registro.remotoId = ref.id;
     if (!clienteUsuario) salvarMeusAgendamentos(meusAgendamentos);
   } catch (e) { /* agendamento já foi pro WhatsApp; não trava o cliente por isso */ }
@@ -563,7 +593,9 @@ async function salvarAgendamentoRemoto(registro) {
 
 async function cancelarAgendamentoRemoto(registro) {
   if (!firebaseDb || !registro.remotoId) return;
-  try { await firebaseDb.collection('agendamentos').doc(registro.remotoId).update({ status: 'cancelado' }); }
+  const campos = { status: 'cancelado' };
+  if (registro.chaveCancelamento) campos.chaveInformada = registro.chaveCancelamento;
+  try { await firebaseDb.collection('agendamentos').doc(registro.remotoId).update(campos); }
   catch (e) { /* ignora — o cancelamento já foi avisado pelo WhatsApp */ }
 }
 
@@ -962,6 +994,8 @@ function confirmarAgendamento() {
     data: novoAgendamento.data, horarioMin: novoAgendamento.horarioMin,
     nome: novoAgendamento.nome.trim(), telefone: digitos, obs: novoAgendamento.obs.trim(),
     status: 'aguardando', criadoEm: Date.now(),
+    // Segredo que só este aparelho conhece: permite cancelar no Firebase sem conta.
+    chaveCancelamento: gerarChaveCancelamento(),
   };
   if (!clienteUsuario) {
     meusAgendamentos.push(registro);
@@ -973,6 +1007,12 @@ function confirmarAgendamento() {
   const mensagem = montarMensagemAgendamento(registro);
   window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
   renderConfirmacao(registro);
+}
+
+function gerarChaveCancelamento() {
+  const bytes = new Uint8Array(18);
+  (window.crypto || window.msCrypto).getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function montarMensagemAgendamento(ag) {
@@ -1025,11 +1065,19 @@ function converterAgendamentoRemoto(doc) {
   return {
     id: doc.id, servicoNome: d.servicoNome, servicoPreco: d.servicoPreco,
     barbeiroNome: d.barbeiroNome, data: d.data, horarioMin: d.horarioMin,
-    status: d.status, remoto: true,
+    clienteNome: d.clienteNome, status: d.status, remoto: true,
   };
 }
 
 let listaAgendamentosAtual = [];
+let avisoCancelamentoId = null; // horário que o cliente acabou de cancelar
+
+function linkAvisoCancelamento(ag) {
+  const nome = (ag.nome || ag.clienteNome || '').trim();
+  const mensagem = `Olá!${nome ? ' Aqui é ' + nome + '.' : ''} Precisei cancelar meu horário de `
+    + `${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)} (${ag.servicoNome}). Desculpa o transtorno!`;
+  return linkWhatsApp(BARBEARIA.whatsapp, mensagem);
+}
 
 async function renderMeusAgendamentos() {
   const corpo = montarOverlay('Meus agendamentos', '<p class="agendamentos-vazio">Carregando…</p>', 'overlay-meus');
@@ -1058,7 +1106,13 @@ async function renderMeusAgendamentos() {
     return;
   }
 
-  corpo.innerHTML = `<div class="lista-agendamentos">${ordenados.map((ag) => {
+  const recemCancelado = ordenados.find((a) => a.id === avisoCancelamentoId && a.status === 'cancelado');
+  const aviso = recemCancelado ? `<div class="aviso-cancelado" role="status">
+      <span><b>Horário cancelado.</b> Abrimos o WhatsApp com a mensagem de cancelamento pronta: envie pra barbearia ficar sabendo. Se não abriu, toque no botão abaixo.</span>
+      <a class="btn-avisar" href="${linkAvisoCancelamento(recemCancelado)}" target="_blank" rel="noopener">Enviar aviso de cancelamento</a>
+    </div>` : '';
+
+  corpo.innerHTML = aviso + `<div class="lista-agendamentos">${ordenados.map((ag) => {
     const passado = ag.data < hojeISO || (ag.data === hojeISO && ag.horarioMin < agoraMin);
     const finalizado = ag.status === 'cancelado' || ag.status === 'concluido' || ag.status === 'faltou';
     const rotuloStatus = ROTULOS_STATUS_CLIENTE[ag.status] || (passado ? 'Já passou' : 'Aguardando confirmação');
@@ -1078,18 +1132,37 @@ async function renderMeusAgendamentos() {
         ${podeCancelar ? `<div class="agendamento-acoes">
           <button class="btn-cancelar" data-id="${ag.id}" type="button">Cancelar horário</button>
         </div>` : ''}
+        ${ag.status === 'cancelado' && !passado && ag.id !== avisoCancelamentoId ? `<div class="agendamento-acoes">
+          <a class="btn-avisar" href="${linkAvisoCancelamento(ag)}" target="_blank" rel="noopener">Avisar a barbearia pelo WhatsApp</a>
+        </div>` : ''}
       </div>`;
   }).join('')}</div>`;
 
+  // Cancelar pede confirmação no próprio cartão; o "Sim" já abre o WhatsApp
+  // do dono no mesmo toque (igual ao agendamento), o que o celular permite.
   corpo.querySelectorAll('.btn-cancelar').forEach((btn) => {
-    btn.addEventListener('click', () => cancelarAgendamento(btn.dataset.id));
+    btn.addEventListener('click', () => {
+      const acoes = btn.closest('.agendamento-acoes');
+      acoes.innerHTML = `
+        <p class="cancelar-pergunta">Cancelar esse horário? Vamos abrir o WhatsApp da barbearia com a mensagem de cancelamento.</p>
+        <div class="cancelar-botoes">
+          <button class="btn-voltar-cancelar" type="button">Voltar</button>
+          <button class="btn-confirmar-cancelar" type="button">Sim, cancelar</button>
+        </div>`;
+      acoes.querySelector('.btn-voltar-cancelar').addEventListener('click', () => renderMeusAgendamentos());
+      acoes.querySelector('.btn-confirmar-cancelar').addEventListener('click', () => cancelarAgendamento(btn.dataset.id));
+      acoes.querySelector('.btn-confirmar-cancelar').focus();
+    });
   });
 }
 
 async function cancelarAgendamento(id) {
   const ag = listaAgendamentosAtual.find((a) => a.id === id);
   if (!ag) return;
-  if (!confirm(`Cancelar o horário de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}?`)) return;
+  // Abre o WhatsApp antes de qualquer espera, ainda dentro do toque do
+  // cliente: se abrir depois de esperar o Firebase, o celular bloqueia.
+  window.open(linkAvisoCancelamento(ag), '_blank');
+  avisoCancelamentoId = id;
   ag.status = 'cancelado';
 
   if (ag.remoto && firebaseDb) {
@@ -1100,8 +1173,6 @@ async function cancelarAgendamento(id) {
     cancelarAgendamentoRemoto(ag);
   }
 
-  const mensagem = `Olá! Preciso cancelar meu agendamento (${ag.servicoNome}) de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}. Obrigado!`;
-  window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
   renderMeusAgendamentos();
 }
 
