@@ -61,5 +61,21 @@ service cloud.firestore {
     match /donoDispositivos/{token} {
       allow read, write: if request.auth != null && request.auth.token.owner == true;
     }
+
+    // Painel do dono: fichas de clientes (aniversário, observações),
+    // despesas do financeiro, bloqueios/folgas e preferências (meta do
+    // mês, textos do WhatsApp). Só o dono lê e escreve.
+    match /clientes/{id} {
+      allow read, write: if ehDono();
+    }
+    match /despesas/{id} {
+      allow read, write: if ehDono();
+    }
+    match /bloqueios/{id} {
+      allow read, write: if ehDono();
+    }
+    match /painelDono/{doc} {
+      allow read, write: if ehDono();
+    }
   }
 }
