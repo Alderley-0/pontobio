@@ -286,6 +286,16 @@ img.barbeiro-avatar{object-fit:cover;object-position:60% 35%}
   padding:.55rem 1rem;font-size:.85rem;font-weight:600;width:100%;
 }
 .agendamentos-vazio{text-align:center;color:var(--texto-dim);padding:2.5rem 1rem;font-size:.92rem}
+.cancelar-pergunta{font-size:.86rem;color:var(--texto-dim);margin-bottom:.6rem}
+.cancelar-botoes{display:grid;grid-template-columns:1fr 1.4fr;gap:.5rem}
+.btn-voltar-cancelar{
+  background:transparent;border:1px solid var(--borda);color:var(--texto);border-radius:999px;
+  padding:.55rem 1rem;font-size:.85rem;font-weight:600;
+}
+.btn-confirmar-cancelar{
+  background:var(--erro);border:1px solid var(--erro);color:#fff;border-radius:999px;
+  padding:.55rem 1rem;font-size:.85rem;font-weight:700;
+}
 .btn-avisar{
   display:block;text-align:center;text-decoration:none;background:transparent;border:1px solid #3a6b48;color:#8fd3a2;
   border-radius:999px;padding:.6rem 1rem;font-size:.86rem;font-weight:700;width:100%;
@@ -563,6 +573,7 @@ async function salvarAgendamentoRemoto(registro) {
       data: registro.data, horarioMin: registro.horarioMin,
       clienteNome: registro.nome, telefone: registro.telefone, obs: registro.obs,
       clienteUid: clienteUsuario ? clienteUsuario.uid : null,
+      chaveCancelamento: registro.chaveCancelamento,
       status: 'confirmado', origem: 'site',
       criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
     });
@@ -573,7 +584,9 @@ async function salvarAgendamentoRemoto(registro) {
 
 async function cancelarAgendamentoRemoto(registro) {
   if (!firebaseDb || !registro.remotoId) return;
-  try { await firebaseDb.collection('agendamentos').doc(registro.remotoId).update({ status: 'cancelado' }); }
+  const campos = { status: 'cancelado' };
+  if (registro.chaveCancelamento) campos.chaveInformada = registro.chaveCancelamento;
+  try { await firebaseDb.collection('agendamentos').doc(registro.remotoId).update(campos); }
   catch (e) { /* ignora — o cancelamento já foi avisado pelo WhatsApp */ }
 }
 
@@ -972,6 +985,8 @@ function confirmarAgendamento() {
     data: novoAgendamento.data, horarioMin: novoAgendamento.horarioMin,
     nome: novoAgendamento.nome.trim(), telefone: digitos, obs: novoAgendamento.obs.trim(),
     status: 'aguardando', criadoEm: Date.now(),
+    // Segredo que só este aparelho conhece: permite cancelar no Firebase sem conta.
+    chaveCancelamento: gerarChaveCancelamento(),
   };
   if (!clienteUsuario) {
     meusAgendamentos.push(registro);
@@ -983,6 +998,12 @@ function confirmarAgendamento() {
   const mensagem = montarMensagemAgendamento(registro);
   window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
   renderConfirmacao(registro);
+}
+
+function gerarChaveCancelamento() {
+  const bytes = new Uint8Array(18);
+  (window.crypto || window.msCrypto).getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 function montarMensagemAgendamento(ag) {
@@ -1078,7 +1099,7 @@ async function renderMeusAgendamentos() {
 
   const recemCancelado = ordenados.find((a) => a.id === avisoCancelamentoId && a.status === 'cancelado');
   const aviso = recemCancelado ? `<div class="aviso-cancelado" role="status">
-      <span><b>Horário cancelado.</b> Agora avise a barbearia: toque no botão abaixo e o WhatsApp abre com a mensagem pronta, é só enviar.</span>
+      <span><b>Horário cancelado.</b> Abrimos o WhatsApp com a mensagem de cancelamento pronta: envie pra barbearia ficar sabendo. Se não abriu, toque no botão abaixo.</span>
       <a class="btn-avisar" href="${linkAvisoCancelamento(recemCancelado)}" target="_blank" rel="noopener">Enviar aviso de cancelamento</a>
     </div>` : '';
 
@@ -1108,15 +1129,31 @@ async function renderMeusAgendamentos() {
       </div>`;
   }).join('')}</div>`;
 
+  // Cancelar pede confirmação no próprio cartão; o "Sim" já abre o WhatsApp
+  // do dono no mesmo toque (igual ao agendamento), o que o celular permite.
   corpo.querySelectorAll('.btn-cancelar').forEach((btn) => {
-    btn.addEventListener('click', () => cancelarAgendamento(btn.dataset.id));
+    btn.addEventListener('click', () => {
+      const acoes = btn.closest('.agendamento-acoes');
+      acoes.innerHTML = `
+        <p class="cancelar-pergunta">Cancelar esse horário? Vamos abrir o WhatsApp da barbearia com a mensagem de cancelamento.</p>
+        <div class="cancelar-botoes">
+          <button class="btn-voltar-cancelar" type="button">Voltar</button>
+          <button class="btn-confirmar-cancelar" type="button">Sim, cancelar</button>
+        </div>`;
+      acoes.querySelector('.btn-voltar-cancelar').addEventListener('click', () => renderMeusAgendamentos());
+      acoes.querySelector('.btn-confirmar-cancelar').addEventListener('click', () => cancelarAgendamento(btn.dataset.id));
+      acoes.querySelector('.btn-confirmar-cancelar').focus();
+    });
   });
 }
 
 async function cancelarAgendamento(id) {
   const ag = listaAgendamentosAtual.find((a) => a.id === id);
   if (!ag) return;
-  if (!confirm(`Cancelar o horário de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}?`)) return;
+  // Abre o WhatsApp antes de qualquer espera, ainda dentro do toque do
+  // cliente: se abrir depois de esperar o Firebase, o celular bloqueia.
+  window.open(linkAvisoCancelamento(ag), '_blank');
+  avisoCancelamentoId = id;
   ag.status = 'cancelado';
 
   if (ag.remoto && firebaseDb) {
@@ -1127,9 +1164,6 @@ async function cancelarAgendamento(id) {
     cancelarAgendamentoRemoto(ag);
   }
 
-  // O aviso pelo WhatsApp sai por um botão que o próprio cliente toca:
-  // abrir o WhatsApp sozinho depois do cancelamento é bloqueado no celular.
-  avisoCancelamentoId = id;
   renderMeusAgendamentos();
 }
 

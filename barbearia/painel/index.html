@@ -357,6 +357,25 @@ details.avancado textarea{
 }
 .salvar-status{font-size:.85rem;color:var(--texto-dim)}
 
+/* avisos de agendamento novo / cancelamento */
+.avisos{
+  position:fixed;left:0;right:0;top:calc(env(safe-area-inset-top, 0px) + .6rem);z-index:55;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  padding-left:max(12px, env(safe-area-inset-left, 0px));padding-right:max(12px, env(safe-area-inset-right, 0px));
+}
+.aviso-item{
+  pointer-events:auto;width:100%;max-width:520px;display:flex;align-items:center;gap:.6rem;
+  background:var(--bg-3);border:1px solid var(--borda);border-left:4px solid var(--sucesso);border-radius:12px;
+  padding:.7rem .75rem;box-shadow:0 10px 30px rgba(0,0,0,.6);animation:descer .25s ease-out;
+}
+.aviso-item.cancelado{border-left-color:var(--erro)}
+.aviso-texto{flex:1;min-width:0}
+.aviso-texto b{display:block;font-size:.86rem}
+.aviso-texto span{display:block;color:var(--texto-dim);font-size:.8rem}
+.aviso-ver{background:var(--destaque);color:#0a0a0a;border-radius:999px;padding:.42rem .85rem;font-size:.78rem;font-weight:800;flex-shrink:0}
+.aviso-fechar{width:30px;height:30px;border-radius:50%;color:var(--texto-dim);flex-shrink:0}
+@keyframes descer{from{transform:translateY(-12px);opacity:0}to{transform:none;opacity:1}}
+
 /* toast */
 .toast{
   position:fixed;left:50%;bottom:calc(var(--nav-h) + 1.2rem + env(safe-area-inset-bottom));transform:translateX(-50%);
@@ -427,6 +446,7 @@ details.avancado textarea{
 </div>
 
 <div class="toast" id="toast" hidden></div>
+<div class="avisos" id="avisos" aria-live="polite"></div>
 
 <script>
 'use strict';
@@ -666,7 +686,18 @@ async function salvarPrefs(novas) {
 const pararListeners = [];
 function iniciarListenersRemotos() {
   if (!db || pararListeners.length) return;
+  let primeiraCarga = true;
   pararListeners.push(db.collection('agendamentos').orderBy('criadoEm', 'desc').limit(2000).onSnapshot((snap) => {
+    const statusAntes = new Map(estado.agendamentos.map((a) => [a.id, a.status]));
+    if (!primeiraCarga) {
+      snap.docChanges().forEach((ch) => {
+        if (ch.doc.metadata.hasPendingWrites) return; // mudança feita aqui mesmo pelo dono
+        const ag = { id: ch.doc.id, ...ch.doc.data() };
+        if (ch.type === 'added' && ag.origem === 'site' && ag.status !== 'cancelado') avisarDono('novo', ag);
+        if (ch.type === 'modified' && ag.status === 'cancelado' && statusAntes.get(ag.id) !== 'cancelado' && ag.canceladoPor !== 'dono') avisarDono('cancelado', ag);
+      });
+    }
+    primeiraCarga = false;
     estado.agendamentos = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     renderAtual();
   }, (erro) => toast('Não foi possível carregar a agenda (' + (erro.code || erro.message) + ')')));
@@ -1250,6 +1281,9 @@ function montarMais() {
       ${item('catalogo', 'Serviços, preços e expediente', 'Edite o que aparece no site')}
       ${item('mensagens', 'Mensagens do WhatsApp', 'Textos de confirmação e lembrete')}
       ${item('ajuda', 'Como funciona', 'Onde ficam os dados e como os agendamentos chegam')}
+      <button class="menu-item" type="button" data-acao="permitir-notif">
+        <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg></span>
+        <span><b>Notificações do navegador</b><span>${'Notification' in window && Notification.permission === 'granted' ? 'Ativadas neste aparelho' : 'Avisar mesmo com o painel em outra aba'}</span></span><span class="seta">›</span></button>
       <p class="dim" style="font-size:.76rem;margin-top:1.4rem">${DEMO ? 'Modo prévia' : modoRemoto ? 'Sincronizado com o Firebase' : 'Dados salvos só neste aparelho'}</p>`;
     return;
   }
@@ -1286,6 +1320,9 @@ function montarMais() {
         <p><b>Agenda:</b> cada dia mostra a grade de horários do expediente. Os espaços “Livre” podem ser tocados pra marcar
         um cliente na hora. Toque num agendamento pra concluir, reagendar, marcar falta ou cancelar.</p>
         <p><b>Bloqueios:</b> folgas, feriados e compromissos travam os horários na grade da agenda.</p>
+        <p><b>Avisos:</b> com o painel aberto, quando um cliente agenda ou cancela pelo site aparece um aviso no topo, o celular
+        vibra e toca um bipe. Em <b>Mais → Notificações do navegador</b> dá pra receber o aviso mesmo com o painel em outra aba.
+        Com o painel fechado, o aviso chega só pelo WhatsApp que o cliente envia.</p>
         <p><b>Onde ficam os dados:</b> entrando com a conta de dono do Firebase, tudo sincroniza entre aparelhos e os
         agendamentos feitos pelo site aparecem sozinhos. Sem Firebase, os dados ficam só neste navegador.</p>
         <p><b>Lembretes:</b> o WhatsApp não deixa enviar mensagem automática de graça. Por isso o painel abre a conversa com o
@@ -1571,6 +1608,83 @@ async function ativarNotificacoes() {
 }
 
 /* =========================================================
+   8b. AVISOS NO PAINEL — agendamento novo pelo site e
+   cancelamento feito pelo cliente. Aparecem com o painel aberto
+   (em qualquer aba), vibram o celular e, se o dono permitir,
+   viram notificação do navegador quando o painel está em segundo
+   plano.
+   ========================================================= */
+const TITULO_ORIGINAL = document.title;
+function atualizarContadorAvisos() {
+  const n = document.getElementById('avisos').children.length;
+  document.title = n ? `(${n}) ${TITULO_ORIGINAL}` : TITULO_ORIGINAL;
+}
+function tocarSomAviso() {
+  try {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = tocarSomAviso.ctx || (tocarSomAviso.ctx = new Ctx());
+    [0, 0.18].forEach((t) => {
+      const osc = ctx.createOscillator(); const g = ctx.createGain();
+      osc.frequency.value = 880; g.gain.setValueAtTime(0.0001, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.14);
+      osc.connect(g).connect(ctx.destination); osc.start(ctx.currentTime + t); osc.stop(ctx.currentTime + t + 0.15);
+    });
+  } catch (e) { /* sem som */ }
+}
+function avisarDono(tipo, ag) {
+  const titulo = tipo === 'novo' ? 'Novo agendamento pelo site' : 'Cliente cancelou o horário';
+  const texto = `${ag.clienteNome || 'Cliente'} · ${nomeServicoDe(ag)} · ${quandoRelativo(ag.data)} às ${paraHHMM(ag.horarioMin)}`;
+  const lista = document.getElementById('avisos');
+  const el = document.createElement('div');
+  el.className = 'aviso-item ' + tipo;
+  el.setAttribute('role', 'status');
+  el.innerHTML = `
+    <div class="aviso-texto"><b>${titulo}</b><span>${escaparHTML(texto)}</span></div>
+    <button class="aviso-ver" type="button" data-acao="aviso-ver" data-id="${escaparHTML(ag.id)}" data-data="${escaparHTML(ag.data)}">Ver</button>
+    <button class="aviso-fechar" type="button" data-acao="aviso-fechar" aria-label="Dispensar aviso">✕</button>`;
+  lista.prepend(el);
+  while (lista.children.length > 3) lista.lastElementChild.remove();
+  atualizarContadorAvisos();
+  try { if (navigator.vibrate) navigator.vibrate([120, 60, 120]); } catch (e) { /* sem vibração */ }
+  tocarSomAviso();
+  if ('Notification' in window && Notification.permission === 'granted' && document.hidden) {
+    try { new Notification(titulo, { body: texto, tag: ag.id }); } catch (e) { /* ignora */ }
+  }
+}
+async function permitirNotificacoesNavegador() {
+  if (!('Notification' in window)) { toast('Esse navegador não mostra notificações.'); return; }
+  try {
+    const p = await Notification.requestPermission();
+    toast(p === 'granted' ? 'Pronto: com o painel aberto, os avisos aparecem mesmo em outra aba.' : 'Notificações não permitidas neste navegador.');
+  } catch (e) { toast('Este navegador não deixou ativar as notificações.'); }
+  montarMais();
+}
+
+// Na prévia, simula um agendamento novo e um cancelamento pra mostrar os avisos.
+function simularAvisosDemo() {
+  setTimeout(() => {
+    let dia = somarDiasISO(hojeISO(), 1);
+    while (!periodosDoDia(dia).length) dia = somarDiasISO(dia, 1);
+    const livre = montarGrade(dia).livres[0];
+    if (!livre) return;
+    const s = CONFIG_PAINEL.servicos[0];
+    const ag = {
+      id: gerarId(), data: dia, horarioMin: livre.min, servicoId: s.id, servicoNome: s.nome, servicoPreco: s.preco, duracaoMin: s.duracaoMin,
+      barbeiroId: 'rickelme', barbeiroNome: 'Rickelme', clienteNome: 'Pedro Henrique', telefone: '98900000201', obs: '',
+      status: 'confirmado', origem: 'site', criadoEm: Date.now(),
+    };
+    estado.agendamentos.push(ag); renderAtual(); avisarDono('novo', ag);
+  }, 5000);
+  setTimeout(() => {
+    const alvo = estado.agendamentos.find((a) => a.status === 'confirmado' && a.data > hojeISO() && a.clienteNome !== 'Pedro Henrique');
+    if (!alvo) return;
+    alvo.status = 'cancelado'; renderAtual(); avisarDono('cancelado', alvo);
+  }, 12000);
+}
+
+/* =========================================================
    9. FICHA (bottom sheet) e cliques
    ========================================================= */
 let focoAntesSheet = null;
@@ -1625,6 +1739,14 @@ document.addEventListener('click', async (e) => {
   const id = el.dataset.id;
   switch (a) {
     case 'fechar-sheet': fecharSheet(); break;
+    case 'aviso-fechar': el.closest('.aviso-item').remove(); atualizarContadorAvisos(); break;
+    case 'aviso-ver':
+      el.closest('.aviso-item').remove(); atualizarContadorAvisos();
+      dataSel = el.dataset.data; modoAgenda = 'dia';
+      if (viewAtual !== 'agenda') trocarView('agenda'); else { renderAgenda(); atualizarTopo(); }
+      abrirAgendamento(id);
+      break;
+    case 'permitir-notif': permitirNotificacoesNavegador(); break;
     case 'fab':
     case 'novo-ag': abrirNovoAgendamento({ data: el.dataset.data, hora: el.dataset.hora }); break;
     case 'ir-hoje': dataSel = hojeISO(); renderAgenda(); atualizarTopo(); break;
@@ -1643,6 +1765,8 @@ document.addEventListener('click', async (e) => {
       const st = el.dataset.status;
       if (st === 'cancelado' && !(await confirmar('Cancelar este agendamento?', 'O horário volta a ficar livre na agenda.', 'Cancelar agendamento'))) return;
       const campos = { status: st };
+      if (st === 'cancelado') campos.canceladoPor = 'dono';
+      if (st === 'confirmado') campos.canceladoPor = null;
       if (await atualizarRegistro('agendamentos', id, campos)) { fecharSheet(); toast(st === 'confirmado' ? 'Agendamento reaberto' : st === 'concluido' ? 'Atendimento concluído ✓' : 'Marcado como ' + ROTULOS_STATUS[st].toLowerCase()); }
       break;
     }
@@ -1739,7 +1863,7 @@ function semearDemo() {
    12. INICIALIZAÇÃO
    ========================================================= */
 function inicializarApp() {
-  if (DEMO) { document.getElementById('faixa-demo').hidden = false; semearDemo(); }
+  if (DEMO) { document.getElementById('faixa-demo').hidden = false; semearDemo(); simularAvisosDemo(); }
   else if (!modoRemoto) carregarLocais();
   dataSel = hojeISO();
   trocarView('agenda');
