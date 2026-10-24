@@ -566,17 +566,26 @@ async function tentarCarregarConfigRemota() {
 // isso é só pra não precisar digitar cada agendamento na mão.
 async function salvarAgendamentoRemoto(registro) {
   if (!firebaseDb) return;
+  const dados = {
+    servicoId: registro.servicoId, servicoNome: registro.servicoNome, servicoPreco: registro.servicoPreco,
+    barbeiroId: registro.barbeiroId, barbeiroNome: registro.barbeiroNome,
+    data: registro.data, horarioMin: registro.horarioMin,
+    clienteNome: registro.nome, telefone: registro.telefone, obs: registro.obs,
+    clienteUid: clienteUsuario ? clienteUsuario.uid : null,
+    chaveCancelamento: registro.chaveCancelamento,
+    status: 'confirmado', origem: 'site',
+    criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+  };
   try {
-    const ref = await firebaseDb.collection('agendamentos').add({
-      servicoId: registro.servicoId, servicoNome: registro.servicoNome, servicoPreco: registro.servicoPreco,
-      barbeiroId: registro.barbeiroId, barbeiroNome: registro.barbeiroNome,
-      data: registro.data, horarioMin: registro.horarioMin,
-      clienteNome: registro.nome, telefone: registro.telefone, obs: registro.obs,
-      clienteUid: clienteUsuario ? clienteUsuario.uid : null,
-      chaveCancelamento: registro.chaveCancelamento,
-      status: 'confirmado', origem: 'site',
-      criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
-    });
+    let ref;
+    try { ref = await firebaseDb.collection('agendamentos').add(dados); }
+    catch (e) {
+      // Regras do Firestore ainda sem a chave de cancelamento: grava sem ela.
+      if (!e || e.code !== 'permission-denied') throw e;
+      delete dados.chaveCancelamento;
+      registro.chaveCancelamento = null;
+      ref = await firebaseDb.collection('agendamentos').add(dados);
+    }
     registro.remotoId = ref.id;
     if (!clienteUsuario) salvarMeusAgendamentos(meusAgendamentos);
   } catch (e) { /* agendamento já foi pro WhatsApp; não trava o cliente por isso */ }
