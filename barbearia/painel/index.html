@@ -96,7 +96,7 @@ main{max-width:760px;margin:0 auto;padding:1rem 1.1rem calc(var(--nav-h) + 6rem)
   position:fixed;left:0;right:0;bottom:0;z-index:40;background:#0d0d0d;border-top:1px solid var(--borda);
   padding-bottom:env(safe-area-inset-bottom);
 }
-.barra-nav-itens{max-width:760px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);height:var(--nav-h)}
+.barra-nav-itens{max-width:520px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);height:var(--nav-h)}
 .nav-item{
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2rem;
   color:var(--texto-fraco);font-size:.68rem;font-weight:700;letter-spacing:.02em;
@@ -180,14 +180,6 @@ main{max-width:760px;margin:0 auto;padding:1rem 1.1rem calc(var(--nav-h) + 6rem)
   background:rgba(217,164,65,.12);border:1px solid var(--aviso);color:var(--aviso);
   border-radius:10px;padding:.65rem .85rem;font-size:.84rem;margin-top:.9rem;
 }
-.opcoes-forma{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem}
-.opcao-forma input{position:absolute;opacity:0;pointer-events:none}
-.opcao-forma span{
-  display:block;text-align:center;background:var(--bg-3);border:1px solid var(--borda);border-radius:10px;
-  padding:.7rem .5rem;font-size:.86rem;font-weight:700;
-}
-.opcao-forma input:checked + span{background:var(--destaque);color:#0a0a0a;border-color:var(--destaque)}
-.opcao-forma input:focus-visible + span{outline:2px solid var(--destaque);outline-offset:2px}
 .horarios-sugeridos{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
 .horarios-sugeridos button{
   background:var(--bg-3);border:1px solid var(--borda);border-radius:8px;padding:.35rem .6rem;font-size:.82rem;font-weight:700;
@@ -319,73 +311,6 @@ main{max-width:760px;margin:0 auto;padding:1rem 1.1rem calc(var(--nav-h) + 6rem)
 .ficha-linha{display:flex;justify-content:space-between;gap:1rem;padding:.65rem 0;border-bottom:1px solid var(--borda);font-size:.9rem}
 .ficha-linha span:first-child{color:var(--texto-dim)}
 .ficha-linha span:last-child{text-align:right;font-weight:700}
-.link-cliente{text-decoration:underline;text-underline-offset:3px}
-
-/* ---------- Clientes ---------- */
-.busca{
-  width:100%;background:var(--bg-2);border:1px solid var(--borda);border-radius:12px;padding:.75rem .9rem;font-size:1rem;color:var(--texto);
-}
-.cli-item{
-  display:flex;align-items:center;gap:.8rem;width:100%;text-align:left;padding:.7rem .2rem;border-bottom:1px solid var(--borda);
-}
-.avatar{
-  width:42px;height:42px;border-radius:50%;background:var(--bg-3);border:1px solid var(--borda);flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;font-family:"Montserrat",sans-serif;font-weight:700;font-size:.95rem;
-}
-.cli-meio{flex:1;min-width:0}
-.cli-meio b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cli-meio span{color:var(--texto-dim);font-size:.78rem}
-.cli-direita{text-align:right;font-size:.74rem;color:var(--texto-dim);flex-shrink:0}
-.cli-direita b{display:block;color:var(--texto);font-size:.86rem}
-.perfil-topo{display:flex;align-items:center;gap:.9rem}
-.perfil-topo .avatar{width:56px;height:56px;font-size:1.2rem}
-.perfil-topo b{font-size:1.1rem;display:block}
-.mini-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.45rem;margin-top:1rem}
-.mini-stat{background:var(--bg-3);border-radius:10px;padding:.55rem .4rem;text-align:center}
-.mini-stat b{display:block;font-family:"Montserrat",sans-serif;font-size:.95rem}
-.mini-stat span{font-size:.64rem;color:var(--texto-dim);font-weight:700}
-@media (max-width:380px){.mini-stats{grid-template-columns:repeat(2,1fr)}}
-
-/* ---------- Financeiro / Relatórios ---------- */
-.nav-mes{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem}
-.nav-mes b{font-family:"Montserrat",sans-serif}
-.nav-mes button{width:38px;height:38px;border-radius:50%;background:var(--bg-2);border:1px solid var(--borda);font-size:1.1rem}
-.fin-saldo{text-align:center;padding:1.2rem 1rem}
-.fin-saldo span{color:var(--texto-dim);font-size:.8rem;font-weight:700}
-.fin-saldo b{display:block;font-family:"Montserrat",sans-serif;font-size:2rem;margin-top:.15rem}
-.fin-saldo b.negativo{color:var(--erro)}
-.fin-duplo{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.6rem}
-.fin-duplo .cartao span{color:var(--texto-dim);font-size:.76rem;font-weight:700}
-.fin-duplo .cartao b{display:block;font-family:"Montserrat",sans-serif;font-size:1.15rem;margin-top:.1rem}
-.cor-sucesso{color:var(--sucesso)}
-.cor-erro{color:var(--erro)}
-.meta-topo{display:flex;justify-content:space-between;align-items:baseline;gap:.6rem;font-size:.86rem}
-.meta-barra{height:10px;background:var(--bg-3);border-radius:999px;overflow:hidden;margin-top:.55rem}
-.meta-barra i{display:block;height:100%;background:var(--sucesso);border-radius:999px}
-.meta-rodape{display:flex;justify-content:space-between;color:var(--texto-dim);font-size:.76rem;margin-top:.4rem}
-.lanc{display:flex;align-items:center;gap:.75rem;padding:.7rem 0;border-bottom:1px solid var(--borda);width:100%;text-align:left}
-.lanc-ico{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-weight:800}
-.lanc-ico.entrada{background:rgba(111,174,127,.15);color:var(--sucesso)}
-.lanc-ico.saida{background:rgba(224,100,90,.15);color:var(--erro)}
-.lanc-meio{flex:1;min-width:0}
-.lanc-meio b{display:block;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lanc-meio span{color:var(--texto-dim);font-size:.76rem}
-.lanc-valor{font-family:"Montserrat",sans-serif;font-weight:700;font-size:.9rem;flex-shrink:0}
-.barras{display:flex;flex-direction:column;gap:.6rem}
-.barra-linha{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.2rem .6rem;font-size:.84rem}
-.barra-linha .trilho{grid-column:1 / -1;height:8px;background:var(--bg-3);border-radius:999px;overflow:hidden}
-.barra-linha .trilho i{display:block;height:100%;background:var(--destaque);border-radius:999px}
-.barra-linha .val{color:var(--texto-dim);font-weight:700}
-.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}
-@media (min-width:560px){.kpis{grid-template-columns:repeat(3,1fr)}}
-.kpi{background:var(--bg-2);border:1px solid var(--borda);border-radius:12px;padding:.8rem}
-.kpi b{display:block;font-family:"Montserrat",sans-serif;font-size:1.25rem}
-.kpi span{color:var(--texto-dim);font-size:.74rem;font-weight:700}
-.colunas-semana{display:grid;grid-template-columns:repeat(7,1fr);gap:.4rem;align-items:end;height:130px}
-.coluna{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.3rem;height:100%}
-.coluna i{width:100%;max-width:30px;background:var(--destaque);border-radius:6px 6px 2px 2px;min-height:3px}
-.coluna span{font-size:.66rem;font-weight:800;color:var(--texto-dim);text-transform:uppercase}
-.coluna em{font-style:normal;font-size:.7rem;font-weight:700}
 
 /* ---------- Mais ---------- */
 .menu-item{
@@ -467,9 +392,7 @@ details.avancado textarea{
 
   <main>
     <section class="view ativa" id="view-agenda"></section>
-    <section class="view" id="view-clientes"></section>
-    <section class="view" id="view-financeiro"></section>
-    <section class="view" id="view-relatorios"></section>
+    <section class="view" id="view-bloqueios"></section>
     <section class="view" id="view-mais"></section>
   </main>
 
@@ -482,14 +405,8 @@ details.avancado textarea{
       <button class="nav-item ativo" type="button" data-view="agenda">
         <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.8v3.4M16 2.8v3.4"/></svg></span>Agenda
       </button>
-      <button class="nav-item" type="button" data-view="clientes">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.6"/><path d="M2.8 20c.6-3.4 3.2-5.4 6.2-5.4s5.6 2 6.2 5.4"/><path d="M15.5 4.7a3.4 3.4 0 0 1 0 6.6M17.5 14.9c2 .7 3.3 2.4 3.7 5.1"/></svg></span>Clientes
-      </button>
-      <button class="nav-item" type="button" data-view="financeiro">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="6" width="18.4" height="13.5" rx="2.5"/><path d="M2.8 10h18.4M16.5 14.6h1.5"/><path d="M6 6V4.8A1.8 1.8 0 0 1 7.8 3h8.4"/></svg></span>Financeiro
-      </button>
-      <button class="nav-item" type="button" data-view="relatorios">
-        <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V11M10 20V5M16 20v-6.5M21 20H3"/></svg></span>Relatórios
+      <button class="nav-item" type="button" data-view="bloqueios">
+        <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.6"/><path d="M5.9 5.9l12.2 12.2"/></svg></span>Bloqueios
       </button>
       <button class="nav-item" type="button" data-view="mais">
         <span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span>Mais
@@ -552,16 +469,11 @@ const CONFIG_PAINEL = {
 };
 
 const PREFS_PADRAO = {
-  metaMensal: 4000,
   msgConfirmacao: 'Olá, {nome}! Seu horário na {barbearia} está confirmado: {servico} {data} às {hora}. Qualquer imprevisto é só avisar por aqui. 💈',
   msgLembrete: 'Oi, {nome}! Passando pra lembrar do seu horário {data} às {hora} ({servico}) na {barbearia}. Te espero!',
-  msgAniversario: 'Feliz aniversário, {nome}! 🎉 A {barbearia} deseja um dia incrível. Que tal comemorar de visual novo? Responde aqui que eu separo um horário pra você.',
-  msgRetorno: 'Oi, {nome}! Faz um tempinho que você não aparece na {barbearia}. Bora dar um trato no visual? Me fala o melhor dia que eu vejo um horário. ✂️',
 };
 
-const FORMAS_PAGAMENTO = { pix: 'Pix', dinheiro: 'Dinheiro', debito: 'Cartão de débito', credito: 'Cartão de crédito', cortesia: 'Cortesia' };
-const CATEGORIAS_DESPESA = ['Aluguel', 'Produtos', 'Energia', 'Água', 'Internet', 'Comissão', 'Manutenção', 'Marketing', 'Outros'];
-const ROTULOS_STATUS = { confirmado: 'Agendado', concluido: 'Finalizado', cancelado: 'Cancelado', faltou: 'Faltou' };
+const ROTULOS_STATUS = { confirmado: 'Agendado', concluido: 'Concluído', cancelado: 'Cancelado', faltou: 'Faltou' };
 const SIGLAS_SEMANA = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb'];
 
 /* =========================================================
@@ -679,19 +591,16 @@ async function carregarCatalogoRemoto() {
 }
 
 /* =========================================================
-   4. DADOS — agendamentos, bloqueios, clientes, despesas e
-   preferências. Com Firebase (dono logado) tudo vive no
+   4. DADOS — agendamentos, bloqueios e preferências. Com Firebase (dono logado) tudo vive no
    Firestore; sem Firebase, no navegador deste aparelho; no
    modo prévia (?demo), só na memória.
    ========================================================= */
 const CHAVES_LOCAIS = {
   agendamentos: 'barbanobre-painel-agendamentos',
   bloqueios: 'barbanobre-painel-bloqueios',
-  clientes: 'barbanobre-painel-clientes',
-  despesas: 'barbanobre-painel-despesas',
 };
 const CHAVE_PREFS = 'barbanobre-painel-prefs';
-const estado = { agendamentos: [], bloqueios: [], clientes: [], despesas: [] };
+const estado = { agendamentos: [], bloqueios: [], clientes: [] };
 let prefs = { ...PREFS_PADRAO };
 
 function lerLocal(chave, padrao) {
@@ -761,7 +670,7 @@ function iniciarListenersRemotos() {
     estado.agendamentos = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
     renderAtual();
   }, (erro) => toast('Não foi possível carregar a agenda (' + (erro.code || erro.message) + ')')));
-  for (const col of ['bloqueios', 'clientes', 'despesas']) {
+  for (const col of ['bloqueios']) {
     pararListeners.push(db.collection(col).onSnapshot((snap) => {
       estado[col] = snap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       renderAtual();
@@ -872,16 +781,12 @@ function sair() {
    6. NAVEGAÇÃO ENTRE TELAS
    ========================================================= */
 let viewAtual = 'agenda';
-let subMais = null;              // 'bloqueios' | 'catalogo' | 'mensagens' | 'ajuda' | null
+let subMais = null;              // 'catalogo' | 'mensagens' | 'ajuda' | null
 let dataSel = null;              // dia escolhido na agenda (ISO)
 let modoAgenda = 'dia';          // 'dia' | 'semana'
 let filtroBarbeiro = 'todos';
-let mesFinanceiro = null;        // 'YYYY-MM'
-let periodoRelatorio = 'mes';
-let filtroClientes = 'todos';
-let buscaClientes = '';
 
-const TITULOS = { agenda: 'Agenda', clientes: 'Clientes', financeiro: 'Financeiro', relatorios: 'Relatórios', mais: 'Mais' };
+const TITULOS = { agenda: 'Agenda', bloqueios: 'Bloqueios', mais: 'Mais' };
 
 function trocarView(nome) {
   viewAtual = nome;
@@ -903,14 +808,8 @@ function atualizarTopo() {
     sub.textContent = nomeLoja();
     acao.hidden = dataSel === hojeISO(); acao.textContent = 'Hoje'; acao.dataset.acao = 'ir-hoje';
     fab.setAttribute('aria-label', 'Novo agendamento'); fab.dataset.acao = 'novo-ag';
-  } else if (viewAtual === 'clientes') {
-    sub.textContent = `${listaClientes().length} cliente(s)`;
-    fab.setAttribute('aria-label', 'Novo cliente'); fab.dataset.acao = 'novo-cliente';
-  } else if (viewAtual === 'financeiro') {
-    sub.textContent = 'Receitas, despesas e meta do mês';
-    fab.setAttribute('aria-label', 'Nova despesa'); fab.dataset.acao = 'nova-despesa';
-  } else if (viewAtual === 'relatorios') {
-    sub.textContent = 'Desempenho da barbearia'; fab.hidden = true;
+  } else if (viewAtual === 'bloqueios') {
+    sub.textContent = 'Folgas, feriados e horários fechados'; fab.hidden = true;
   } else {
     sub.textContent = nomeLoja(); fab.hidden = true;
     acao.hidden = false; acao.textContent = 'Sair'; acao.dataset.acao = 'sair';
@@ -920,9 +819,7 @@ function atualizarTopo() {
 // Monta a estrutura da tela (formulários incluídos) e depois os dados.
 function montarView(nome) {
   if (nome === 'agenda') renderAgenda();
-  if (nome === 'clientes') montarClientes();
-  if (nome === 'financeiro') renderFinanceiro();
-  if (nome === 'relatorios') montarRelatorios();
+  if (nome === 'bloqueios') montarBloqueios();
   if (nome === 'mais') montarMais();
   atualizarTopo();
 }
@@ -931,10 +828,7 @@ function montarView(nome) {
 function renderAtual() {
   if (document.getElementById('app-painel').hidden) return;
   if (viewAtual === 'agenda') renderAgenda();
-  if (viewAtual === 'clientes') renderListaClientes();
-  if (viewAtual === 'financeiro') renderFinanceiro();
-  if (viewAtual === 'relatorios') renderRelatorios();
-  if (viewAtual === 'mais' && subMais === 'bloqueios') renderListaBloqueios();
+  if (viewAtual === 'bloqueios') renderListaBloqueios();
   atualizarTopo();
 }
 
@@ -1045,8 +939,7 @@ function htmlDia(iso) {
   const hoje = hojeISO();
   const doDia = agsDoDia(iso).filter((a) => filtroBarbeiro === 'todos' || a.barbeiroId === filtroBarbeiro);
   const ativos = doDia.filter((a) => ativo(a) && a.status !== 'faltou');
-  const previsto = ativos.reduce((s, a) => s + precoDe(a), 0);
-  const recebido = doDia.reduce((s, a) => s + recebidoDe(a), 0);
+  const concluidos = doDia.filter((a) => a.status === 'concluido').length;
   const paraLembrar = doDia.filter((a) => a.status === 'confirmado' && a.telefone);
   const { itens, periodos, diaTodo, livres } = montarGrade(iso);
   const minAgora = iso === hoje ? agoraMin() : null;
@@ -1076,12 +969,11 @@ function htmlDia(iso) {
   return `
     <div class="titulo-dia">
       <h2>${iso === hoje ? 'Hoje, ' + escaparHTML(dataLonga(iso).toLowerCase()) : escaparHTML(dataLonga(iso))}</h2>
-      <span class="dim" style="font-size:.78rem">${livres.length} livre(s)</span>
     </div>
     <div class="resumo-dia">
-      <div class="resumo-item"><b class="tabular">${ativos.length}</b><span>atendimentos</span></div>
-      <div class="resumo-item"><b class="tabular">${formatarPreco(previsto)}</b><span>previsto</span></div>
-      <div class="resumo-item"><b class="tabular">${formatarPreco(recebido)}</b><span>recebido</span></div>
+      <div class="resumo-item"><b class="tabular">${ativos.length}</b><span>agendados</span></div>
+      <div class="resumo-item"><b class="tabular">${concluidos}</b><span>concluídos</span></div>
+      <div class="resumo-item"><b class="tabular">${livres.length}</b><span>horários livres</span></div>
     </div>
     ${paraLembrar.length ? `<button class="btn-lembrar" type="button" data-acao="lembrar-todos" data-data="${iso}">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
@@ -1092,14 +984,15 @@ function htmlDia(iso) {
 }
 
 function htmlSemana(inicio) {
-  let total = 0; let valor = 0;
+  let total = 0; let livresSemana = 0;
   const dias = Array.from({ length: 7 }, (_, i) => {
     const iso = somarDiasISO(inicio, i);
     const ags = agsDoDia(iso).filter((a) => ativo(a) && (filtroBarbeiro === 'todos' || a.barbeiroId === filtroBarbeiro));
-    total += ags.length; valor += ags.reduce((s, a) => s + (a.status === 'faltou' ? 0 : precoDe(a)), 0);
+    total += ags.length;
     const fechado = !periodosDoDia(iso).length;
     const bloq = bloqueiosDoDia(iso).find((b) => b.diaTodo);
     const livres = fechado || bloq ? 0 : montarGrade(iso).livres.length;
+    livresSemana += livres;
     const lista = ags.map((a) => `
       <button class="linha-compacta" type="button" data-acao="abrir-ag" data-id="${escaparHTML(a.id)}">
         <span class="hora tabular">${paraHHMM(a.horarioMin)}</span>
@@ -1115,7 +1008,7 @@ function htmlSemana(inicio) {
   return `
     <div class="resumo-dia" style="margin-top:1rem;grid-template-columns:1fr 1fr">
       <div class="resumo-item"><b class="tabular">${total}</b><span>agendamentos na semana</span></div>
-      <div class="resumo-item"><b class="tabular">${formatarPreco(valor)}</b><span>previsto na semana</span></div>
+      <div class="resumo-item"><b class="tabular">${livresSemana}</b><span>horários livres na semana</span></div>
     </div>${dias}`;
 }
 
@@ -1148,12 +1041,11 @@ function abrirCalendario(ym) {
 function abrirAgendamento(id) {
   const ag = estado.agendamentos.find((a) => a.id === id);
   if (!ag) return;
-  const cli = chaveCliente(ag.clienteNome, ag.telefone);
   const dadosMsg = { nome: ag.clienteNome, data: ag.data, hora: paraHHMM(ag.horarioMin), servico: nomeServicoDe(ag), barbeiro: ag.barbeiroNome };
   let acoes = '';
   if (ag.status === 'confirmado') {
     acoes = `
-      <button class="btn cheio largo" type="button" data-acao="finalizar" data-id="${escaparHTML(ag.id)}">✓ Finalizar e receber</button>
+      <button class="btn cheio largo" type="button" data-acao="status" data-status="concluido" data-id="${escaparHTML(ag.id)}">✓ Concluir atendimento</button>
       ${ag.telefone ? `<a class="btn zap" href="${linkWhatsApp(ag.telefone, preencherModelo(prefs.msgConfirmacao, dadosMsg))}" target="_blank" rel="noopener">Confirmar no Whats</a>
       <a class="btn zap" href="${linkWhatsApp(ag.telefone, preencherModelo(prefs.msgLembrete, dadosMsg))}" target="_blank" rel="noopener">Enviar lembrete</a>` : ''}
       <button class="btn" type="button" data-acao="reagendar" data-id="${escaparHTML(ag.id)}">Reagendar</button>
@@ -1165,8 +1057,6 @@ function abrirAgendamento(id) {
       ${ag.telefone ? `<a class="btn zap" href="${linkWhatsApp(ag.telefone)}" target="_blank" rel="noopener">WhatsApp</a>` : '<span></span>'}
       <button class="btn perigo largo" type="button" data-acao="excluir-ag" data-id="${escaparHTML(ag.id)}">Excluir da agenda</button>`;
   }
-  const pag = ag.status === 'concluido' && ag.pagamento
-    ? `<div class="ficha-linha"><span>Recebido</span><span>${formatarPreco(ag.pagamento.valor)} · ${escaparHTML(FORMAS_PAGAMENTO[ag.pagamento.forma] || ag.pagamento.forma || '')}</span></div>` : '';
   abrirSheet('Agendamento', `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:.8rem">
       <div>
@@ -1176,42 +1066,14 @@ function abrirAgendamento(id) {
       <span class="selo st-${ag.status}">${ROTULOS_STATUS[ag.status] || escaparHTML(ag.status)}</span>
     </div>
     <div class="ficha-linhas">
-      <div class="ficha-linha"><span>Cliente</span><span><button type="button" class="link-cliente" data-acao="abrir-cliente" data-chave="${escaparHTML(cli)}">${escaparHTML(ag.clienteNome)}</button></span></div>
+      <div class="ficha-linha"><span>Cliente</span><span>${escaparHTML(ag.clienteNome)}</span></div>
       ${ag.telefone ? `<div class="ficha-linha"><span>WhatsApp</span><span class="tabular">${escaparHTML(formatarTelefone(ag.telefone))}</span></div>` : ''}
-      <div class="ficha-linha"><span>Serviço</span><span>${escaparHTML(nomeServicoDe(ag))} · ${formatarPreco(ag.servicoPreco != null ? ag.servicoPreco : (servicoDe(ag) || {}).preco)}</span></div>
+      <div class="ficha-linha"><span>Serviço</span><span>${escaparHTML(nomeServicoDe(ag))} · ${formatarPreco(precoDe(ag))}</span></div>
       <div class="ficha-linha"><span>Barbeiro</span><span>${escaparHTML(ag.barbeiroNome || '—')}</span></div>
-      ${pag}
       <div class="ficha-linha"><span>Origem</span><span>${ag.origem === 'site' ? 'Agendado pelo site' : 'Lançado no painel'}</span></div>
       ${ag.obs ? `<div class="ficha-linha"><span>Observação</span><span style="font-weight:500">${escaparHTML(ag.obs)}</span></div>` : ''}
     </div>
     <div class="grade-acoes">${acoes}</div>`);
-}
-
-function abrirFinalizar(id) {
-  const ag = estado.agendamentos.find((a) => a.id === id);
-  if (!ag) return;
-  abrirSheet('Finalizar atendimento', `
-    <p class="dim" style="font-size:.88rem">${escaparHTML(ag.clienteNome)} · ${escaparHTML(nomeServicoDe(ag))}</p>
-    <form id="form-finalizar" data-id="${escaparHTML(ag.id)}">
-      <div class="campo" style="margin-top:1rem"><label for="fin-valor">Valor recebido (R$)</label>
-        <input type="number" id="fin-valor" step="0.01" min="0" inputmode="decimal" value="${precoDe(ag)}"></div>
-      <div class="campo"><span class="rotulo">Forma de pagamento</span>
-        <div class="opcoes-forma">${Object.entries(FORMAS_PAGAMENTO).map(([k, v], i) => `
-          <label class="opcao-forma"><input type="radio" name="forma" value="${k}" ${i === 0 ? 'checked' : ''}><span>${v}</span></label>`).join('')}</div>
-      </div>
-      <button class="btn-primario" type="submit">Finalizar</button>
-    </form>`, (corpo) => {
-    corpo.querySelectorAll('input[name=forma]').forEach((r) => r.addEventListener('change', () => {
-      if (r.checked && r.value === 'cortesia') corpo.querySelector('#fin-valor').value = 0;
-    }));
-    corpo.querySelector('#form-finalizar').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const forma = corpo.querySelector('input[name=forma]:checked').value;
-      const valor = forma === 'cortesia' ? 0 : Number(corpo.querySelector('#fin-valor').value || 0);
-      const ok = await atualizarRegistro('agendamentos', ag.id, { status: 'concluido', pagamento: { forma, valor } });
-      if (ok) { fecharSheet(); toast(`Atendimento finalizado · ${formatarPreco(valor)}`); }
-    });
-  });
 }
 
 function abrirReagendar(id) {
@@ -1262,8 +1124,8 @@ function ligarSugestoes(caixa, inData, inHora, ignorarId) {
 }
 
 /* ---------- Novo agendamento ---------- */
-function abrirNovoAgendamento({ data, hora, chaveCli } = {}) {
-  const cliente = chaveCli ? acharCliente(chaveCli) : null;
+function abrirNovoAgendamento({ data, hora } = {}) {
+  const cliente = null;
   const clientes = listaClientes().sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
   abrirSheet('Novo agendamento', `
     <form id="form-novo" novalidate>
@@ -1371,334 +1233,9 @@ function abrirLembrarTodos(iso) {
 }
 
 /* =========================================================
-   8. CLIENTES
-   ========================================================= */
-function montarClientes() {
-  document.getElementById('view-clientes').innerHTML = `
-    <input type="search" class="busca" id="busca-clientes" placeholder="Buscar por nome ou telefone" value="${escaparHTML(buscaClientes)}" aria-label="Buscar cliente">
-    <div class="chips" style="margin-top:.75rem" id="filtros-clientes">
-      ${[['todos', 'A–Z'], ['recentes', 'Recentes'], ['aniversario', 'Aniversariantes do mês'], ['sumidos', 'Sumidos'], ['top', 'Que mais gastam']]
-        .map(([k, v]) => `<button class="chip ${filtroClientes === k ? 'ativo' : ''}" type="button" data-acao="filtro-clientes" data-f="${k}">${v}</button>`).join('')}
-    </div>
-    <div id="lista-clientes" style="margin-top:.6rem"></div>`;
-  document.getElementById('busca-clientes').addEventListener('input', (e) => { buscaClientes = e.target.value; renderListaClientes(); });
-  renderListaClientes();
-}
-function renderListaClientes() {
-  const alvo = document.getElementById('lista-clientes');
-  if (!alvo) return;
-  document.querySelectorAll('#filtros-clientes .chip').forEach((c) => c.classList.toggle('ativo', c.dataset.f === filtroClientes));
-  const hoje = hojeISO();
-  const mesAtual = hoje.slice(5, 7);
-  const termo = buscaClientes.trim().toLowerCase();
-  const termoDig = soDigitos(termo);
-  let lista = listaClientes().filter((c) => !termo || c.nome.toLowerCase().includes(termo) || (termoDig && c.telefone.includes(termoDig)));
-  let extra = (c) => c.ultimaVisita ? `última: ${quandoRelativo(c.ultimaVisita)}` : (c.proximo ? 'primeira visita marcada' : 'sem visitas');
-  if (filtroClientes === 'todos') lista.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
-  if (filtroClientes === 'recentes') lista = lista.filter((c) => c.ultimaVisita).sort((a, b) => b.ultimaVisita.localeCompare(a.ultimaVisita));
-  if (filtroClientes === 'aniversario') {
-    lista = lista.filter((c) => c.aniversario && c.aniversario.slice(0, 2) === mesAtual).sort((a, b) => a.aniversario.localeCompare(b.aniversario));
-    extra = (c) => `aniversário ${c.aniversario.slice(3)}/${c.aniversario.slice(0, 2)}`;
-  }
-  if (filtroClientes === 'sumidos') {
-    lista = lista.filter((c) => c.ultimaVisita && !c.proximo && diasEntre(c.ultimaVisita, hoje) > 35).sort((a, b) => a.ultimaVisita.localeCompare(b.ultimaVisita));
-    extra = (c) => `há ${diasEntre(c.ultimaVisita, hoje)} dias`;
-  }
-  if (filtroClientes === 'top') lista = lista.filter((c) => c.totalGasto > 0).sort((a, b) => b.totalGasto - a.totalGasto);
-
-  const dicas = {
-    aniversario: 'Clientes com aniversário cadastrado neste mês.',
-    sumidos: 'Vieram antes, mas não aparecem há mais de 35 dias e não têm horário marcado. Bom momento pra chamar de volta.',
-  };
-  alvo.innerHTML = (dicas[filtroClientes] ? `<p class="dim" style="font-size:.8rem;margin:.2rem 0 .4rem">${dicas[filtroClientes]}</p>` : '') + (lista.length ? lista.map((c) => `
-    <button class="cli-item" type="button" data-acao="abrir-cliente" data-chave="${escaparHTML(c.chave)}">
-      <span class="avatar">${escaparHTML(iniciais(c.nome))}</span>
-      <span class="cli-meio"><b>${escaparHTML(c.nome)}</b><span class="tabular">${c.telefone ? escaparHTML(formatarTelefone(c.telefone)) : 'sem telefone'}</span></span>
-      <span class="cli-direita"><b class="tabular">${filtroClientes === 'top' ? formatarPreco(c.totalGasto) : c.visitas + ' visita' + (c.visitas === 1 ? '' : 's')}</b>${escaparHTML(extra(c))}</span>
-    </button>`).join('') : `<p class="lista-vazia">${termo ? 'Nenhum cliente encontrado.' : 'Nenhum cliente aqui ainda.'}</p>`);
-}
-
-function abrirCliente(chave) {
-  const c = acharCliente(chave);
-  if (!c) return;
-  const ticket = c.visitas ? c.totalGasto / c.visitas : 0;
-  const historico = [...c.ags].reverse().slice(0, 30);
-  const anivHoje = c.aniversario && c.aniversario === hojeISO().slice(5);
-  const msgAniv = preencherModelo(prefs.msgAniversario, { nome: c.nome });
-  const msgRetorno = preencherModelo(prefs.msgRetorno, { nome: c.nome });
-  const sumido = c.ultimaVisita && !c.proximo && diasEntre(c.ultimaVisita, hojeISO()) > 35;
-  abrirSheet('Cliente', `
-    <div class="perfil-topo">
-      <span class="avatar">${escaparHTML(iniciais(c.nome))}</span>
-      <div><b>${escaparHTML(c.nome)}</b><span class="dim tabular" style="font-size:.86rem">${c.telefone ? escaparHTML(formatarTelefone(c.telefone)) : 'sem telefone'}</span>
-      ${c.aniversario ? `<div class="dim" style="font-size:.8rem">🎂 ${c.aniversario.slice(3)}/${c.aniversario.slice(0, 2)}${anivHoje ? ' · <b style="color:var(--aviso)">é hoje!</b>' : ''}</div>` : ''}</div>
-    </div>
-    <div class="mini-stats">
-      <div class="mini-stat"><b class="tabular">${c.visitas}</b><span>visitas</span></div>
-      <div class="mini-stat"><b class="tabular">${formatarPreco(c.totalGasto)}</b><span>total gasto</span></div>
-      <div class="mini-stat"><b class="tabular">${formatarPreco(ticket)}</b><span>ticket médio</span></div>
-      <div class="mini-stat"><b class="tabular">${c.faltas}</b><span>faltas</span></div>
-    </div>
-    ${c.proximo ? `<div class="info-banner" style="margin:1rem 0 0">Próximo horário: <b>${escaparHTML(quandoRelativo(c.proximo.data))} às ${paraHHMM(c.proximo.horarioMin)}</b> · ${escaparHTML(nomeServicoDe(c.proximo))}</div>` : ''}
-    ${c.obs ? `<p style="margin-top:1rem;font-size:.88rem"><span class="dim">Observação:</span> ${escaparHTML(c.obs)}</p>` : ''}
-    <div class="grade-acoes">
-      <button class="btn cheio largo" type="button" data-acao="agendar-cliente" data-chave="${escaparHTML(c.chave)}">Agendar horário</button>
-      ${c.telefone ? `<a class="btn zap" href="${linkWhatsApp(c.telefone)}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
-      <button class="btn" type="button" data-acao="editar-cliente" data-chave="${escaparHTML(c.chave)}">Editar dados</button>
-      ${c.telefone && c.aniversario ? `<a class="btn zap" href="${linkWhatsApp(c.telefone, msgAniv)}" target="_blank" rel="noopener">Parabéns 🎉</a>` : ''}
-      ${c.telefone && sumido ? `<a class="btn zap" href="${linkWhatsApp(c.telefone, msgRetorno)}" target="_blank" rel="noopener">Chamar de volta</a>` : ''}
-    </div>
-    <div class="titulo-secao">Histórico</div>
-    ${historico.length ? historico.map((a) => `
-      <button class="linha-compacta" type="button" data-acao="abrir-ag" data-id="${escaparHTML(a.id)}">
-        <span class="hora tabular" style="width:auto;min-width:44px">${dataCurta(a.data)}</span>
-        <span class="meio"><b>${escaparHTML(nomeServicoDe(a))}</b><span>${paraHHMM(a.horarioMin)}${a.status === 'concluido' ? ' · ' + formatarPreco(precoDe(a)) : ''}</span></span>
-        <span class="selo st-${a.status}">${ROTULOS_STATUS[a.status] || ''}</span>
-      </button>`).join('') : '<p class="dim" style="font-size:.86rem">Nenhum atendimento ainda.</p>'}`);
-}
-
-function abrirEditarCliente(chave) {
-  const c = chave ? acharCliente(chave) : null;
-  const aniv = c && c.aniversario ? `${c.aniversario.slice(3)}/${c.aniversario.slice(0, 2)}` : '';
-  abrirSheet(c ? 'Editar cliente' : 'Novo cliente', `
-    <form id="form-cliente" novalidate>
-      <div class="campo" id="campo-cli-nome"><label for="cli-nome">Nome</label><input type="text" id="cli-nome" value="${escaparHTML(c ? c.nome : '')}" autocomplete="off"></div>
-      <div class="linha-2">
-        <div class="campo"><label for="cli-tel">WhatsApp</label><input type="tel" id="cli-tel" placeholder="(98) 99999-9999" value="${escaparHTML(c ? formatarTelefone(c.telefone) : '')}"></div>
-        <div class="campo" id="campo-cli-aniv"><label for="cli-aniv">Aniversário</label><input type="text" id="cli-aniv" placeholder="dd/mm" inputmode="numeric" maxlength="5" value="${escaparHTML(aniv)}"></div>
-      </div>
-      <div class="campo"><label for="cli-obs">Observação</label><textarea id="cli-obs" placeholder="Ex.: gosta do degradê baixo, alérgico a pós-barba X">${escaparHTML(c ? c.obs : '')}</textarea></div>
-      ${c && c.ags.length ? '<p class="dim" style="font-size:.78rem;margin-top:.6rem">O nome e o telefone dos agendamentos antigos continuam como foram marcados.</p>' : ''}
-      <button class="btn-primario" type="submit">Salvar cliente</button>
-      ${c && c.cadastro ? `<button class="btn-texto" type="button" data-acao="remover-cadastro" data-id="${escaparHTML(c.cadastro.id)}" style="margin-top:.8rem">Apagar ficha do cliente</button>` : ''}
-    </form>`, (corpo) => {
-    const inAniv = corpo.querySelector('#cli-aniv');
-    inAniv.addEventListener('input', () => {
-      const d = soDigitos(inAniv.value).slice(0, 4);
-      inAniv.value = d.length > 2 ? d.slice(0, 2) + '/' + d.slice(2) : d;
-    });
-    corpo.querySelector('#form-cliente').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const nome = corpo.querySelector('#cli-nome').value.trim();
-      marcarErroCampo(corpo, 'campo-cli-nome', nome ? '' : 'Digite o nome'); if (!nome) return;
-      let aniversario = null;
-      const a = soDigitos(inAniv.value);
-      if (a) {
-        const dd = Number(a.slice(0, 2)); const mm = Number(a.slice(2, 4));
-        if (a.length !== 4 || dd < 1 || dd > 31 || mm < 1 || mm > 12) { marcarErroCampo(corpo, 'campo-cli-aniv', 'Use dd/mm'); return; }
-        aniversario = `${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
-      }
-      marcarErroCampo(corpo, 'campo-cli-aniv', '');
-      const dados = { nome, telefone: soDigitos(corpo.querySelector('#cli-tel').value), aniversario, obs: corpo.querySelector('#cli-obs').value.trim() };
-      const ok = c && c.cadastro ? await atualizarRegistro('clientes', c.cadastro.id, dados) : !!(await criarRegistro('clientes', dados));
-      if (ok) { fecharSheet(); toast('Cliente salvo ✓'); }
-    });
-  });
-}
-
-/* =========================================================
-   9. FINANCEIRO
-   ========================================================= */
-function despesasDoMes(ym) {
-  return estado.despesas.filter((d) => {
-    if (!d.data) return false;
-    if (d.fixa) return d.data.slice(0, 7) <= ym && (!d.encerradaEm || d.encerradaEm > ym);
-    return d.data.slice(0, 7) === ym;
-  }).map((d) => {
-    if (!d.fixa) return d;
-    const dia = Math.min(Number(d.data.slice(8)), ultimoDiaMes(ym));
-    return { ...d, dataNoMes: `${ym}-${String(dia).padStart(2, '0')}` };
-  });
-}
-function renderFinanceiro() {
-  const alvo = document.getElementById('view-financeiro');
-  const hoje = hojeISO();
-  if (!mesFinanceiro) mesFinanceiro = hoje.slice(0, 7);
-  const ym = mesFinanceiro;
-  const agsMes = estado.agendamentos.filter((a) => a.data && a.data.slice(0, 7) === ym);
-  const concluidos = agsMes.filter((a) => a.status === 'concluido');
-  const receitas = concluidos.reduce((s, a) => s + precoDe(a), 0);
-  const despesas = despesasDoMes(ym);
-  const totalDesp = despesas.reduce((s, d) => s + (Number(d.valor) || 0), 0);
-  const saldo = receitas - totalDesp;
-  const aReceber = agsMes.filter((a) => a.status === 'confirmado' && a.data >= hoje).reduce((s, a) => s + precoDe(a), 0);
-  const meta = Number(prefs.metaMensal) || 0;
-  const pct = meta ? Math.min(100, Math.round((receitas / meta) * 100)) : 0;
-
-  const porForma = {};
-  concluidos.forEach((a) => { const f = (a.pagamento && a.pagamento.forma) || 'naoinformado'; porForma[f] = (porForma[f] || 0) + precoDe(a); });
-  const maxForma = Math.max(1, ...Object.values(porForma));
-
-  const lancamentos = [
-    ...concluidos.map((a) => ({ tipo: 'entrada', data: a.data, ordem: a.data + paraHHMM(a.horarioMin), titulo: `${a.clienteNome}`, sub: `${nomeServicoDe(a)} · ${FORMAS_PAGAMENTO[(a.pagamento || {}).forma] || 'forma não informada'}`, valor: precoDe(a), id: a.id })),
-    ...despesas.map((d) => ({ tipo: 'saida', data: d.dataNoMes || d.data, ordem: (d.dataNoMes || d.data) + '99', titulo: d.descricao || d.categoria, sub: `${d.categoria || 'Despesa'}${d.fixa ? ' · fixa mensal' : ''}`, valor: Number(d.valor) || 0, id: d.id })),
-  ].sort((a, b) => b.ordem.localeCompare(a.ordem));
-
-  alvo.innerHTML = `
-    <div class="nav-mes">
-      <button type="button" data-acao="mes-fin" data-n="-1" aria-label="Mês anterior">‹</button>
-      <b>${escaparHTML(nomeMes(ym))}</b>
-      <button type="button" data-acao="mes-fin" data-n="1" aria-label="Próximo mês">›</button>
-    </div>
-    <div class="cartao fin-saldo"><span>Lucro do mês</span><b class="tabular ${saldo < 0 ? 'negativo' : ''}">${formatarPreco(saldo)}</b></div>
-    <div class="fin-duplo">
-      <div class="cartao"><span>Receitas</span><b class="tabular cor-sucesso">${formatarPreco(receitas)}</b></div>
-      <div class="cartao"><span>Despesas</span><b class="tabular cor-erro">${formatarPreco(totalDesp)}</b></div>
-    </div>
-    <div class="cartao" style="margin-top:.6rem">
-      <div class="meta-topo"><b>Meta do mês</b><button class="btn-texto" type="button" data-acao="editar-meta">${meta ? formatarPreco(meta) + ' · alterar' : 'definir meta'}</button></div>
-      <div class="meta-barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${pct}"><i style="width:${pct}%"></i></div>
-      <div class="meta-rodape"><span>${pct}% atingido</span><span>${meta > receitas ? 'faltam ' + formatarPreco(meta - receitas) : meta ? 'meta batida! 🎉' : ''}</span></div>
-      ${aReceber ? `<p class="dim" style="font-size:.8rem;margin-top:.6rem">Ainda tem <b style="color:var(--texto)">${formatarPreco(aReceber)}</b> em horários marcados até o fim do mês.</p>` : ''}
-    </div>
-    ${Object.keys(porForma).length ? `<div class="titulo-secao">Recebido por forma de pagamento</div>
-    <div class="cartao barras">${Object.entries(porForma).sort((a, b) => b[1] - a[1]).map(([f, v]) => `
-      <div class="barra-linha"><span>${escaparHTML(FORMAS_PAGAMENTO[f] || 'Não informado')}</span><span class="val tabular">${formatarPreco(v)}</span>
-      <span class="trilho"><i style="width:${Math.round((v / maxForma) * 100)}%"></i></span></div>`).join('')}</div>` : ''}
-    <div class="titulo-secao">Lançamentos</div>
-    ${lancamentos.length ? lancamentos.map((l) => `
-      <div class="lanc">
-        <span class="lanc-ico ${l.tipo}">${l.tipo === 'entrada' ? '+' : '−'}</span>
-        <span class="lanc-meio"><b>${escaparHTML(l.titulo)}</b><span>${escaparHTML(dataCurta(l.data))} · ${escaparHTML(l.sub)}</span></span>
-        <span class="lanc-valor tabular ${l.tipo === 'entrada' ? 'cor-sucesso' : 'cor-erro'}">${l.tipo === 'entrada' ? '' : '−'}${formatarPreco(l.valor)}</span>
-        ${l.tipo === 'entrada'
-          ? `<button class="btn" style="padding:.3rem .6rem;font-size:.72rem" type="button" data-acao="abrir-ag" data-id="${escaparHTML(l.id)}" aria-label="Ver atendimento">ver</button>`
-          : `<button class="btn perigo" style="padding:.3rem .6rem;font-size:.72rem" type="button" data-acao="remover-despesa" data-id="${escaparHTML(l.id)}" aria-label="Remover despesa">✕</button>`}
-      </div>`).join('') : '<p class="lista-vazia">Nenhum lançamento neste mês. Atendimentos finalizados entram aqui como receita; use o botão + pra lançar despesas.</p>'}`;
-}
-
-function abrirNovaDespesa() {
-  abrirSheet('Nova despesa', `
-    <form id="form-despesa" novalidate>
-      <div class="campo" id="campo-desp-desc"><label for="desp-desc">Descrição</label><input type="text" id="desp-desc" placeholder="Ex.: Aluguel do salão, lâminas, conta de luz"></div>
-      <div class="linha-2">
-        <div class="campo" id="campo-desp-valor"><label for="desp-valor">Valor (R$)</label><input type="number" id="desp-valor" step="0.01" min="0" inputmode="decimal"></div>
-        <div class="campo"><label for="desp-data">Data</label><input type="date" id="desp-data" value="${hojeISO()}"></div>
-      </div>
-      <div class="campo"><label for="desp-cat">Categoria</label><select id="desp-cat">${CATEGORIAS_DESPESA.map((c) => `<option>${c}</option>`).join('')}</select></div>
-      <label style="display:flex;gap:.6rem;align-items:center;margin-top:1rem;font-size:.9rem">
-        <input type="checkbox" id="desp-fixa" style="width:20px;height:20px"> Despesa fixa (repete todo mês)
-      </label>
-      <button class="btn-primario" type="submit">Lançar despesa</button>
-    </form>`, (corpo) => {
-    corpo.querySelector('#form-despesa').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const descricao = corpo.querySelector('#desp-desc').value.trim();
-      const valor = Number(corpo.querySelector('#desp-valor').value);
-      const data = corpo.querySelector('#desp-data').value;
-      marcarErroCampo(corpo, 'campo-desp-desc', descricao ? '' : 'Descreva a despesa');
-      marcarErroCampo(corpo, 'campo-desp-valor', valor > 0 ? '' : 'Informe o valor');
-      if (!descricao || !(valor > 0) || !data) return;
-      const id = await criarRegistro('despesas', { descricao, valor, data, categoria: corpo.querySelector('#desp-cat').value, fixa: corpo.querySelector('#desp-fixa').checked });
-      if (id) { fecharSheet(); mesFinanceiro = data.slice(0, 7); renderAtual(); toast('Despesa lançada'); }
-    });
-  });
-}
-
-function abrirEditarMeta() {
-  abrirSheet('Meta do mês', `
-    <form id="form-meta">
-      <div class="campo"><label for="meta-valor">Quanto você quer faturar por mês (R$)?</label>
-        <input type="number" id="meta-valor" step="50" min="0" inputmode="decimal" value="${Number(prefs.metaMensal) || ''}">
-        <p class="ajuda">A barra do Financeiro mostra quanto dessa meta os atendimentos finalizados já cobriram.</p></div>
-      <button class="btn-primario" type="submit">Salvar meta</button>
-    </form>`, (corpo) => {
-    corpo.querySelector('#form-meta').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      await salvarPrefs({ metaMensal: Number(corpo.querySelector('#meta-valor').value) || 0 });
-      fecharSheet(); toast('Meta salva');
-    });
-  });
-}
-
-/* =========================================================
-   10. RELATÓRIOS
-   ========================================================= */
-const PERIODOS = { semana: 'Últimos 7 dias', mes: 'Este mês', 'mes-anterior': 'Mês passado', '90d': 'Últimos 90 dias', ano: 'Este ano' };
-function intervaloPeriodo(p) {
-  const hoje = hojeISO();
-  if (p === 'semana') return [somarDiasISO(hoje, -6), hoje];
-  if (p === 'mes') return [hoje.slice(0, 7) + '-01', hoje.slice(0, 7) + '-' + ultimoDiaMes(hoje.slice(0, 7))];
-  if (p === 'mes-anterior') { const ym = somarMeses(hoje.slice(0, 7), -1); return [ym + '-01', ym + '-' + ultimoDiaMes(ym)]; }
-  if (p === '90d') return [somarDiasISO(hoje, -89), hoje];
-  return [hoje.slice(0, 4) + '-01-01', hoje.slice(0, 4) + '-12-31'];
-}
-function montarRelatorios() {
-  document.getElementById('view-relatorios').innerHTML = `
-    <div class="chips" id="chips-periodo">${Object.entries(PERIODOS).map(([k, v]) => `<button class="chip ${periodoRelatorio === k ? 'ativo' : ''}" type="button" data-acao="periodo" data-p="${k}">${v}</button>`).join('')}</div>
-    <div id="relatorio-corpo"></div>`;
-  renderRelatorios();
-}
-function renderRelatorios() {
-  const alvo = document.getElementById('relatorio-corpo');
-  if (!alvo) return;
-  document.querySelectorAll('#chips-periodo .chip').forEach((c) => c.classList.toggle('ativo', c.dataset.p === periodoRelatorio));
-  const [ini, fim] = intervaloPeriodo(periodoRelatorio);
-  const ags = estado.agendamentos.filter((a) => a.data >= ini && a.data <= fim);
-  const feitos = ags.filter((a) => a.status === 'concluido');
-  const faltas = ags.filter((a) => a.status === 'faltou').length;
-  const cancel = ags.filter((a) => a.status === 'cancelado').length;
-  const fat = feitos.reduce((s, a) => s + precoDe(a), 0);
-  const ticket = feitos.length ? fat / feitos.length : 0;
-  const taxaFalta = feitos.length + faltas ? Math.round((faltas / (feitos.length + faltas)) * 100) : 0;
-  const clientes = listaClientes();
-  const novos = clientes.filter((c) => c.primeiraData && c.primeiraData >= ini && c.primeiraData <= fim).length;
-  const atendidos = new Set(feitos.map((a) => chaveCliente(a.clienteNome, a.telefone))).size;
-  const doSite = ags.filter((a) => a.origem === 'site').length;
-
-  const porServico = {};
-  feitos.forEach((a) => { const n = nomeServicoDe(a); porServico[n] = porServico[n] || { qtd: 0, valor: 0 }; porServico[n].qtd++; porServico[n].valor += precoDe(a); });
-  const servs = Object.entries(porServico).sort((a, b) => b[1].valor - a[1].valor);
-  const maxServ = Math.max(1, ...servs.map(([, v]) => v.valor));
-
-  const porDia = [0, 0, 0, 0, 0, 0, 0];
-  feitos.forEach((a) => { porDia[diaSemana(a.data)]++; });
-  const maxDia = Math.max(1, ...porDia);
-
-  const porHora = {};
-  feitos.forEach((a) => { const h = Math.floor(a.horarioMin / 60); porHora[h] = (porHora[h] || 0) + 1; });
-  const horasTop = Object.entries(porHora).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([h]) => `${String(h).padStart(2, '0')}h`);
-
-  const topClientes = clientes.map((c) => {
-    const v = c.ags.filter((a) => a.status === 'concluido' && a.data >= ini && a.data <= fim);
-    return { c, qtd: v.length, valor: v.reduce((s, a) => s + precoDe(a), 0) };
-  }).filter((x) => x.qtd).sort((a, b) => b.valor - a.valor).slice(0, 5);
-
-  if (!ags.length) { alvo.innerHTML = `<p class="lista-vazia">Sem agendamentos em “${PERIODOS[periodoRelatorio]}”.</p>`; return; }
-
-  alvo.innerHTML = `
-    <p class="dim" style="font-size:.78rem;margin:.8rem 0">${escaparHTML(dataCurta(ini))} a ${escaparHTML(dataCurta(fim))}</p>
-    <div class="kpis">
-      <div class="kpi"><b class="tabular">${formatarPreco(fat)}</b><span>faturamento</span></div>
-      <div class="kpi"><b class="tabular">${feitos.length}</b><span>atendimentos finalizados</span></div>
-      <div class="kpi"><b class="tabular">${formatarPreco(ticket)}</b><span>ticket médio</span></div>
-      <div class="kpi"><b class="tabular">${atendidos}</b><span>clientes atendidos · ${novos} novo(s)</span></div>
-      <div class="kpi"><b class="tabular ${taxaFalta >= 15 ? 'cor-erro' : ''}">${taxaFalta}%</b><span>faltas (${faltas}) · ${cancel} cancelado(s)</span></div>
-      <div class="kpi"><b class="tabular">${ags.length ? Math.round((doSite / ags.length) * 100) : 0}%</b><span>agendados pelo site</span></div>
-    </div>
-    ${servs.length ? `<div class="titulo-secao">Serviços que mais faturam</div>
-    <div class="cartao barras">${servs.map(([n, v]) => `
-      <div class="barra-linha"><span>${escaparHTML(n)} <span class="dim">· ${v.qtd}x</span></span><span class="val tabular">${formatarPreco(v.valor)}</span>
-      <span class="trilho"><i style="width:${Math.round((v.valor / maxServ) * 100)}%"></i></span></div>`).join('')}</div>` : ''}
-    <div class="titulo-secao">Atendimentos por dia da semana</div>
-    <div class="cartao"><div class="colunas-semana">${porDia.map((n, i) => `
-      <div class="coluna"><em class="tabular">${n || ''}</em><i style="height:${Math.round((n / maxDia) * 100)}%"></i><span>${SIGLAS_SEMANA[i]}</span></div>`).join('')}</div>
-      ${horasTop.length ? `<p class="dim" style="font-size:.8rem;margin-top:.8rem">Horários mais movimentados: <b style="color:var(--texto)">${horasTop.join(', ')}</b></p>` : ''}
-    </div>
-    ${topClientes.length ? `<div class="titulo-secao">Melhores clientes no período</div>
-    ${topClientes.map((x, i) => `
-      <button class="cli-item" type="button" data-acao="abrir-cliente" data-chave="${escaparHTML(x.c.chave)}">
-        <span class="avatar">${i + 1}º</span>
-        <span class="cli-meio"><b>${escaparHTML(x.c.nome)}</b><span>${x.qtd} atendimento(s)</span></span>
-        <span class="cli-direita"><b class="tabular">${formatarPreco(x.valor)}</b></span>
-      </button>`).join('')}` : ''}`;
-}
-
-/* =========================================================
-   11. MAIS — bloqueios, catálogo, mensagens, ajuda
+   8. BLOQUEIOS E MAIS — catálogo, mensagens, ajuda
    ========================================================= */
 const ICONES_MAIS = {
-  bloqueios: '<path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM5.6 5.6l12.8 12.8"/>',
   catalogo: '<path d="M4 6h16M4 12h16M4 18h10"/>',
   mensagens: '<path d="M21 12a8.5 8.5 0 0 1-12.4 7.6L3 21l1.4-5.3A8.5 8.5 0 1 1 21 12z"/>',
   ajuda: '<circle cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.2-2.4 3.7M12 17.2v.1"/>',
@@ -1710,47 +1247,13 @@ function montarMais() {
       <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONES_MAIS[k]}</svg></span>
       <span><b>${t}</b><span>${s}</span></span><span class="seta">›</span></button>`;
     alvo.innerHTML = `
-      ${item('bloqueios', 'Bloqueios e folgas', 'Feriados, folgas e horários fechados')}
       ${item('catalogo', 'Serviços, preços e expediente', 'Edite o que aparece no site')}
-      ${item('mensagens', 'Mensagens do WhatsApp', 'Textos de confirmação, lembrete e aniversário')}
+      ${item('mensagens', 'Mensagens do WhatsApp', 'Textos de confirmação e lembrete')}
       ${item('ajuda', 'Como funciona', 'Onde ficam os dados e como os agendamentos chegam')}
       <p class="dim" style="font-size:.76rem;margin-top:1.4rem">${DEMO ? 'Modo prévia' : modoRemoto ? 'Sincronizado com o Firebase' : 'Dados salvos só neste aparelho'}</p>`;
     return;
   }
   const voltar = '<button class="voltar" type="button" data-acao="sub-mais" data-sub="">‹ Voltar</button>';
-  if (subMais === 'bloqueios') {
-    alvo.innerHTML = `${voltar}<h2 class="sub-titulo">Bloqueios e folgas</h2>
-      <div class="info-banner">Os bloqueios aparecem na sua agenda e travam os horários na grade do painel.</div>
-      <form id="form-bloqueio" novalidate>
-        <div class="linha-2">
-          <div class="campo" id="campo-bloq-data"><label for="bloq-data">Data</label><input type="date" id="bloq-data" value="${dataSel || hojeISO()}"></div>
-          <div class="campo"><label for="bloq-tipo">Tipo</label><select id="bloq-tipo"><option value="dia">Dia todo</option><option value="periodo">Só um período</option></select></div>
-        </div>
-        <div class="linha-2" id="linha-bloq-horas" hidden>
-          <div class="campo"><label for="bloq-inicio">Das</label><input type="time" id="bloq-inicio" value="12:00"></div>
-          <div class="campo"><label for="bloq-fim">Até</label><input type="time" id="bloq-fim" value="14:00"></div>
-        </div>
-        <div class="campo"><label for="bloq-motivo">Motivo</label><input type="text" id="bloq-motivo" placeholder="Ex.: Folga, feriado, compromisso"></div>
-        <button class="btn-primario" type="submit">Adicionar bloqueio</button>
-      </form>
-      <div class="titulo-secao">Próximos bloqueios</div>
-      <div id="lista-bloqueios"></div>`;
-    document.getElementById('bloq-tipo').addEventListener('change', (e) => { document.getElementById('linha-bloq-horas').hidden = e.target.value !== 'periodo'; });
-    document.getElementById('form-bloqueio').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const data = document.getElementById('bloq-data').value;
-      marcarErroCampo(alvo, 'campo-bloq-data', data ? '' : 'Escolha a data'); if (!data) return;
-      const diaTodo = document.getElementById('bloq-tipo').value === 'dia';
-      const id = await criarRegistro('bloqueios', {
-        data, diaTodo,
-        inicio: diaTodo ? null : document.getElementById('bloq-inicio').value || null,
-        fim: diaTodo ? null : document.getElementById('bloq-fim').value || null,
-        motivo: document.getElementById('bloq-motivo').value.trim(),
-      });
-      if (id) { document.getElementById('bloq-motivo').value = ''; toast('Bloqueio adicionado'); renderListaBloqueios(); }
-    });
-    renderListaBloqueios();
-  }
   if (subMais === 'catalogo') {
     alvo.innerHTML = `${voltar}<h2 class="sub-titulo">Serviços, preços e expediente</h2><div id="catalogo-conteudo"></div>`;
     renderCatalogoTab();
@@ -1758,42 +1261,70 @@ function montarMais() {
   if (subMais === 'mensagens') {
     const campo = (k, t) => `<div class="campo"><label for="msg-${k}">${t}</label><textarea id="msg-${k}" rows="4">${escaparHTML(prefs[k])}</textarea></div>`;
     alvo.innerHTML = `${voltar}<h2 class="sub-titulo">Mensagens do WhatsApp</h2>
-      <div class="info-banner">Esses textos já vêm prontos quando você toca em “Confirmar”, “Enviar lembrete”, “Parabéns” ou “Chamar de volta”. O WhatsApp abre com a mensagem — é só apertar enviar.</div>
+      <div class="info-banner">Esses textos já vêm prontos quando você toca em “Confirmar no Whats” ou “Enviar lembrete”. O WhatsApp abre com a mensagem, é só apertar enviar.</div>
       <p class="dim" style="font-size:.8rem">Palavras entre chaves são trocadas automaticamente:</p>
       <div class="variaveis"><code>{nome}</code><code>{data}</code><code>{hora}</code><code>{servico}</code><code>{barbeiro}</code><code>{barbearia}</code></div>
       <form id="form-msgs" style="margin-top:1rem">
         ${campo('msgConfirmacao', 'Confirmação de agendamento')}
         ${campo('msgLembrete', 'Lembrete do horário')}
-        ${campo('msgAniversario', 'Aniversário')}
-        ${campo('msgRetorno', 'Cliente sumido (chamar de volta)')}
         <button class="btn-primario" type="submit">Salvar mensagens</button>
         <button class="btn-texto" type="button" id="msgs-padrao" style="margin-top:.8rem">Voltar aos textos padrão</button>
       </form>`;
     document.getElementById('form-msgs').addEventListener('submit', async (e) => {
       e.preventDefault();
       const novas = {};
-      ['msgConfirmacao', 'msgLembrete', 'msgAniversario', 'msgRetorno'].forEach((k) => { novas[k] = document.getElementById('msg-' + k).value.trim() || PREFS_PADRAO[k]; });
+      ['msgConfirmacao', 'msgLembrete'].forEach((k) => { novas[k] = document.getElementById('msg-' + k).value.trim() || PREFS_PADRAO[k]; });
       await salvarPrefs(novas); toast('Mensagens salvas');
     });
     document.getElementById('msgs-padrao').addEventListener('click', () => {
-      ['msgConfirmacao', 'msgLembrete', 'msgAniversario', 'msgRetorno'].forEach((k) => { document.getElementById('msg-' + k).value = PREFS_PADRAO[k]; });
+      ['msgConfirmacao', 'msgLembrete'].forEach((k) => { document.getElementById('msg-' + k).value = PREFS_PADRAO[k]; });
     });
   }
   if (subMais === 'ajuda') {
     alvo.innerHTML = `${voltar}<h2 class="sub-titulo">Como funciona este painel</h2>
       <div class="info-banner">
         <p><b>Agenda:</b> cada dia mostra a grade de horários do expediente. Os espaços “Livre” podem ser tocados pra marcar
-        um cliente na hora. Toque num agendamento pra finalizar e registrar o pagamento, reagendar, marcar falta ou cancelar.</p>
-        <p><b>Clientes:</b> a lista se monta sozinha a partir dos agendamentos (pelo telefone). Você pode completar a ficha com
-        aniversário e observações. Os filtros mostram aniversariantes do mês e clientes sumidos pra chamar de volta.</p>
-        <p><b>Financeiro:</b> todo atendimento finalizado entra como receita, com a forma de pagamento. Despesas você lança pelo
-        botão +; as fixas (aluguel, internet) se repetem todo mês sozinhas.</p>
+        um cliente na hora. Toque num agendamento pra concluir, reagendar, marcar falta ou cancelar.</p>
+        <p><b>Bloqueios:</b> folgas, feriados e compromissos travam os horários na grade da agenda.</p>
         <p><b>Onde ficam os dados:</b> entrando com a conta de dono do Firebase, tudo sincroniza entre aparelhos e os
         agendamentos feitos pelo site aparecem sozinhos. Sem Firebase, os dados ficam só neste navegador.</p>
         <p><b>Lembretes:</b> o WhatsApp não deixa enviar mensagem automática de graça. Por isso o painel abre a conversa com o
         texto pronto e você só aperta enviar.</p>
       </div>`;
   }
+}
+function montarBloqueios() {
+  const alvo = document.getElementById('view-bloqueios');
+  alvo.innerHTML = `<div class="info-banner">Os bloqueios aparecem na sua agenda e travam os horários na grade do painel.</div>
+    <form id="form-bloqueio" novalidate>
+      <div class="linha-2">
+        <div class="campo" id="campo-bloq-data"><label for="bloq-data">Data</label><input type="date" id="bloq-data" value="${dataSel || hojeISO()}"></div>
+        <div class="campo"><label for="bloq-tipo">Tipo</label><select id="bloq-tipo"><option value="dia">Dia todo</option><option value="periodo">Só um período</option></select></div>
+      </div>
+      <div class="linha-2" id="linha-bloq-horas" hidden>
+        <div class="campo"><label for="bloq-inicio">Das</label><input type="time" id="bloq-inicio" value="12:00"></div>
+        <div class="campo"><label for="bloq-fim">Até</label><input type="time" id="bloq-fim" value="14:00"></div>
+      </div>
+      <div class="campo"><label for="bloq-motivo">Motivo</label><input type="text" id="bloq-motivo" placeholder="Ex.: Folga, feriado, compromisso"></div>
+      <button class="btn-primario" type="submit">Adicionar bloqueio</button>
+    </form>
+    <div class="titulo-secao">Próximos bloqueios</div>
+    <div id="lista-bloqueios"></div>`;
+  document.getElementById('bloq-tipo').addEventListener('change', (e) => { document.getElementById('linha-bloq-horas').hidden = e.target.value !== 'periodo'; });
+  document.getElementById('form-bloqueio').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = document.getElementById('bloq-data').value;
+    marcarErroCampo(alvo, 'campo-bloq-data', data ? '' : 'Escolha a data'); if (!data) return;
+    const diaTodo = document.getElementById('bloq-tipo').value === 'dia';
+    const id = await criarRegistro('bloqueios', {
+      data, diaTodo,
+      inicio: diaTodo ? null : document.getElementById('bloq-inicio').value || null,
+      fim: diaTodo ? null : document.getElementById('bloq-fim').value || null,
+      motivo: document.getElementById('bloq-motivo').value.trim(),
+    });
+    if (id) { document.getElementById('bloq-motivo').value = ''; toast('Bloqueio adicionado'); renderListaBloqueios(); }
+  });
+  renderListaBloqueios();
 }
 function renderListaBloqueios() {
   const alvo = document.getElementById('lista-bloqueios');
@@ -2040,7 +1571,7 @@ async function ativarNotificacoes() {
 }
 
 /* =========================================================
-   12. FICHA (bottom sheet) e cliques
+   9. FICHA (bottom sheet) e cliques
    ========================================================= */
 let focoAntesSheet = null;
 function abrirSheet(titulo, html, aoMontar) {
@@ -2096,8 +1627,6 @@ document.addEventListener('click', async (e) => {
     case 'fechar-sheet': fecharSheet(); break;
     case 'fab':
     case 'novo-ag': abrirNovoAgendamento({ data: el.dataset.data, hora: el.dataset.hora }); break;
-    case 'novo-cliente': abrirEditarCliente(null); break;
-    case 'nova-despesa': abrirNovaDespesa(); break;
     case 'ir-hoje': dataSel = hojeISO(); renderAgenda(); atualizarTopo(); break;
     case 'sair': sair(); break;
     case 'sel-dia': dataSel = el.dataset.data; renderAgenda(); atualizarTopo(); break;
@@ -2109,44 +1638,19 @@ document.addEventListener('click', async (e) => {
     case 'cal-mes': abrirCalendario(el.dataset.mes); break;
     case 'cal-escolher': dataSel = el.dataset.data; modoAgenda = 'dia'; fecharSheet(); if (viewAtual !== 'agenda') trocarView('agenda'); else { renderAgenda(); atualizarTopo(); } break;
     case 'abrir-ag': abrirAgendamento(id); break;
-    case 'finalizar': abrirFinalizar(id); break;
     case 'reagendar': abrirReagendar(id); break;
     case 'status': {
       const st = el.dataset.status;
       if (st === 'cancelado' && !(await confirmar('Cancelar este agendamento?', 'O horário volta a ficar livre na agenda.', 'Cancelar agendamento'))) return;
       const campos = { status: st };
-      if (st === 'confirmado') campos.pagamento = null;
-      if (await atualizarRegistro('agendamentos', id, campos)) { fecharSheet(); toast(st === 'confirmado' ? 'Agendamento reaberto' : 'Marcado como ' + ROTULOS_STATUS[st].toLowerCase()); }
+      if (await atualizarRegistro('agendamentos', id, campos)) { fecharSheet(); toast(st === 'confirmado' ? 'Agendamento reaberto' : st === 'concluido' ? 'Atendimento concluído ✓' : 'Marcado como ' + ROTULOS_STATUS[st].toLowerCase()); }
       break;
     }
     case 'excluir-ag':
-      if (!(await confirmar('Excluir este agendamento?', 'Ele some da agenda, do histórico do cliente e do financeiro. Não dá pra desfazer.', 'Excluir'))) return;
+      if (!(await confirmar('Excluir este agendamento?', 'Ele some da agenda de vez. Não dá pra desfazer.', 'Excluir'))) return;
       if (await removerRegistro('agendamentos', id)) { fecharSheet(); toast('Agendamento excluído'); }
       break;
     case 'lembrar-todos': abrirLembrarTodos(el.dataset.data); break;
-    case 'abrir-cliente': abrirCliente(el.dataset.chave); break;
-    case 'agendar-cliente': abrirNovoAgendamento({ chaveCli: el.dataset.chave }); break;
-    case 'editar-cliente': abrirEditarCliente(el.dataset.chave); break;
-    case 'remover-cadastro':
-      if (!(await confirmar('Apagar a ficha do cliente?', 'O aniversário e a observação são apagados. Os agendamentos dele continuam.', 'Apagar ficha'))) return;
-      if (await removerRegistro('clientes', id)) { fecharSheet(); toast('Ficha apagada'); }
-      break;
-    case 'filtro-clientes': filtroClientes = el.dataset.f; renderListaClientes(); break;
-    case 'mes-fin': mesFinanceiro = somarMeses(mesFinanceiro, Number(el.dataset.n)); renderFinanceiro(); break;
-    case 'editar-meta': abrirEditarMeta(); break;
-    case 'remover-despesa': {
-      const d = estado.despesas.find((x) => x.id === id);
-      if (d && d.fixa) {
-        if (!(await confirmar('Encerrar despesa fixa?', 'Ela para de se repetir a partir deste mês. Os meses anteriores continuam com ela.', 'Encerrar'))) return;
-        const ok = d.data.slice(0, 7) >= mesFinanceiro ? await removerRegistro('despesas', id) : await atualizarRegistro('despesas', id, { encerradaEm: mesFinanceiro });
-        if (ok) toast('Despesa fixa encerrada');
-      } else {
-        if (!(await confirmar('Remover esta despesa?', 'Ela sai do financeiro deste mês.', 'Remover'))) return;
-        if (await removerRegistro('despesas', id)) toast('Despesa removida');
-      }
-      break;
-    }
-    case 'periodo': periodoRelatorio = el.dataset.p; renderRelatorios(); break;
     case 'sub-mais': subMais = el.dataset.sub || null; montarMais(); atualizarTopo(); window.scrollTo({ top: 0 }); break;
     case 'remover-bloqueio':
       if (await removerRegistro('bloqueios', id)) { renderListaBloqueios(); toast('Bloqueio removido'); }
@@ -2156,7 +1660,7 @@ document.addEventListener('click', async (e) => {
 });
 
 /* =========================================================
-   13. LOGIN DO DONO (Firebase)
+   10. LOGIN DO DONO (Firebase)
    ========================================================= */
 if (auth) {
   auth.onAuthStateChanged(async (user) => {
@@ -2173,7 +1677,7 @@ if (auth) {
 }
 
 /* =========================================================
-   14. DADOS DE EXEMPLO (só no modo prévia)
+   11. DADOS DE EXEMPLO (só no modo prévia)
    ========================================================= */
 function semearDemo() {
   let semente = 7;
@@ -2185,7 +1689,6 @@ function semearDemo() {
   const hoje = hojeISO();
   const servs = CONFIG_PAINEL.servicos;
   const peso = ['corte', 'corte', 'corte', 'combo', 'combo', 'barba', 'navalha', 'sobrancelha'];
-  const formas = ['pix', 'pix', 'pix', 'dinheiro', 'debito', 'credito'];
   const ags = [];
   const usados = new Set();
   const add = (data, min, cli, servId, status, extra = {}) => {
@@ -2197,17 +1700,16 @@ function semearDemo() {
       barbeiroId: 'rickelme', barbeiroNome: 'Rickelme', clienteNome: cli.nome, telefone: cli.tel, obs: '', status,
       origem: rnd() < 0.55 ? 'site' : 'painel', criadoEm: Date.now(), ...extra,
     };
-    if (status === 'concluido') ag.pagamento = { forma: escolher(formas), valor: s.preco };
     ags.push(ag);
   };
   const horas = [540, 600, 660, 840, 900, 960, 1020, 1080];
-  // passado: ~80 dias de atendimentos (os 3 últimos clientes "somem" há 40+ dias)
-  for (let d = -80; d < 0; d++) {
+  // passado: alguns dias de atendimentos (servem pra completar nomes ao agendar)
+  for (let d = -14; d < 0; d++) {
     const iso = somarDiasISO(hoje, d);
     if (diaSemana(iso) === 0) continue;
     const n = 2 + Math.floor(rnd() * 4);
     for (let k = 0; k < n; k++) {
-      const cli = d < -40 ? escolher(clientes) : escolher(clientes.slice(0, 11));
+      const cli = escolher(clientes.slice(0, 11));
       const st = rnd() < 0.07 ? 'faltou' : rnd() < 0.06 ? 'cancelado' : 'concluido';
       add(iso, escolher(horas), cli, escolher(peso), st);
     }
@@ -2226,18 +1728,6 @@ function semearDemo() {
     for (let k = 0; k < n; k++) add(iso, escolher(horas), escolher(clientes.slice(0, 11)), escolher(peso), 'confirmado');
   }
   estado.agendamentos = ags;
-  const mesAtual = hoje.slice(5, 7);
-  estado.clientes = [
-    { id: gerarId(), nome: clientes[1].nome, telefone: clientes[1].tel, aniversario: `${mesAtual}-${String(Math.min(28, Number(hoje.slice(8)) + 3)).padStart(2, '0')}`, obs: 'Prefere ser atendido de manhã' },
-    { id: gerarId(), nome: clientes[3].nome, telefone: clientes[3].tel, aniversario: `${mesAtual}-${hoje.slice(8)}`, obs: '' },
-  ];
-  const ym = hoje.slice(0, 7);
-  estado.despesas = [
-    { id: gerarId(), descricao: 'Aluguel do salão', valor: 900, data: somarMeses(ym, -3) + '-05', categoria: 'Aluguel', fixa: true },
-    { id: gerarId(), descricao: 'Internet', valor: 99.9, data: somarMeses(ym, -3) + '-10', categoria: 'Internet', fixa: true },
-    { id: gerarId(), descricao: 'Lâminas e pós-barba', valor: 186.5, data: ym + '-03', categoria: 'Produtos', fixa: false },
-    { id: gerarId(), descricao: 'Conta de luz', valor: 214.3, data: ym + '-12', categoria: 'Energia', fixa: false },
-  ];
   const proxBloq = (() => { let d = 4; while (diaSemana(somarDiasISO(hoje, d)) === 0) d++; return somarDiasISO(hoje, d); })();
   estado.bloqueios = [
     { id: gerarId(), data: proxBloq, diaTodo: false, inicio: '17:00', fim: '19:00', motivo: 'Consulta médica' },
@@ -2246,13 +1736,12 @@ function semearDemo() {
 }
 
 /* =========================================================
-   15. INICIALIZAÇÃO
+   12. INICIALIZAÇÃO
    ========================================================= */
 function inicializarApp() {
   if (DEMO) { document.getElementById('faixa-demo').hidden = false; semearDemo(); }
   else if (!modoRemoto) carregarLocais();
   dataSel = hojeISO();
-  mesFinanceiro = dataSel.slice(0, 7);
   trocarView('agenda');
   carregarCatalogoRemoto();
 }
