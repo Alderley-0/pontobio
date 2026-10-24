@@ -286,6 +286,16 @@ img.barbeiro-avatar{object-fit:cover;object-position:60% 35%}
   padding:.55rem 1rem;font-size:.85rem;font-weight:600;width:100%;
 }
 .agendamentos-vazio{text-align:center;color:var(--texto-dim);padding:2.5rem 1rem;font-size:.92rem}
+.btn-avisar{
+  display:block;text-align:center;text-decoration:none;background:transparent;border:1px solid #3a6b48;color:#8fd3a2;
+  border-radius:999px;padding:.6rem 1rem;font-size:.86rem;font-weight:700;width:100%;
+}
+.aviso-cancelado{
+  background:rgba(224,100,90,.1);border:1px solid var(--erro);border-radius:12px;padding:1rem;margin-bottom:1rem;
+  font-size:.9rem;line-height:1.5;display:flex;flex-direction:column;gap:.75rem;
+}
+.aviso-cancelado b{color:var(--texto)}
+.aviso-cancelado .btn-avisar{background:#25d366;border-color:#25d366;color:#06240f;padding:.8rem 1rem;font-size:.95rem}
 </style>
 </head>
 <body>
@@ -1025,11 +1035,19 @@ function converterAgendamentoRemoto(doc) {
   return {
     id: doc.id, servicoNome: d.servicoNome, servicoPreco: d.servicoPreco,
     barbeiroNome: d.barbeiroNome, data: d.data, horarioMin: d.horarioMin,
-    status: d.status, remoto: true,
+    clienteNome: d.clienteNome, status: d.status, remoto: true,
   };
 }
 
 let listaAgendamentosAtual = [];
+let avisoCancelamentoId = null; // horário que o cliente acabou de cancelar
+
+function linkAvisoCancelamento(ag) {
+  const nome = (ag.nome || ag.clienteNome || '').trim();
+  const mensagem = `Olá!${nome ? ' Aqui é ' + nome + '.' : ''} Precisei cancelar meu horário de `
+    + `${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)} (${ag.servicoNome}). Desculpa o transtorno!`;
+  return linkWhatsApp(BARBEARIA.whatsapp, mensagem);
+}
 
 async function renderMeusAgendamentos() {
   const corpo = montarOverlay('Meus agendamentos', '<p class="agendamentos-vazio">Carregando…</p>', 'overlay-meus');
@@ -1058,7 +1076,13 @@ async function renderMeusAgendamentos() {
     return;
   }
 
-  corpo.innerHTML = `<div class="lista-agendamentos">${ordenados.map((ag) => {
+  const recemCancelado = ordenados.find((a) => a.id === avisoCancelamentoId && a.status === 'cancelado');
+  const aviso = recemCancelado ? `<div class="aviso-cancelado" role="status">
+      <span><b>Horário cancelado.</b> Agora avise a barbearia: toque no botão abaixo e o WhatsApp abre com a mensagem pronta, é só enviar.</span>
+      <a class="btn-avisar" href="${linkAvisoCancelamento(recemCancelado)}" target="_blank" rel="noopener">Enviar aviso de cancelamento</a>
+    </div>` : '';
+
+  corpo.innerHTML = aviso + `<div class="lista-agendamentos">${ordenados.map((ag) => {
     const passado = ag.data < hojeISO || (ag.data === hojeISO && ag.horarioMin < agoraMin);
     const finalizado = ag.status === 'cancelado' || ag.status === 'concluido' || ag.status === 'faltou';
     const rotuloStatus = ROTULOS_STATUS_CLIENTE[ag.status] || (passado ? 'Já passou' : 'Aguardando confirmação');
@@ -1077,6 +1101,9 @@ async function renderMeusAgendamentos() {
         </div>
         ${podeCancelar ? `<div class="agendamento-acoes">
           <button class="btn-cancelar" data-id="${ag.id}" type="button">Cancelar horário</button>
+        </div>` : ''}
+        ${ag.status === 'cancelado' && !passado && ag.id !== avisoCancelamentoId ? `<div class="agendamento-acoes">
+          <a class="btn-avisar" href="${linkAvisoCancelamento(ag)}" target="_blank" rel="noopener">Avisar a barbearia pelo WhatsApp</a>
         </div>` : ''}
       </div>`;
   }).join('')}</div>`;
@@ -1100,8 +1127,9 @@ async function cancelarAgendamento(id) {
     cancelarAgendamentoRemoto(ag);
   }
 
-  const mensagem = `Olá! Preciso cancelar meu agendamento (${ag.servicoNome}) de ${formatarDataLonga(ag.data)} às ${paraHHMM(ag.horarioMin)}. Obrigado!`;
-  window.open(linkWhatsApp(BARBEARIA.whatsapp, mensagem), '_blank');
+  // O aviso pelo WhatsApp sai por um botão que o próprio cliente toca:
+  // abrir o WhatsApp sozinho depois do cancelamento é bloqueado no celular.
+  avisoCancelamentoId = id;
   renderMeusAgendamentos();
 }
 
