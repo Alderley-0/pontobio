@@ -70,6 +70,12 @@ h1,h2,h3{font-family:"Montserrat",system-ui,sans-serif;letter-spacing:.02em}
 .login-caixa input + input{margin-top:.6rem}
 .login-caixa .btn-primario{width:100%;margin-top:1rem}
 .login-erro{color:var(--erro);font-size:.85rem;margin-top:.8rem}
+.login-sucesso{color:var(--sucesso);font-size:.85rem;margin-top:.8rem;line-height:1.4}
+.login-link{
+  background:none;border:0;color:var(--texto-dim);font-size:.82rem;text-decoration:underline;
+  margin-top:1rem;padding:.3rem;
+}
+.login-link:disabled{opacity:.6;text-decoration:none}
 
 /* ---------- Estrutura do app ---------- */
 .faixa-demo{
@@ -394,6 +400,8 @@ details.avancado textarea{
     <input type="password" id="in-senha" placeholder="Senha" autocomplete="current-password">
     <button class="btn-primario" id="btn-entrar" type="button">Entrar</button>
     <p class="login-erro" id="login-erro" hidden>Senha incorreta.</p>
+    <p class="login-sucesso" id="login-sucesso" hidden></p>
+    <button class="login-link" id="btn-esqueci-senha" type="button" hidden>Esqueci minha senha</button>
   </div>
 </div>
 
@@ -774,6 +782,7 @@ function mostrarErroLogin(texto) { const el = document.getElementById('login-err
 async function tentarEntrar() {
   const senha = document.getElementById('in-senha').value;
   document.getElementById('login-erro').hidden = true;
+  document.getElementById('login-sucesso').hidden = true;
   if (firebaseConfigurado) {
     const email = document.getElementById('in-email').value.trim();
     if (!email || !senha) { mostrarErroLogin('Preencha e-mail e senha.'); return; }
@@ -800,7 +809,30 @@ document.getElementById('in-email').addEventListener('keydown', (e) => { if (e.k
 if (firebaseConfigurado) {
   document.getElementById('in-email').hidden = false;
   document.getElementById('login-instrucao').textContent = 'Painel do dono — entre com sua conta';
+  document.getElementById('btn-esqueci-senha').hidden = false;
 }
+
+async function recuperarSenha() {
+  const email = document.getElementById('in-email').value.trim();
+  const erroEl = document.getElementById('login-erro');
+  const sucessoEl = document.getElementById('login-sucesso');
+  erroEl.hidden = true;
+  sucessoEl.hidden = true;
+  if (!email) { mostrarErroLogin('Digite seu e-mail ali em cima primeiro.'); return; }
+  const btn = document.getElementById('btn-esqueci-senha');
+  btn.disabled = true;
+  try {
+    await auth.sendPasswordResetEmail(email);
+    sucessoEl.textContent = `Enviamos um link pra ${email}. Abra o e-mail e defina sua senha nova por lá.`;
+    sucessoEl.hidden = false;
+  } catch (e) {
+    mostrarErroLogin('Não conseguimos enviar o e-mail. Confira se o endereço está certo.');
+  } finally {
+    btn.disabled = false;
+  }
+}
+document.getElementById('btn-esqueci-senha').addEventListener('click', recuperarSenha);
+
 function sair() {
   limparLogin();
   if (DEMO) { location.reload(); return; }
