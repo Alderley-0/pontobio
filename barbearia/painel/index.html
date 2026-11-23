@@ -405,6 +405,17 @@ details.avancado textarea{
   </div>
 </div>
 
+<div class="tela-login" id="tela-troca-senha" style="z-index:50" hidden>
+  <div class="login-caixa">
+    <h1>Defina sua senha</h1>
+    <p>Você entrou com uma senha provisória. Escolha uma senha sua antes de continuar.</p>
+    <input type="password" id="in-nova-senha" placeholder="Nova senha (mín. 6 caracteres)" autocomplete="new-password">
+    <input type="password" id="in-confirmar-senha" placeholder="Confirme a nova senha" autocomplete="new-password">
+    <button class="btn-primario" id="btn-salvar-nova-senha" type="button">Salvar nova senha</button>
+    <p class="login-erro" id="troca-senha-erro" hidden></p>
+  </div>
+</div>
+
 <div id="app-painel" hidden>
   <div class="faixa-demo" id="faixa-demo" hidden>Prévia com dados de exemplo — nada do que você fizer aqui é salvo</div>
   <header class="topo">
@@ -499,6 +510,7 @@ const CONFIG_PAINEL = {
 const PREFS_PADRAO = {
   msgConfirmacao: 'Olá, {nome}! Seu horário na {barbearia} está confirmado: {servico} {data} às {hora}. Qualquer imprevisto é só avisar por aqui. 💈',
   msgLembrete: 'Oi, {nome}! Passando pra lembrar do seu horário {data} às {hora} ({servico}) na {barbearia}. Te espero!',
+  senhaProvisoria: false, // true = conta criada com senha provisória; força a troca no próximo login
 };
 
 const ROTULOS_STATUS = { confirmado: 'Agendado', concluido: 'Concluído', cancelado: 'Cancelado', faltou: 'Faltou' };
@@ -717,10 +729,47 @@ function iniciarListenersRemotos() {
   }
   pararListeners.push(db.collection('painelDono').doc('config').onSnapshot((doc) => {
     if (doc.exists) prefs = { ...PREFS_PADRAO, ...doc.data() };
+    verificarSenhaProvisoria();
     renderAtual();
   }, () => {}));
 }
 function pararListenersRemotos() { while (pararListeners.length) pararListeners.pop()(); }
+
+/* ---------- Troca de senha obrigatória (conta criada com senha provisória) ---------- */
+function verificarSenhaProvisoria() {
+  const tela = document.getElementById('tela-troca-senha');
+  tela.hidden = !prefs.senhaProvisoria;
+  document.body.style.overflow = prefs.senhaProvisoria ? 'hidden' : '';
+}
+
+async function salvarNovaSenha() {
+  const nova = document.getElementById('in-nova-senha').value;
+  const confirmar = document.getElementById('in-confirmar-senha').value;
+  const erroEl = document.getElementById('troca-senha-erro');
+  erroEl.hidden = true;
+  if (nova.length < 6) { erroEl.textContent = 'A senha precisa ter pelo menos 6 caracteres.'; erroEl.hidden = false; return; }
+  if (nova !== confirmar) { erroEl.textContent = 'As duas senhas não são iguais.'; erroEl.hidden = false; return; }
+  const btn = document.getElementById('btn-salvar-nova-senha');
+  btn.disabled = true;
+  try {
+    await auth.currentUser.updatePassword(nova);
+    await salvarPrefs({ senhaProvisoria: false });
+    verificarSenhaProvisoria();
+    toast('Senha definida com sucesso!');
+  } catch (e) {
+    if (e.code === 'auth/requires-recent-login') {
+      erroEl.textContent = 'Por segurança, saia e entre de novo com a senha provisória antes de trocar.';
+    } else {
+      erroEl.textContent = 'Não foi possível salvar: ' + (e.message || e.code);
+    }
+    erroEl.hidden = false;
+  } finally {
+    btn.disabled = false;
+  }
+}
+document.getElementById('btn-salvar-nova-senha').addEventListener('click', salvarNovaSenha);
+document.getElementById('in-confirmar-senha').addEventListener('keydown', (e) => { if (e.key === 'Enter') salvarNovaSenha(); });
+
 
 /* ---------- Derivados ---------- */
 function servicoDe(ag) { return acharServico(ag.servicoId); }
