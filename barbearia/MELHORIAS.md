@@ -26,44 +26,29 @@ mesma regra pra quem tem conta e pra quem agenda sem conta (hoje só quem tem
 conta cancela direto pelo site — ver `barbearia/index.html`), e se o dono
 deve poder ajustar esse número pelo painel (Catálogo) ou só no código.
 
-### 2. Modo cronômetro (início/fim do corte, estilo Uber)
+### 2. Modo cronômetro (início/fim do corte, estilo Uber) — ✅ implementado (versão de teste)
 
 A referência é exatamente a corrida do Uber: o motorista aperta "iniciar
-corrida" e "encerrar corrida", e o sistema reage ao tempo real gasto. Aqui
-seria igual — o barbeiro aperta **"Iniciar corte"** no agendamento que está
-atendendo e **"Finalizar corte"** quando termina.
+corrida" e "encerrar corrida", e o sistema reage ao tempo real gasto. No
+painel, o barbeiro aperta **"Iniciar corte"** no agendamento que está
+atendendo e **"Finalizar corte"** quando termina (botões na ficha do
+agendamento, em `barbearia/painel/index.html`).
 
-O que acontece ao finalizar:
+Como ficou, depois de decidido com o dono:
+1. Ao finalizar, o sistema compara a duração real (do "iniciar" ao
+   "finalizar") com a duração prevista do serviço — pra mais cedo ou pra
+   mais tarde (atraso), os dois casos tratados igual.
+2. **Não desloca sozinho.** Se há agendamentos seguintes do mesmo barbeiro
+   no mesmo dia, abre uma tela mostrando o horário atual → novo horário de
+   cada um, com caixinha pra desmarcar quem não deve mudar. Só altera a
+   agenda depois do dono confirmar.
+3. Depois de confirmar, abre uma lista com um botão de WhatsApp pronto por
+   cliente afetado (mensagem configurável em Mais → Mensagens do WhatsApp),
+   pra avisar manualmente — não é envio automático/push.
 
-1. O sistema compara a duração real (do "iniciar" ao "finalizar") com a
-   duração prevista do serviço.
-2. Se terminou **mais cedo**, os agendamentos seguintes do mesmo dia (do
-   mesmo barbeiro) são **deslocados pra mais cedo** automaticamente, na
-   mesma folga que sobrou.
-3. Os clientes que já tinham agendado esses horários deslocados recebem um
-   **aviso automático** de que o horário deles mudou pra um momento antes
-   do combinado (push, pra quem tem conta e ativou avisos; WhatsApp, pra
-   quem não tem).
-
-Também serve como dado histórico: comparar a duração real x duração
-cadastrada de cada serviço (ex.: "Corte" está cadastrado como 30 min, mas na
-prática o Carlos faz em 22 min em média) — útil pra ajustar os tempos no
-Catálogo com o tempo.
-
-Pontos a decidir quando for implementar:
-- **Deslocar automaticamente ou só sugerir?** Mudar o horário de alguém sem
-  perguntar é um reajuste e tanto — talvez o primeiro passo seja só avisar
-  o dono ("sobrou 8 min, quer adiantar o próximo cliente?") antes de mexer
-  sozinho na agenda.
-- **O cliente precisa confirmar o novo horário, ou só é avisado?** Um
-  cliente pode não conseguir chegar mais cedo.
-  - **E se demorar mais que o previsto?** O mesmo mecanismo, ao contrário —
-  atrasar os próximos horários e avisar quem vem depois. O usuário só citou
-  o caso de terminar antes, mas o atraso é o cenário mais comum na prática
-  e provavelmente pede a mesma solução.
-- Depende de ter o Firebase configurado (pra agenda sincronizada entre
-  aparelhos) e, pro aviso automático sem o painel aberto, dos avisos push
-  (Cloud Functions, plano Blaze) — ver README da pasta `barbearia/`.
+Fica como dado histórico nos próprios campos do agendamento
+(`horaInicioReal`/`horaFimReal`), mas ainda não tem uma tela comparando
+duração real × cadastrada por serviço — pode ser uma próxima melhoria.
 
 ---
 
