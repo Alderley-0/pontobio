@@ -510,6 +510,7 @@ const CONFIG_PAINEL = {
 const PREFS_PADRAO = {
   msgConfirmacao: 'Olá, {nome}! Seu horário na {barbearia} está confirmado: {servico} {data} às {hora}. Qualquer imprevisto é só avisar por aqui. 💈',
   msgLembrete: 'Oi, {nome}! Passando pra lembrar do seu horário {data} às {hora} ({servico}) na {barbearia}. Te espero!',
+  msgHorarioAtualizado: 'Oi, {nome}! Precisei ajustar a agenda aqui na {barbearia}: seu horário de {servico} mudou pra {hora} {data}. Consegue vir nesse novo horário? Qualquer problema me avisa por aqui!',
   senhaProvisoria: false, // true = conta criada com senha provisória; força a troca no próximo login
 };
 
@@ -525,6 +526,10 @@ const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' 
 const formatarPreco = (v) => BRL.format(Number(v) || 0);
 const paraMinutos = (hhmm) => { const [h, m] = String(hhmm).split(':').map(Number); return h * 60 + m; };
 const paraHHMM = (min) => `${String(Math.floor(min / 60)).padStart(2, '0')}:${String(min % 60).padStart(2, '0')}`;
+function minutosDoTimestamp(ts) {
+  const p = new Intl.DateTimeFormat('en-GB', { timeZone: CONFIG_PAINEL.fuso, hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(ts));
+  return paraMinutos(p);
+}
 const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : s;
 const gerarId = () => 'id_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const slugify = (t) => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase()
@@ -1155,7 +1160,13 @@ function abrirAgendamento(id) {
   if (!ag) return;
   const dadosMsg = { nome: ag.clienteNome, data: ag.data, hora: paraHHMM(ag.horarioMin), servico: nomeServicoDe(ag), barbeiro: ag.barbeiroNome };
   let acoes = '';
+  let cronometro = '';
   if (ag.status === 'confirmado') {
+    const emAndamento = !!ag.horaInicioReal && !ag.horaFimReal;
+    cronometro = emAndamento
+      ? `<div class="dim" style="font-size:.8rem;margin-bottom:.5rem">⏱ Em andamento desde ${paraHHMM(minutosDoTimestamp(ag.horaInicioReal))}</div>
+        <button class="btn cheio largo" type="button" data-acao="finalizar-corte" data-id="${escaparHTML(ag.id)}">■ Finalizar corte</button>`
+      : `<button class="btn largo" type="button" data-acao="iniciar-corte" data-id="${escaparHTML(ag.id)}">▶ Iniciar corte</button>`;
     acoes = `
       <button class="btn cheio largo" type="button" data-acao="status" data-status="concluido" data-id="${escaparHTML(ag.id)}">✓ Concluir atendimento</button>
       ${ag.telefone ? `<a class="btn zap" href="${linkWhatsApp(ag.telefone, preencherModelo(prefs.msgConfirmacao, dadosMsg))}" target="_blank" rel="noopener">Confirmar no Whats</a>
@@ -1185,6 +1196,7 @@ function abrirAgendamento(id) {
       <div class="ficha-linha"><span>Origem</span><span>${ag.origem === 'site' ? 'Agendado pelo site' : 'Lançado no painel'}</span></div>
       ${ag.obs ? `<div class="ficha-linha"><span>Observação</span><span style="font-weight:500">${escaparHTML(ag.obs)}</span></div>` : ''}
     </div>
+    ${cronometro ? `<div style="margin-top:1rem">${cronometro}</div>` : ''}
     <div class="grade-acoes">${acoes}</div>`);
 }
 
@@ -1233,6 +1245,97 @@ function ligarSugestoes(caixa, inData, inHora, ignorarId) {
   inData.addEventListener('change', desenhar);
   inHora.addEventListener('change', desenhar);
   desenhar();
+}
+
+/* ---------- Cronômetro (iniciar/finalizar corte, estilo Uber) ---------- */
+async function finalizarCorte(id) {
+  const ag = estado.agendamentos.find((a) => a.id === id);
+  if (!ag) return;
+  const inicio = ag.horaInicioReal || Date.now();
+  const fim = Date.now();
+  const duracaoReal = Math.max(1, Math.round((fim - inicio) / 60000));
+  const prevista = duracaoDe(ag);
+  const deltaMin = prevista - duracaoReal; // > 0: terminou mais cedo · < 0: atrasou
+
+  const ok = await atualizarRegistro('agendamentos', id, {
+    horaInicioReal: inicio, horaFimReal: fim, status: 'concluido', canceladoPor: null,
+  });
+  if (!ok) return;
+
+  if (!deltaMin) { fecharSheet(); toast(`Atendimento concluído ✓ (durou os ${duracaoReal} min previstos)`); return; }
+
+  const seguintes = agsDoDia(ag.data).filter((a) =>
+    a.id !== ag.id && a.barbeiroId === ag.barbeiroId && a.status === 'confirmado' && a.horarioMin > ag.horarioMin);
+
+  if (!seguintes.length) {
+    fecharSheet();
+    toast(deltaMin > 0
+      ? `Atendimento concluído ✓ (${duracaoReal} min, ${deltaMin} min antes do previsto)`
+      : `Atendimento concluído ✓ (${duracaoReal} min, ${Math.abs(deltaMin)} min além do previsto)`);
+    return;
+  }
+
+  abrirAjusteHorarios(ag, seguintes, deltaMin, duracaoReal);
+}
+
+function abrirAjusteHorarios(ag, seguintes, deltaMin, duracaoReal) {
+  const cedo = deltaMin > 0;
+  const minutos = Math.abs(deltaMin);
+  const linhas = seguintes.map((s) => {
+    const novoMin = s.horarioMin - deltaMin;
+    return `<label style="display:flex;align-items:center;gap:.7rem;padding:.55rem 0;border-bottom:1px solid var(--borda)">
+      <input type="checkbox" data-ajuste-id="${escaparHTML(s.id)}" data-novo-min="${novoMin}" checked>
+      <span style="flex:1">
+        <b>${escaparHTML(s.clienteNome)}</b> · ${escaparHTML(nomeServicoDe(s))}<br>
+        <span class="dim tabular" style="font-size:.85rem">${paraHHMM(s.horarioMin)} → <b>${paraHHMM(novoMin)}</b></span>
+      </span>
+    </label>`;
+  }).join('');
+  abrirSheet(cedo ? 'Adiantar próximos horários?' : 'Atrasar próximos horários?', `
+    <p style="font-size:.92rem">${cedo
+      ? `O corte durou ${duracaoReal} min, ${minutos} min menos que o previsto. Quer adiantar os agendamentos seguintes de ${escaparHTML(ag.barbeiroNome || 'hoje')} em ${minutos} min?`
+      : `O corte durou ${duracaoReal} min, ${minutos} min além do previsto. Os agendamentos seguintes de ${escaparHTML(ag.barbeiroNome || 'hoje')} vão atrasar ${minutos} min. Quer atualizar os horários deles?`}</p>
+    <p class="dim" style="font-size:.78rem">Desmarque quem não deve mudar. Nada é alterado até você confirmar.</p>
+    <div style="margin-top:.6rem">${linhas}</div>
+    <div class="grade-acoes" style="margin-top:1rem">
+      <button class="btn" type="button" data-acao="fechar-sheet">Manter como está</button>
+      <button class="btn-primario" type="button" id="btn-confirmar-ajuste">Confirmar novos horários</button>
+    </div>`, (corpo) => {
+    corpo.querySelector('#btn-confirmar-ajuste').addEventListener('click', async () => {
+      const marcados = [...corpo.querySelectorAll('input[data-ajuste-id]:checked')];
+      const afetados = [];
+      for (const chk of marcados) {
+        const sid = chk.dataset.ajusteId;
+        const novoMin = Number(chk.dataset.novoMin);
+        if (await atualizarRegistro('agendamentos', sid, { horarioMin: novoMin })) {
+          const s = seguintes.find((x) => x.id === sid);
+          if (s) afetados.push({ ...s, horarioMin: novoMin });
+        }
+      }
+      fecharSheet();
+      renderAtual();
+      if (!afetados.length) { toast('Nenhum horário alterado'); return; }
+      abrirAvisarAfetados(afetados);
+    });
+  });
+}
+
+function abrirAvisarAfetados(afetados) {
+  const linhas = afetados.map((a) => {
+    const msg = preencherModelo(prefs.msgHorarioAtualizado, {
+      nome: a.clienteNome, data: a.data, hora: paraHHMM(a.horarioMin), servico: nomeServicoDe(a), barbeiro: a.barbeiroNome,
+    });
+    return `<div class="linha-compacta" style="align-items:center">
+      <span><b>${escaparHTML(a.clienteNome)}</b><br><span class="dim tabular" style="font-size:.85rem">Novo horário: ${paraHHMM(a.horarioMin)}</span></span>
+      ${a.telefone
+        ? `<a class="btn zap" href="${linkWhatsApp(a.telefone, msg)}" target="_blank" rel="noopener">Avisar no Whats</a>`
+        : '<span class="dim" style="font-size:.8rem">sem WhatsApp</span>'}
+    </div>`;
+  }).join('');
+  abrirSheet('Avisar clientes', `
+    <p class="dim" style="font-size:.88rem">Horários atualizados na agenda. Toque pra abrir o WhatsApp já com o aviso pronto pra cada cliente.</p>
+    <div style="margin-top:.6rem">${linhas}</div>
+    <div class="grade-acoes" style="margin-top:1rem"><button class="btn largo" type="button" data-acao="fechar-sheet">Fechar</button></div>`);
 }
 
 /* ---------- Novo agendamento ---------- */
@@ -1382,17 +1485,18 @@ function montarMais() {
       <form id="form-msgs" style="margin-top:1rem">
         ${campo('msgConfirmacao', 'Confirmação de agendamento')}
         ${campo('msgLembrete', 'Lembrete do horário')}
+        ${campo('msgHorarioAtualizado', 'Aviso de horário atualizado (cronômetro)')}
         <button class="btn-primario" type="submit">Salvar mensagens</button>
         <button class="btn-texto" type="button" id="msgs-padrao" style="margin-top:.8rem">Voltar aos textos padrão</button>
       </form>`;
     document.getElementById('form-msgs').addEventListener('submit', async (e) => {
       e.preventDefault();
       const novas = {};
-      ['msgConfirmacao', 'msgLembrete'].forEach((k) => { novas[k] = document.getElementById('msg-' + k).value.trim() || PREFS_PADRAO[k]; });
+      ['msgConfirmacao', 'msgLembrete', 'msgHorarioAtualizado'].forEach((k) => { novas[k] = document.getElementById('msg-' + k).value.trim() || PREFS_PADRAO[k]; });
       await salvarPrefs(novas); toast('Mensagens salvas');
     });
     document.getElementById('msgs-padrao').addEventListener('click', () => {
-      ['msgConfirmacao', 'msgLembrete'].forEach((k) => { document.getElementById('msg-' + k).value = PREFS_PADRAO[k]; });
+      ['msgConfirmacao', 'msgLembrete', 'msgHorarioAtualizado'].forEach((k) => { document.getElementById('msg-' + k).value = PREFS_PADRAO[k]; });
     });
   }
   if (subMais === 'ajuda') {
@@ -1842,6 +1946,10 @@ document.addEventListener('click', async (e) => {
     case 'cal-escolher': dataSel = el.dataset.data; modoAgenda = 'dia'; fecharSheet(); if (viewAtual !== 'agenda') trocarView('agenda'); else { renderAgenda(); atualizarTopo(); } break;
     case 'abrir-ag': abrirAgendamento(id); break;
     case 'reagendar': abrirReagendar(id); break;
+    case 'iniciar-corte':
+      if (await atualizarRegistro('agendamentos', id, { horaInicioReal: Date.now(), horaFimReal: null })) { toast('Corte iniciado ⏱'); abrirAgendamento(id); }
+      break;
+    case 'finalizar-corte': await finalizarCorte(id); break;
     case 'status': {
       const st = el.dataset.status;
       if (st === 'cancelado' && !(await confirmar('Cancelar este agendamento?', 'O horário volta a ficar livre na agenda.', 'Cancelar agendamento'))) return;
