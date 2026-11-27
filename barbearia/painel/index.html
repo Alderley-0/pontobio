@@ -487,11 +487,21 @@ const CONFIG_PAINEL = {
   intervaloMin: 30,          // tamanho de cada horário na grade da agenda
   // Mesma lista de serviços e barbeiros do site público (barbearia/index.html).
   servicos: [
-    { id: 'corte', nome: 'Corte', duracaoMin: 30, preco: 40 },
+    { id: 'selagem', nome: 'Selagem (a partir)', duracaoMin: 90, preco: 120 },
+    { id: 'botox-capilar', nome: 'Botox capilar (a partir)', duracaoMin: 90, preco: 100 },
+    { id: 'platinado', nome: 'Platinado (a partir)', duracaoMin: 90, preco: 100 },
+    { id: 'luzes', nome: 'Luzes (a partir)', duracaoMin: 60, preco: 85 },
+    { id: 'cavanhaque', nome: 'Cavanhaque', duracaoMin: 20, preco: 25 },
+    { id: 'depilacao-ouvido', nome: 'Depilação de ouvido', duracaoMin: 10, preco: 15 },
+    { id: 'depilacao-nariz', nome: 'Depilação de nariz', duracaoMin: 10, preco: 10 },
+    { id: 'hidratacao', nome: 'Hidratação (a partir)', duracaoMin: 30, preco: 25 },
+    { id: 'pigmentacao', nome: 'Pigmentação (a partir)', duracaoMin: 20, preco: 15 },
+    { id: 'pezinho', nome: 'Pezinho', duracaoMin: 15, preco: 15 },
+    { id: 'sobrancelhas', nome: 'Sobrancelhas', duracaoMin: 10, preco: 10 },
+    { id: 'mascara-black', nome: 'Máscara black', duracaoMin: 20, preco: 15 },
+    { id: 'limpeza-pele', nome: 'Limpeza de pele', duracaoMin: 30, preco: 25 },
+    { id: 'corte', nome: 'Corte', duracaoMin: 30, preco: 35 },
     { id: 'barba', nome: 'Barba', duracaoMin: 30, preco: 35 },
-    { id: 'combo', nome: 'Corte + Barba', duracaoMin: 60, preco: 65 },
-    { id: 'navalha', nome: 'Acabamento na navalha', duracaoMin: 20, preco: 20 },
-    { id: 'sobrancelha', nome: 'Sobrancelha', duracaoMin: 15, preco: 15 },
   ],
   barbeiros: [
     { id: 'rickelme', nome: 'Rickelme', especialidade: 'Corte, barba e acabamento', foto: 'rickelme.jpg' },
@@ -2001,7 +2011,7 @@ function semearDemo() {
   const clientes = nomes.map((n, i) => ({ nome: n, tel: '98900000' + String(100 + i).slice(-3) }));
   const hoje = hojeISO();
   const servs = CONFIG_PAINEL.servicos;
-  const peso = ['corte', 'corte', 'corte', 'combo', 'combo', 'barba', 'navalha', 'sobrancelha'];
+  const peso = ['corte', 'corte', 'corte', 'corte', 'barba', 'barba', 'sobrancelhas', 'pezinho', 'hidratacao', 'cavanhaque'];
   const ags = [];
   const usados = new Set();
   const add = (data, min, cli, servId, status, extra = {}) => {
@@ -2029,7 +2039,7 @@ function semearDemo() {
   }
   // hoje
   const agora = agoraMin();
-  [[540, 0, 'corte'], [600, 1, 'combo'], [720 - 60, 2, 'barba'], [870, 3, 'corte'], [960, 4, 'navalha'], [1050, 5, 'corte']].forEach(([m, i, s]) => {
+  [[540, 0, 'corte'], [600, 1, 'barba'], [720 - 60, 2, 'barba'], [870, 3, 'corte'], [960, 4, 'pezinho'], [1050, 5, 'corte']].forEach(([m, i, s]) => {
     add(hoje, m, clientes[i], s, m + 30 <= agora ? 'concluido' : 'confirmado');
   });
   ags.find((a) => a.data === hoje && a.horarioMin === 870).obs = 'Quer o degradê mais baixo nas laterais';
